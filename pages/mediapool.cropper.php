@@ -99,9 +99,11 @@ try {
             throw new CroppingException('EXCEPTION! NOT ALLOWED FILE TYPE NOT SUPPORTED'); // TODO text!
         }
 
+        $mtime = @filemtime(rex_url::media($mediaName));
+
         $panel .= '
             <div class="cropper_image_wrapper">
-                <img id="cropper_image" src="' . rex_url::media($mediaName) . '">
+                <img id="cropper_image" src="' . rex_url::media($mediaName) . '?buster=' . $mtime . '">
                 <div class="docs-buttons">
                     <div class="btn-group">
                       <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="move" data-toggle="tooltip" data-original-title="Move" data-animation="false">
