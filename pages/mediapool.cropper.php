@@ -166,9 +166,6 @@ try {
             <input type="hidden" id="dataScaleY" name="scaleY">';
 
 
-        $panel .= '<div class="cropper-info"><p><b>' . rex_i18n::msg('cropper_img_save_info_header') . '</b> ' . rex_i18n::msg('cropper_img_save_info') . '</p></div>';
-
-
         // JPG QUALITY
         $fragment = new rex_fragment();
         $fragment->setVar('elements', array(array(
