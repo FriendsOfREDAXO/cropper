@@ -135,22 +135,22 @@ try {
                 </div>
                 <div class="docs-toggles">
                     <div class="btn-group d-flex flex-nowrap" data-toggle="buttons">
-                      <label class="btn btn-primary" data-toggle="tooltip" data-animation="false" data-original-title="aspectRatio: ' . $media->getWidth() . ' / ' . $media->getHeight() . '">
+                      <label class="btn btn-primary" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: ' . $media->getWidth() . ' / ' . $media->getHeight() . '">
                         <input type="radio" class="sr-only" id="aspectRatio1" name="aspectRatio" value="' . str_replace(',', '.', ($media->getWidth() / $media->getHeight())) . '">Original
                       </label>
-                      <label class="btn btn-primary" data-toggle="tooltip" data-animation="false" data-original-title="aspectRatio: 16 / 9">
+                      <label class="btn btn-primary" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: 16 / 9">
                         <input type="radio" class="sr-only" id="aspectRatio2" name="aspectRatio" value="1.7777777777777777">16:9
                       </label>
-                      <label class="btn btn-primary" data-toggle="tooltip" data-animation="false" data-original-title="aspectRatio: 4 / 3">
+                      <label class="btn btn-primary" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: 4 / 3">
                         <input type="radio" class="sr-only" id="aspectRatio3" name="aspectRatio" value="1.3333333333333333">4:3
                       </label>
-                      <label class="btn btn-primary" data-toggle="tooltip" data-animation="false" data-original-title="aspectRatio: 1 / 1">
+                      <label class="btn btn-primary" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: 1 / 1">
                         <input type="radio" class="sr-only" id="aspectRatio4" name="aspectRatio" value="1">1:1
                       </label>
-                      <label class="btn btn-primary" data-toggle="tooltip" data-animation="false" data-original-title="aspectRatio: 2 / 3">
+                      <label class="btn btn-primary" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: 2 / 3">
                         <input type="radio" class="sr-only" id="aspectRatio5" name="aspectRatio" value="0.6666666666666666">2:3
                       </label>
-                      <label class="btn btn-primary active free" data-toggle="tooltip" data-animation="false" data-original-title="aspectRatio: NaN">
+                      <label class="btn btn-primary active free" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: NaN">
                         <input type="radio" class="sr-only" id="aspectRatio6" name="aspectRatio" value="NaN">Free
                       </label>
                     </div>
