@@ -65,8 +65,8 @@ try {
         $pngIn = ($media->getExtension() == 'png') ? ' in' : '';
         $jpgIn = ($media->getExtension() == 'jpg' or $media->getExtension() == 'jpeg') ? ' in' : '';
 
-        $jpgQuality = rex_request::request('jpg_quality', 'integer', rex_addon::get('media_manager')->getConfig('jpg_quality'));
-        $pngCompression = rex_request::request('png_compression', 'integer', rex_addon::get('media_manager')->getConfig('png_compression'));
+        $jpgQuality = rex_request::request('jpg_quality', 'integer', 100);
+        $pngCompression = rex_request::request('png_compression', 'integer', 9);
         $newFileExtension = rex_request::request('new_file_extension', 'string', null);
         $newFileName = rex_request::request('new_file_name', 'string', rex_escape(pathinfo($media->getFileName(), PATHINFO_FILENAME)));
 
