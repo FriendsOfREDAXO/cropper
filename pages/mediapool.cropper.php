@@ -5,6 +5,9 @@
  * Time: 12:04
  */
 
+use Cropper\CropperExecutor;
+use Cropper\CroppingException;
+
 $csrf = rex_csrf_token::factory('mediapool_structure');
 
 $allowedExtensions = array('jpg' => array('jpg', 'jpeg'), 'png' => array('png'), 'gif' => array('gif'));
@@ -15,38 +18,47 @@ $title = '';
 $class = 'edit';
 
 $backUrl = rex_url::backendPage('mediapool/media', array('file_id' => rex_request::request('file_id', 'integer'), 'rex_file_category' => rex_request::request('rex_file_category', 'integer')), false);
-$back = '<a class="cropper_back_to_media" href="'. $backUrl .'">'.rex_i18n::msg('cropper_back_to_media').'</a>';
-
-if (rex_request::request('btn_save', 'integer', 0) === 1) {
-    // TODO create img with media_manager and save it in category
-    // TODO display message and link to new generated img
-    echo rex_view::info('// TODO create img with media_manager and save it in category');
-    echo rex_view::info('// TODO display message and link to new generated img');
-    dump($_POST);
-}
-
-if (rex_request::request('btn_abort', 'integer', 0) === 1) {
-    rex_response::sendRedirect($backUrl);
-}
+$back = '<a class="cropper_back_to_media" href="' . $backUrl . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
 
 try {
+    if (rex_request::request('btn_save', 'integer', 0) === 1) {
+
+
+        if (!$csrf->isValid()) {
+            throw new CroppingException('EXCEPTION csrf not valide'); // TODO text!
+        }
+
+        // TODO create img with media_manager and save it in category
+        // TODO display message and link to new generated img
+
+        $cropperExecutor = new CropperExecutor($_POST);
+        $cropperExecutor->crop();
+
+        echo rex_view::info('// TODO create img with media_manager and save it in category');
+        echo rex_view::info('// TODO display message and link to new generated img');
+    }
+
+    if (rex_request::request('btn_abort', 'integer', 0) === 1) {
+        rex_response::sendRedirect($backUrl);
+    }
+
     if (!rex_addon::exists('media_manager')) {
-        throw new \Exception('EXCEPTION error MSG media_manager missing'); // TODO text!
+        throw new CroppingException('EXCEPTION error MSG media_manager missing'); // TODO text!
     }
     if (rex_addon::exists('media_manager') && !rex_addon::get('media_manager')->isAvailable()) {
-        throw new \Exception('EXCEPTION error MSG media_manager must be active'); // TODO text!
+        throw new CroppingException('EXCEPTION error MSG media_manager must be active'); // TODO text!
     }
     if (is_null($mediaName)) {
-        throw new \Exception('EXCEPTION! NO NAME!'); // TODO text!
+        throw new CroppingException('EXCEPTION! NO NAME!'); // TODO text!
     }
     if (!$media = rex_media::get($mediaName)) {
-        throw new \Exception('EXCEPTION! NO MEDIA OBJ'); // TODO text!
+        throw new CroppingException('EXCEPTION! NO MEDIA OBJ'); // TODO text!
     }
     if ($media instanceof rex_media && rex_media::isImageType(rex_file::extension($mediaName))) {
 
         $formElements = array();
         $panel = '';
-        $options = '';
+        $options = array();
 
         $title = sprintf(rex_i18n::msg('cropper_media_crop_title'), pathinfo($media->getFileName(), PATHINFO_FILENAME));
 
@@ -84,7 +96,7 @@ try {
         }
 
         if (!$allowed) {
-            throw new \Exception('EXCEPTION! NOT ALLOWED FILE TYPE NOT SUPPORTED'); // TODO text!
+            throw new CroppingException('EXCEPTION! NOT ALLOWED FILE TYPE NOT SUPPORTED'); // TODO text!
         }
 
         $panel .= '
@@ -97,6 +109,9 @@ try {
                       </button>
                       <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="crop" data-toggle="tooltip" data-original-title="Crop" data-animation="false">
                         <span class="fa fa-crop"></span>
+                      </button>
+                      <button type="button" class="btn btn-primary" data-method="clear" data-toggle="tooltip" data-original-title="Clear" data-animation="false">
+                        <span class="fa fa-remove"></span>
                       </button>
                       <button type="button" class="btn btn-primary" data-method="zoom" data-option="0.1" data-toggle="tooltip" data-original-title="Zoom In" data-animation="false">
                         <span class="fa fa-search-plus"></span>
@@ -184,6 +199,7 @@ try {
 //                        </div>',
                 'field' => '<div class="input-group">
                             <input class="form-control" type="text" name="new_file_name" value="' . $newFileName . '" />
+                            <input type="hidden" name="new_file_extension" value="' . $media->getExtension() . '" />
                             <span class="input-group-addon">' . $media->getExtension() . '</span>
                         </div>',
             ),
@@ -232,8 +248,8 @@ try {
             ' . $panel . $buttons . '
         </form>';
     }
-} catch (\Exception $e) {
-    // TODO STYLING + title
+} catch (CroppingException $e) {
+    rex_logger::logException($e);
     $body = rex_view::error($e->getMessage());
 }
 
