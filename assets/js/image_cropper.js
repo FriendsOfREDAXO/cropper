@@ -29,47 +29,30 @@ $(document).on('rex:ready', function (e, container) {
 });
 
 function image_cropper_init(element) {
-    // element.cropper({
-    //     aspectRatio: 16 / 9,
-    //     zoomOnTouch: false,
-    //     zoomOnWheel: false,
-    //     crop: function(event) {
-    //         console.log(event.detail.x);
-    //         console.log(event.detail.y);
-    //         console.log(event.detail.width);
-    //         console.log(event.detail.height);
-    //         console.log(event.detail.rotate);
-    //         console.log(event.detail.scaleX);
-    //         console.log(event.detail.scaleY);
-    //     }
-    // });
-    //
-    // // Get the Cropper.js instance after initialized
-    // let cropper = element.data('cropper');
 
-    var $dataX = $('#dataX');
-    var $dataY = $('#dataY');
-    var $dataHeight = $('#dataHeight');
-    var $dataWidth = $('#dataWidth');
-    var $dataRotate = $('#dataRotate');
-    var $dataScaleX = $('#dataScaleX');
-    var $dataScaleY = $('#dataScaleY');
-    var options = {
-        dragMode: 'move',
-        crop: function (e) {
-            $dataX.val(Math.round(e.detail.x));
-            $dataY.val(Math.round(e.detail.y));
-            $dataHeight.val(Math.round(e.detail.height));
-            $dataWidth.val(Math.round(e.detail.width));
-            $dataRotate.val(e.detail.rotate);
-            $dataScaleX.val(e.detail.scaleX);
-            $dataScaleY.val(e.detail.scaleY);
-        }
-    };
-    var uploadedImageType = 'image/jpeg';
+    let $dataX = $('#dataX'),
+        $dataY = $('#dataY'),
+        $dataHeight = $('#dataHeight'),
+        $dataWidth = $('#dataWidth'),
+        $dataRotate = $('#dataRotate'),
+        $dataScaleX = $('#dataScaleX'),
+        $dataScaleY = $('#dataScaleY'),
+        options = {
+            dragMode: 'move',
+            crop: function (e) {
+                $dataX.val(Math.round(e.detail.x));
+                $dataY.val(Math.round(e.detail.y));
+                $dataHeight.val(Math.round(e.detail.height));
+                $dataWidth.val(Math.round(e.detail.width));
+                $dataRotate.val(e.detail.rotate);
+                $dataScaleX.val(e.detail.scaleX);
+                $dataScaleY.val(e.detail.scaleY);
+            }
+        },
+        uploadedImageType = 'image/jpeg';
 
     // Tooltip
-    // $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="tooltip"]').tooltip();
 
     // Cropper
     element.on({
@@ -105,11 +88,11 @@ function image_cropper_init(element) {
 
     // Options
     $('.docs-toggles').on('change', 'input', function () {
-        var $this = $(this);
-        var name = $this.attr('name');
-        var type = $this.prop('type');
-        var cropBoxData;
-        var canvasData;
+        let $this = $(this),
+            name = $this.attr('name'),
+            type = $this.prop('type'),
+            cropBoxData,
+            canvasData;
 
         if (!element.data('cropper')) {
             return;
@@ -134,12 +117,12 @@ function image_cropper_init(element) {
 
     // Methods
     $('.docs-buttons').on('click', '[data-method]', function () {
-        var $this = $(this);
-        var data = $this.data();
-        var cropper = element.data('cropper');
-        var cropped;
-        var $target;
-        var result;
+        let $this = $(this),
+            data = $this.data(),
+            cropper = element.data('cropper'),
+            cropped,
+            $target,
+            result;
 
         if ($this.prop('disabled') || $this.hasClass('disabled')) {
             return;
