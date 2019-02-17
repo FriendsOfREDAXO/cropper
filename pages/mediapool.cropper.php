@@ -188,6 +188,19 @@ try {
         $pngCompressionElement = $fragment->parse('core/form/input_group.php');
 
         // FORM ELEMENTS
+        // SAVE OPTION
+        $fragment = new rex_fragment();
+        $fragment->setVar('elements', array(
+            array(
+                'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_save_options') . '</label>',
+                'field' => '<label class="checkbox-inline checbox-switch switch-primary">
+                                <input type="checkbox" name="create_new_image" id="create_new_image" data-toggle="collapse" data-target="#new_file_name" checked />
+                                <span></span>' . rex_i18n::msg('cropper_img_save_info') . '
+                            </label>',
+            ),
+        ), false);
+        $panel .= $fragment->parse('core/form/form.php');
+
         // FILENAME
         $fragment = new rex_fragment();
         $fragment->setVar('elements', array(
@@ -198,13 +211,13 @@ try {
 //                            <select name="new_file_extension" class="selectpicker" readonly="readonly">' . implode("\n", $options) . '</select>
 //                        </div>',
                 'field' => '<div class="input-group">
-                            <input class="form-control" type="text" name="new_file_name" value="' . $newFileName . '" />
-                            <input type="hidden" name="new_file_extension" value="' . $media->getExtension() . '" />
-                            <span class="input-group-addon">' . $media->getExtension() . '</span>
-                        </div>',
+                                <input class="form-control" type="text" name="new_file_name" value="' . $newFileName . '" />
+                                <input type="hidden" name="new_file_extension" value="' . $media->getExtension() . '" />
+                                <span class="input-group-addon">' . $media->getExtension() . '</span>
+                            </div>',
             ),
         ), false);
-        $panel .= $fragment->parse('core/form/form.php');
+        $panel .= "<div id=\"new_file_name\" class=\"collapse in\">" . $fragment->parse('core/form/form.php') . "</div>";
 
         // FORM ELEMENTS
         // JPG QUALITY
@@ -244,7 +257,6 @@ try {
             <input type="hidden" name="file_id" value="' . rex_request::request('file_id', 'integer') . '" />
             <input type="hidden" name="media_name" value="' . $mediaName . '" />
             <input type="hidden" name="rex_file_category" value="' . rex_request::request('rex_file_category', 'integer') . '" />
-            <input type="hidden" name="crop_it" value="1" />
             ' . $panel . $buttons . '
         </form>';
     }
