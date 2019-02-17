@@ -1,8 +1,8 @@
-cropper_media_crop_title = Bild "%s" croppen
+cropper_media_crop_title = Bild "%s" bearbeiten
 cropper_img_save_info_header = Hinweis:
 cropper_img_save_info = durch "Speichern" wird das Resultat der Beschneidung als neues Bild gespeichert.
 cropper_jpg_quality = JPEG Qualität
 cropper_png_compression= PNG Kompression
 cropper_back_to_media = Zurück
-cropper_media_edit_link = Bild beschneiden
+cropper_media_edit_link = Bild bearbeiten
 cropper_media_edit_label = Cropper
