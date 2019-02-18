@@ -1,7 +1,7 @@
 package: cropper
 version: '1.0.0'
 author: Friends Of REDAXO
-supportpage: https://github.com/FriendsOfREDAXO/demo_addon
+supportpage: https://github.com/FriendsOfREDAXO/cropper
 
 pages:
     mediapool/cropper:
