@@ -3,7 +3,7 @@ REDAXO-AddOn: Cropper
 
 Bildbearbeitung für REDAXO
 
-![Screenshot]()
+![Screenshot](https://github.com/FriendsOfREDAXO/cropper/blob/assets/screen.png?raw=true)
 
 ### Features
 - Zuschneiden 
@@ -11,11 +11,11 @@ Bildbearbeitung für REDAXO
 - Spiegeln
 - Speichern als neue Datei
 - Überschreiben des Originals
-
+- Rechte für Benutzer
 
 ### Beschreibung 
 
-Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der Aufruf der Bildbearbeitung erfolgt über den Button `Bild bearbeiten`in der Detailansicht des Bildes. Die bearbeiteten Bilder, werden per default als neue Datei gespeichert. Ein Überschreiben des Originals ist möglich. 
+Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der Aufruf der Bildbearbeitung erfolgt über den Button `Bild bearbeiten`in der Detailansicht des Bildes. Die bearbeiteten Bilder, werden per default als neue Datei gespeichert. Ein Überschreiben des Originals ist möglich. Nur Admins erhalten das Recht die Qualität der Bilder zu verringern. 
 
 ### Installation
 
