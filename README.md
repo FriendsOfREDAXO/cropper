@@ -17,13 +17,6 @@ Bildbearbeitung für REDAXO
 
 Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der Aufruf der Bildbearbeitung erfolgt über den Button `Bild bearbeiten`in der Detailansicht des Bildes. Die bearbeiteten Bilder, werden per default als neue Datei gespeichert. Ein Überschreiben des Originals ist möglich. 
 
-
-### Legende
-
-![Screenshot](https://raw.githubusercontent.com/FriendsOfREDAXO/quick_navigation/assets/quick_navi_legend.png)
-
-
-
 ### Installation
 
 1. Über Installer laden oder Zip-Datei im AddOn-Ordner entpacken, der Ordner muss „quick_navigation“ heißen.
