@@ -21,6 +21,13 @@ if (rex::isBackend() && rex::getUser()) {
         /** @var rex_sql $media */
         $media = $ep->getParam('media');
 
+        $msg = rex_request::request('cropper_msg', 'string', null);
+        $cropper_error = rex_request::request('cropper_error', 'boolean', false);
+
+        if (!is_null($msg)) {
+            echo ($cropper_error) ? rex_view::error(rex_i18n::msg($msg)) : rex_view::success(rex_i18n::msg($msg));
+        }
+
         /** @var rex_media $rexMedia */
         $rexMedia = rex_media::get($media->getValue('filename'));
 

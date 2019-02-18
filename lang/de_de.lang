@@ -6,3 +6,5 @@ cropper_back_to_media = Zurück
 cropper_media_edit_link = Bild bearbeiten
 cropper_media_edit_label = Cropper
 cropper_save_options = Speicheroption
+cropper_successful_updated = Datei wurde erfolgreich aktualisiert!
+cropper_successful_created = Datei wurde erfolgreich erstellt!

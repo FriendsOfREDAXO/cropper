@@ -8,38 +8,44 @@
 use Cropper\CropperExecutor;
 use Cropper\CroppingException;
 
+const POOL_MEDIA = 'mediapool/media';
+
 $csrf = rex_csrf_token::factory('mediapool_structure');
 
 $allowedExtensions = array('jpg' => array('jpg', 'jpeg'), 'png' => array('png'), 'gif' => array('gif'));
 $mediaName = rex_request::request('media_name', 'string', null);
+$urlParameter = array('file_id' => rex_request::request('file_id', 'integer'), 'rex_file_category' => rex_request::request('rex_file_category', 'integer'));
 
 $body = '';
 $title = '';
 $class = 'edit';
 
-$backUrl = rex_url::backendPage('mediapool/media', array('file_id' => rex_request::request('file_id', 'integer'), 'rex_file_category' => rex_request::request('rex_file_category', 'integer')), false);
-$back = '<a class="cropper_back_to_media" href="' . $backUrl . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
+$back = '<a class="cropper_back_to_media" href="' . rex_url::backendPage(POOL_MEDIA, $urlParameter, false) . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
 
 try {
     if (rex_request::request('btn_save', 'integer', 0) === 1) {
-
 
         if (!$csrf->isValid()) {
             throw new CroppingException('EXCEPTION csrf not valide'); // TODO text!
         }
 
-        // TODO create img with media_manager and save it in category
-        // TODO display message and link to new generated img
-
         $cropperExecutor = new CropperExecutor($_POST);
-        $cropperExecutor->crop();
+        $result = $cropperExecutor->crop();
 
-        echo rex_view::info('// TODO create img with media_manager and save it in category');
-        echo rex_view::info('// TODO display message and link to new generated img');
+        if ($result['ok']) {
+            /** @var rex_media $media */
+            $media = ($result['media'] instanceof rex_media) ? $result['media'] : null;
+            $urlParameter['file_id'] = $media->getId();
+            $urlParameter['cropper_msg'] = $result['msg'];
+            rex_response::sendRedirect(rex_url::backendPage(POOL_MEDIA, $urlParameter, false));
+        } else {
+            // don't jump stay and get error msg
+            echo rex_view::error(rex_i18n::msg($result['msg']));
+        }
     }
 
     if (rex_request::request('btn_abort', 'integer', 0) === 1) {
-        rex_response::sendRedirect($backUrl);
+        rex_response::sendRedirect(rex_url::backendPage(POOL_MEDIA, $urlParameter, false));
     }
 
     if (!rex_addon::exists('media_manager')) {
@@ -62,8 +68,8 @@ try {
 
         $title = sprintf(rex_i18n::msg('cropper_media_crop_title'), pathinfo($media->getFileName(), PATHINFO_FILENAME));
 
-        $pngIn = ($media->getExtension() == 'png') ? ' in' : '';
-        $jpgIn = ($media->getExtension() == 'jpg' or $media->getExtension() == 'jpeg') ? ' in' : '';
+        $pngIn = ($media->getExtension() == 'png' && rex::getUser()->isAdmin()) ? ' in' : '';
+        $jpgIn = (($media->getExtension() == 'jpg' or $media->getExtension() == 'jpeg') && rex::getUser()->isAdmin()) ? ' in' : '';
 
         $jpgQuality = rex_request::request('jpg_quality', 'integer', 100);
         $pngCompression = rex_request::request('png_compression', 'integer', 9);
@@ -99,7 +105,7 @@ try {
             throw new CroppingException('EXCEPTION! NOT ALLOWED FILE TYPE NOT SUPPORTED'); // TODO text!
         }
 
-        $mtime = @filemtime(rex_url::media($mediaName));
+        $mtime = @filemtime(rex_url::media($mediaName)) . uniqid();
 
         $panel .= '
             <div class="cropper_image_wrapper">

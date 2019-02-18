@@ -9,6 +9,7 @@ namespace Cropper;
 
 
 use rex;
+use rex_i18n;
 use rex_media;
 use rex_media_cache;
 use rex_media_manager;
@@ -150,6 +151,7 @@ class CropperExecutor
 
         $this->zebraImage->source_path = rex_path::media($media->getFileName());
         $this->zebraImage->target_path = rex_path::media($media->getFileName());
+        $zebraErrors = array();
 
         // x
         // y
@@ -162,19 +164,25 @@ class CropperExecutor
         // flip image
         if ($this->parameter['scaleX'] == -1 && $this->parameter['scaleY'] == 1) {
             $this->zebraImage->flip_horizontal();
+            $zebraErrors[] = $this->zebraImage->error;
         } else if ($this->parameter['scaleX'] == 1 && $this->parameter['scaleY'] == -1) {
             $this->zebraImage->flip_vertical();
+            $zebraErrors[] = $this->zebraImage->error;
         } else if ($this->parameter['scaleX'] == -1 && $this->parameter['scaleY'] == -1) {
             $this->zebraImage->flip_both();
+            $zebraErrors[] = $this->zebraImage->error;
         }
 
+        // rotate image
         if ($this->parameter['rotate'] > 0) {
             $this->zebraImage->rotate($this->parameter['rotate']);
+            $zebraErrors[] = $this->zebraImage->error;
         }
 
         // crop image
         if ($this->parameter['width'] > 0 && $this->parameter['height'] > 0) {
             $this->zebraImage->crop($this->parameter['x'], $this->parameter['y'], ($this->parameter['x'] + $this->parameter['width']), ($this->parameter['y'] + $this->parameter['height']));
+            $zebraErrors[] = $this->zebraImage->error;
         }
 
         rex_media_cache::delete($media->getFileName());
@@ -187,9 +195,19 @@ class CropperExecutor
         $FILEINFOS['filename'] = $media->getFileName();
         $FILEINFOS['filetype'] = $media->getType();
 
-        rex_mediapool_updateMedia(array('name' => 'none'), $FILEINFOS, rex::getUser()->getValue('login'));
+        $result = rex_mediapool_updateMedia(array('name' => 'none'), $FILEINFOS, rex::getUser()->getValue('login'));
+        $msgType = ($this->update) ? 'updated' : 'created';
 
-        return $media;
+        if (isset($result['ok']) && $result['ok'] == 1 && isset($result['filename'])) {
+            $media = rex_media::get($result['filename']);
+            $msg = 'cropper_successful_' . $msgType;
+            $ok = true;
+        } else {
+            $msg = 'cropper_failed_' . $msgType;
+            $ok = false;
+        }
+
+        return array('media' => $media, 'error' => $zebraErrors, 'msg' => $msg, 'ok' => $ok, 'update' => $this->update);
     }
 
 }
