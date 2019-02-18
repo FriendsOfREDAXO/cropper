@@ -173,7 +173,7 @@ class CropperExecutor
         }
 
         // rotate image
-        if ($this->parameter['rotate'] > 0) {
+        if ($this->parameter['rotate'] != 0) {
             $this->zebraImage->rotate($this->parameter['rotate']);
             $zebraErrors[] = $this->zebraImage->error;
         }
