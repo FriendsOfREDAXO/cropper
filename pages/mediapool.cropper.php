@@ -22,6 +22,10 @@ $class = 'edit';
 
 $back = '<a class="cropper_back_to_media" href="' . rex_url::backendPage(POOL_MEDIA, $urlParameter, false) . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
 
+if (!rex::getUser()->hasPerm('cropper[]')) {
+    rex_response::sendRedirect(rex_url::backendPage(POOL_MEDIA, $urlParameter, false));
+}
+
 try {
     if (rex_request::request('btn_save', 'integer', 0) === 1) {
 
@@ -194,12 +198,13 @@ try {
 
         // FORM ELEMENTS
         // SAVE OPTION
+        $readonly = (!rex::getUser()->hasPerm('cropper[overwrite]')) ? ' data-disable="1" disabled="" ' : ' data-disable="0" ';
         $fragment = new rex_fragment();
         $fragment->setVar('elements', array(
             array(
                 'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_save_options') . '</label>',
                 'field' => '<label class="checkbox-inline checbox-switch switch-primary">
-                                <input type="checkbox" name="create_new_image" id="create_new_image" data-toggle="collapse" data-target="#new_file_name" checked />
+                                <input type="checkbox" name="create_new_image" id="create_new_image" checked ' . $readonly . ' />
                                 <span></span>' . rex_i18n::msg('cropper_img_save_info') . '
                             </label>',
             ),

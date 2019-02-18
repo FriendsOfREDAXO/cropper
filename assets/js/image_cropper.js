@@ -25,6 +25,14 @@ $(document).on('rex:ready', function (e, container) {
             $("#rex-js-rating-text-webp-quality").trigger("change");
         });
 
+
+        $("#create_new_image").on("change", function(){
+            if ($(this).data('disable') != 1)
+                $("#new_file_name").collapse('toggle');
+        }).on('click', function(){
+            if ($(this).data('disable') == 1)
+                return false;
+        });
     }
 });
 
