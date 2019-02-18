@@ -9,7 +9,6 @@ namespace Cropper;
 
 
 use rex;
-use rex_i18n;
 use rex_media;
 use rex_media_cache;
 use rex_media_manager;
