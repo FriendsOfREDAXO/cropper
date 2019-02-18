@@ -19,7 +19,7 @@ Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der 
 
 ### Installation
 
-1. Über Installer laden oder Zip-Datei im AddOn-Ordner entpacken, der Ordner muss „quick_navigation“ heißen.
+1. Über Installer laden oder Zip-Datei im AddOn-Ordner entpacken, der Ordner muss „cropper“ heißen.
 2. AddOn installieren und aktivieren.
 3. Rechte für Rollen anpassen
 
