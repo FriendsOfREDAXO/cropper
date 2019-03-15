@@ -7,7 +7,7 @@ Stellt den Image-Cropper [Cropper.js](https://fengyuanchen.github.io/cropperjs/)
 
 ![Screenshot](https://github.com/FriendsOfREDAXO/cropper/blob/assets/screen.png?raw=true)
 
-### Features
+## Features
 - Zuschneiden 
 - Drehen
 - Spiegeln
@@ -15,31 +15,31 @@ Stellt den Image-Cropper [Cropper.js](https://fengyuanchen.github.io/cropperjs/)
 - Überschreiben des Originals
 - Rechte für Benutzer
 
-### Beschreibung 
+## Beschreibung 
 
 Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der Aufruf der Bildbearbeitung erfolgt über den Button `Bild bearbeiten`in der Detailansicht des Bildes. Die bearbeiteten Bilder, werden per default als neue Datei gespeichert. Ein Überschreiben des Originals ist möglich. Nur Admins erhalten das Recht die Qualität der Bilder zu verringern. 
 
-### Installation
+## Installation
 
 1. Über Installer laden oder Zip-Datei im AddOn-Ordner entpacken, der Ordner muss „cropper“ heißen.
 2. AddOn installieren und aktivieren.
 3. Rechte für Rollen anpassen
 
 
-### Bugtracker
+## Bugtracker
 
 Du hast einen Fehler gefunden oder ein nettes Feature parat? [Lege bitte ein Issue an]
 
-### Changelog
+## Changelog
 
 siehe [CHANGELOG.md](https://github.com/FriendsOfREDAXO/cropper/blob/master/CHANGELOG.md)
 
-### Lizenz
+## Lizenz
 
 siehe [LICENSE.md](https://github.com/FriendsOfREDAXO/cropper/blob/master/LICENSE.md)
 
 
-### Autor
+## Autor
 
 **Friends Of REDAXO**
 
