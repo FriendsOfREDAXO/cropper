@@ -1,0 +1,10 @@
+cropper_media_crop_title = Bearbeta bild "%s"
+cropper_img_save_info = Spara resultatet av redigering som en ny mediefil
+cropper_jpg_quality = JPEG kvalité
+cropper_png_compression= PNG kompression
+cropper_back_to_media = Tillbaka
+cropper_media_edit_link = Bearbeta bild
+cropper_media_edit_label = Cropper
+cropper_save_options = Lagringsoption
+cropper_successful_updated = Filen uppdaterades!
+cropper_successful_created = Filen skapades!
