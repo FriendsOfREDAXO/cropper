@@ -2,7 +2,8 @@
 
 1.1.0 (24.01.2020)
 --------------------------------------------------------------------------------
-Transparent fix for cropped PNG, ZebraImage 2.4.0  
+- Transparent fix for cropped PNG, ZebraImage 2.4.0  
+- English translation @ynamite 
 
 
 1.0.4 (03.04.2019)
