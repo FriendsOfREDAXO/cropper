@@ -1,24 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "1f603a5d73503a3db6496300d4efdca8",
     "content-hash": "5b003914896cc9d117423a0d065c3030",
     "packages": [
         {
             "name": "stefangabos/zebra_image",
-            "version": "2.2.7",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stefangabos/Zebra_Image.git",
-                "reference": "d2123c46422acadca782091adbf579d2ed82aaaf"
+                "reference": "cbc0c14076904fdc60533f48c6fd160e6632eb74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/d2123c46422acadca782091adbf579d2ed82aaaf",
-                "reference": "d2123c46422acadca782091adbf579d2ed82aaaf",
+                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/cbc0c14076904fdc60533f48c6fd160e6632eb74",
+                "reference": "cbc0c14076904fdc60533f48c6fd160e6632eb74",
                 "shasum": ""
             },
             "require": {
@@ -53,7 +52,7 @@
                 "resize",
                 "thumbnail"
             ],
-            "time": "2017-08-21 15:16:07"
+            "time": "2020-01-24T12:16:30+00:00"
         }
     ],
     "packages-dev": [],
