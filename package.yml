@@ -12,5 +12,5 @@ pages:
 requires:
     redaxo: '^5.8'
     php:
-        version: '^5.6'
+        version: '>5.6'
         extensions: [gd]
