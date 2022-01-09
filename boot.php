@@ -15,7 +15,7 @@ if (rex::isBackend() && rex::getUser()) {
     if (rex_be_controller::getCurrentPagePart(2) == 'cropper') {
         rex_view::addJsFile($this->getAssetsUrl('js/cropper.min.js'));
         rex_view::addJsFile($this->getAssetsUrl('js/jquery-cropper.min.js'));
-        rex_view::addJsFile($this->getAssetsUrl('js/image_cropper.js'));
+        rex_view::addJsFile($this->getAssetsUrl('js/rex_cropper.js'));
     }
 
     rex_extension::register( 'MEDIA_FORM_EDIT', function( rex_extension_point $ep ){
