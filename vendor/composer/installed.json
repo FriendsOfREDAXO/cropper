@@ -1,61 +1,52 @@
-{
-    "packages": [
-        {
-            "name": "stefangabos/zebra_image",
-            "version": "2.6.0",
-            "version_normalized": "2.6.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/stefangabos/Zebra_Image.git",
-                "reference": "f23bafa20be9e930b47c6fd62a52914dd9cc1444"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/f23bafa20be9e930b47c6fd62a52914dd9cc1444",
-                "reference": "f23bafa20be9e930b47c6fd62a52914dd9cc1444",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.0.0"
-            },
-            "time": "2020-06-01T05:47:14+00:00",
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "classmap": [
-                    "Zebra_Image.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Stefan Gabos",
-                    "email": "contact@stefangabos.ro",
-                    "homepage": "https://github.com/stefangabos/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A compact (one-file only), lightweight, image manipulation PHP library",
-            "homepage": "https://github.com/stefangabos/Zebra_Image/",
-            "keywords": [
-                "crop",
-                "filters",
-                "gd",
-                "image",
-                "php",
-                "resize",
-                "thumbnail"
-            ],
-            "support": {
-                "issues": "https://github.com/stefangabos/Zebra_Image/issues",
-                "source": "https://github.com/stefangabos/Zebra_Image/tree/2.6.0"
-            },
-            "install-path": "../stefangabos/zebra_image"
-        }
-    ],
-    "dev": true,
-    "dev-package-names": []
-}
+[
+    {
+        "name": "stefangabos/zebra_image",
+        "version": "2.4.0",
+        "version_normalized": "2.4.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/stefangabos/Zebra_Image.git",
+            "reference": "cbc0c14076904fdc60533f48c6fd160e6632eb74"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/cbc0c14076904fdc60533f48c6fd160e6632eb74",
+            "reference": "cbc0c14076904fdc60533f48c6fd160e6632eb74",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.0.0"
+        },
+        "time": "2020-01-24T12:16:30+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "Zebra_Image.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "Stefan Gabos",
+                "email": "contact@stefangabos.ro",
+                "homepage": "https://github.com/stefangabos/",
+                "role": "Developer"
+            }
+        ],
+        "description": "A compact (one-file only), lightweight, image manipulation PHP library",
+        "homepage": "https://github.com/stefangabos/Zebra_Image/",
+        "keywords": [
+            "crop",
+            "filters",
+            "gd",
+            "image",
+            "php",
+            "resize",
+            "thumbnail"
+        ]
+    }
+]
