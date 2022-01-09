@@ -1,3 +1,14 @@
+## version 2.6.0 (May 29, 2020)
+
+- added sport for the WEBP format
+- handle GD bug where transparency is lost when rotating at angles of 90, 180 and 270 degrees
+- fixed [#22](https://github.com/stefangabos/Zebra_Image/issues/22); thanks to [Almir Neto](https://github.com/AlmirNeeto99) for reporting!
+
+## version 2.5.0 (February 16, 2020)
+
+- fixed bug introduced in previous release because of the new argument added to the crop method
+- progressive JPEGs can now be saved by setting the newly added [jpeg_interlace](https://stefangabos.github.io/Zebra_Image/Zebra_Image/Zebra_Image.html#var$jpeg_interlace) property; thanks [tohizma](https://github.com/tohizma) for suggesting!
+
 ## version 2.4.0 (January 24, 2020)
 
 - added the `background_color` argument to the [crop](https://stefangabos.github.io/Zebra_Image/Zebra_Image/Zebra_Image.html#methodcrop) method; used when the cropping coordinates are off-scale (negative values and/or values greater than the image's size) to fill the remaining space; see #18; thank you [Thomas Skerbis](https://github.com/skerbis)!

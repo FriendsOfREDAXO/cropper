@@ -1,5 +1,5 @@
 {
-  "name": "FriendsOfREDAXO/cropper",
+  "name": "friendsofredaxo/cropper",
   "type": "redaxo-addon",
   "extra": {
     "installer-name": "cropper"
