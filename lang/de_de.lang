@@ -1,7 +1,7 @@
 cropper_media_crop_title = Bild "%s" bearbeiten
-cropper_img_save_info = Resultat der Bearbeitung als neue Media-Datei speichern
+cropper_img_save_info = Resultat der Bearbeitung als neue Datei speichern
 cropper_jpg_quality = JPEG Qualität
-cropper_png_compression= PNG Kompression
+cropper_png_compression = PNG Kompression
 cropper_back_to_media = Zurück
 cropper_media_edit_link = Bild bearbeiten
 cropper_media_edit_label = Cropper
