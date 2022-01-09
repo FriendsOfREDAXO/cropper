@@ -2,7 +2,7 @@
 
 /** @var rex_addon $this */
 
-require_once __DIR__.'vendor/autoload.php';
+require_once __DIR__.'/vendor/autoload.php';
 
 if (rex::isBackend() && is_object(rex::getUser())) {
     rex_perm::register('cropper[]');
