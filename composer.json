@@ -1,10 +1,10 @@
 {
-  "name": "FriendsOfREDAXO/cropper",
+  "name": "friendsofredaxo/cropper",
   "type": "redaxo-addon",
   "extra": {
     "installer-name": "cropper"
   },
   "require": {
-    "stefangabos/zebra_image": "^2.4.0"
+    "stefangabos/zebra_image": "^2.6.0"
   }
 }
