@@ -1,27 +1,29 @@
 /*!
- * Cropper.js v1.4.3
+ * Cropper.js v1.5.13
  * https://fengyuanchen.github.io/cropperjs
  *
  * Copyright 2015-present Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2018-10-24T13:07:11.429Z
+ * Date: 2022-11-20T05:30:43.444Z
  */
 
 .cropper-container {
-    direction: ltr;
-    font-size: 0;
-    line-height: 0;
-    position: relative;
-    -ms-touch-action: none;
-    touch-action: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  direction: ltr;
+  font-size: 0;
+  line-height: 0;
+  position: relative;
+  -ms-touch-action: none;
+      touch-action: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
 
 .cropper-container img {
+    -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
     display: block;
     height: 100%;
     image-orientation: 0deg;
@@ -30,49 +32,49 @@
     min-height: 0 !important;
     min-width: 0 !important;
     width: 100%;
-}
+  }
 
 .cropper-wrap-box,
 .cropper-canvas,
 .cropper-drag-box,
 .cropper-crop-box,
 .cropper-modal {
-    bottom: 0;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .cropper-wrap-box,
 .cropper-canvas {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .cropper-drag-box {
-    background-color: #fff;
-    opacity: 0;
+  background-color: #fff;
+  opacity: 0;
 }
 
 .cropper-modal {
-    background-color: #000;
-    opacity: .5;
+  background-color: #000;
+  opacity: 0.5;
 }
 
 .cropper-view-box {
-    display: block;
-    height: 100%;
-    outline-color: rgba(51, 153, 255, 0.75);
-    outline: 1px solid #39f;
-    overflow: hidden;
-    width: 100%;
+  display: block;
+  height: 100%;
+  outline: 1px solid #39f;
+  outline-color: rgba(51, 153, 255, 75%);
+  overflow: hidden;
+  width: 100%;
 }
 
 .cropper-dashed {
-    border: 0 dashed #eee;
-    display: block;
-    opacity: .5;
-    position: absolute;
+  border: 0 dashed #eee;
+  display: block;
+  opacity: 0.5;
+  position: absolute;
 }
 
 .cropper-dashed.dashed-h {
@@ -82,7 +84,7 @@
     left: 0;
     top: calc(100% / 3);
     width: 100%;
-}
+  }
 
 .cropper-dashed.dashed-v {
     border-left-width: 1px;
@@ -91,58 +93,58 @@
     left: calc(100% / 3);
     top: 0;
     width: calc(100% / 3);
-}
+  }
 
 .cropper-center {
-    display: block;
-    height: 0;
-    left: 50%;
-    opacity: .75;
-    position: absolute;
-    top: 50%;
-    width: 0;
+  display: block;
+  height: 0;
+  left: 50%;
+  opacity: 0.75;
+  position: absolute;
+  top: 50%;
+  width: 0;
 }
 
-.cropper-center:before,
-.cropper-center:after {
+.cropper-center::before,
+  .cropper-center::after {
     background-color: #eee;
-    content: ' ';
+    content: " ";
     display: block;
     position: absolute;
-}
+  }
 
-.cropper-center:before {
+.cropper-center::before {
     height: 1px;
     left: -3px;
     top: 0;
     width: 7px;
-}
+  }
 
-.cropper-center:after {
+.cropper-center::after {
     height: 7px;
     left: 0;
     top: -3px;
     width: 1px;
-}
+  }
 
 .cropper-face,
 .cropper-line,
 .cropper-point {
-    display: block;
-    height: 100%;
-    opacity: .1;
-    position: absolute;
-    width: 100%;
+  display: block;
+  height: 100%;
+  opacity: 0.1;
+  position: absolute;
+  width: 100%;
 }
 
 .cropper-face {
-    background-color: #fff;
-    left: 0;
-    top: 0;
+  background-color: #fff;
+  left: 0;
+  top: 0;
 }
 
 .cropper-line {
-    background-color: #39f;
+  background-color: #39f;
 }
 
 .cropper-line.line-e {
@@ -150,34 +152,34 @@
     right: -3px;
     top: 0;
     width: 5px;
-}
+  }
 
 .cropper-line.line-n {
     cursor: ns-resize;
     height: 5px;
     left: 0;
     top: -3px;
-}
+  }
 
 .cropper-line.line-w {
     cursor: ew-resize;
     left: -3px;
     top: 0;
     width: 5px;
-}
+  }
 
 .cropper-line.line-s {
     bottom: -3px;
     cursor: ns-resize;
     height: 5px;
     left: 0;
-}
+  }
 
 .cropper-point {
-    background-color: #39f;
-    height: 5px;
-    opacity: .75;
-    width: 5px;
+  background-color: #39f;
+  height: 5px;
+  opacity: 0.75;
+  width: 5px;
 }
 
 .cropper-point.point-e {
@@ -185,46 +187,46 @@
     margin-top: -3px;
     right: -3px;
     top: 50%;
-}
+  }
 
 .cropper-point.point-n {
     cursor: ns-resize;
     left: 50%;
     margin-left: -3px;
     top: -3px;
-}
+  }
 
 .cropper-point.point-w {
     cursor: ew-resize;
     left: -3px;
     margin-top: -3px;
     top: 50%;
-}
+  }
 
 .cropper-point.point-s {
     bottom: -3px;
     cursor: s-resize;
     left: 50%;
     margin-left: -3px;
-}
+  }
 
 .cropper-point.point-ne {
     cursor: nesw-resize;
     right: -3px;
     top: -3px;
-}
+  }
 
 .cropper-point.point-nw {
     cursor: nwse-resize;
     left: -3px;
     top: -3px;
-}
+  }
 
 .cropper-point.point-sw {
     bottom: -3px;
     cursor: nesw-resize;
     left: -3px;
-}
+  }
 
 .cropper-point.point-se {
     bottom: -3px;
@@ -233,345 +235,75 @@
     opacity: 1;
     right: -3px;
     width: 20px;
-}
+  }
 
 @media (min-width: 768px) {
-    .cropper-point.point-se {
-        height: 15px;
-        width: 15px;
+
+.cropper-point.point-se {
+      height: 15px;
+      width: 15px;
+  }
     }
-}
 
 @media (min-width: 992px) {
-    .cropper-point.point-se {
-        height: 10px;
-        width: 10px;
+
+.cropper-point.point-se {
+      height: 10px;
+      width: 10px;
+  }
     }
-}
 
 @media (min-width: 1200px) {
-    .cropper-point.point-se {
-        height: 5px;
-        opacity: .75;
-        width: 5px;
-    }
-}
 
-.cropper-point.point-se:before {
+.cropper-point.point-se {
+      height: 5px;
+      opacity: 0.75;
+      width: 5px;
+  }
+    }
+
+.cropper-point.point-se::before {
     background-color: #39f;
     bottom: -50%;
-    content: ' ';
+    content: " ";
     display: block;
     height: 200%;
     opacity: 0;
     position: absolute;
     right: -50%;
     width: 200%;
-}
+  }
 
 .cropper-invisible {
-    opacity: 0;
+  opacity: 0;
 }
 
 .cropper-bg {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC');
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC");
 }
 
 .cropper-hide {
-    display: block;
-    height: 0;
-    position: absolute;
-    width: 0;
+  display: block;
+  height: 0;
+  position: absolute;
+  width: 0;
 }
 
 .cropper-hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .cropper-move {
-    cursor: move;
+  cursor: move;
 }
 
 .cropper-crop {
-    cursor: crosshair;
+  cursor: crosshair;
 }
 
 .cropper-disabled .cropper-drag-box,
 .cropper-disabled .cropper-face,
 .cropper-disabled .cropper-line,
 .cropper-disabled .cropper-point {
-    cursor: not-allowed;
-}
-
-
-/*///////////////////////////*/
-
-/* Limit image width to avoid overflow the container */
-.cropper_image_wrapper img {
-    max-width: 100%; /* This rule is very important, please do not ignore this! */
-}
-
-.cropper_image_wrapper {
-    position: relative;
-    margin: -15px -15px 15px;
-    max-height: 600px;
-}
-
-.cropper_image_wrapper .docs-buttons,
-.cropper_image_wrapper .docs-toggles {
-    position: absolute;
-    background: rgba(0, 0, 0, .5);
-    z-index: 2015;
-    border-radius: 4px;
-}
-
-.cropper_image_wrapper .docs-buttons {
-    left: 50%;
-    bottom: 1rem;
-    transform: translate(-50%, 0);
-}
-
-.cropper_image_wrapper .docs-toggles {
-    top: 1rem;
-    right: 1rem;
-}
-
-.cropper_image_wrapper .docs-toggles label,
-.cropper_image_wrapper .docs-buttons button {
-    background: transparent;
-    border: none;
-}
-
-.cropper_image_wrapper .docs-toggles label:hover,
-.cropper_image_wrapper .docs-buttons button:hover {
-    background: #0074d9;
-    border: none;
-}
-
-.cropper_image_wrapper .docs-toggles label {
-    font-size: smaller;
-    font-family: monospace, sans-serif;
-    font-weight: bold;
-}
-
-.cropper_image_wrapper .docs-toggles label.active {
-    background: #000;
-}
-
-.docs-toggles {
-    margin-bottom: 15px;
-}
-
-.cropper-info {
-    padding: 15px;
-    margin-bottom: 15px;
-    background: #fafafa;
-}
-
-.cropper-info p {
-    font-style: italic;
-    margin: 0;
-}
-
-.cropper-info h5 {
-    font-weight: bold;
-}
-
-.cropper_back_to_media {
-    color: #fff;
-}
-
-.cropper_back_to_media:hover {
-    color: #fff;
-}
-
-
-
-/* ---------------------------------------------------
-
-https://bootsnipp.com/snippets/Wa3np
-Project : CSS Checkbox Switch
-Author : Partha Kar (https://www.facebook.com/partha.creativemind)
-Version : 1.0
-Release Dtae : 15 November, 2017
-
----------------------------------------------------- */
-
-
-.checkbox.checbox-switch {
-    padding-left: 0;
-}
-
-.checkbox.checbox-switch label,
-.checkbox-inline.checbox-switch {
-    display: inline-block;
-    position: relative;
-    padding-left: 0;
-}
-.checkbox.checbox-switch label input,
-.checkbox-inline.checbox-switch input {
-    display: none;
-}
-.checkbox.checbox-switch label span,
-.checkbox-inline.checbox-switch span {
-    width: 35px;
-    border-radius: 20px;
-    height: 18px;
-    background-color: rgb(255, 255, 255);
-    border: 1px solid rgb(223, 223, 223);
-    box-shadow: rgb(223, 223, 223) 0px 0px 0px 0px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s;
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 5px;
-}
-.checkbox.checbox-switch label span:before,
-.checkbox-inline.checbox-switch span:before {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: rgb(255,255,255);
-    content: " ";
-    top: 0;
-    position: relative;
-    left: 0;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
-}
-.checkbox.checbox-switch label > input:checked + span:before,
-.checkbox-inline.checbox-switch > input:checked + span:before {
-    left: 17px;
-}
-
-
-/* Switch Default */
-.checkbox.checbox-switch label > input:checked + span,
-.checkbox-inline.checbox-switch > input:checked + span {
-    background-color: rgb(180, 182, 183);
-    border-color: rgb(180, 182, 183);
-    box-shadow: rgb(180, 182, 183) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-.checkbox.checbox-switch label > input:checked:disabled + span,
-.checkbox-inline.checbox-switch > input:checked:disabled + span {
-    background-color: rgb(220, 220, 220);
-    border-color: rgb(220, 220, 220);
-    box-shadow: rgb(220, 220, 220) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-.checkbox.checbox-switch label > input:disabled + span,
-.checkbox-inline.checbox-switch > input:disabled + span {
-    background-color: rgb(232,235,238);
-    border-color: rgb(255,255,255);
-}
-.checkbox.checbox-switch label > input:disabled + span:before,
-.checkbox-inline.checbox-switch > input:disabled + span:before {
-    background-color: rgb(248,249,250);
-    border-color: rgb(243, 243, 243);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
-/* Switch Light */
-.checkbox.checbox-switch.switch-light label > input:checked + span,
-.checkbox-inline.checbox-switch.switch-light > input:checked + span {
-    background-color: rgb(248,249,250);
-    border-color: rgb(248,249,250);
-    box-shadow: rgb(248,249,250) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-
-/* Switch Dark */
-.checkbox.checbox-switch.switch-dark label > input:checked + span,
-.checkbox-inline.checbox-switch.switch-dark > input:checked + span {
-    background-color: rgb(52,58,64);
-    border-color: rgb(52,58,64);
-    box-shadow: rgb(52,58,64) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-.checkbox.checbox-switch.switch-dark label > input:checked:disabled + span,
-.checkbox-inline.checbox-switch.switch-dark > input:checked:disabled + span {
-    background-color: rgb(100, 102, 104);
-    border-color: rgb(100, 102, 104);
-    box-shadow: rgb(100, 102, 104) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-
-/* Switch Success */
-.checkbox.checbox-switch.switch-success label > input:checked + span,
-.checkbox-inline.checbox-switch.switch-success > input:checked + span {
-    background-color: rgb(40, 167, 69);
-    border-color: rgb(40, 167, 69);
-    box-shadow: rgb(40, 167, 69) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-.checkbox.checbox-switch.switch-success label > input:checked:disabled + span,
-.checkbox-inline.checbox-switch.switch-success > input:checked:disabled + span {
-    background-color: rgb(153, 217, 168);
-    border-color: rgb(153, 217, 168);
-    box-shadow: rgb(153, 217, 168) 0px 0px 0px 8px inset;
-}
-
-/* Switch Danger */
-.checkbox.checbox-switch.switch-danger label > input:checked + span,
-.checkbox-inline.checbox-switch.switch-danger > input:checked + span {
-    background-color: rgb(200, 35, 51);
-    border-color: rgb(200, 35, 51);
-    box-shadow: rgb(200, 35, 51) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-.checkbox.checbox-switch.switch-danger label > input:checked:disabled + span,
-.checkbox-inline.checbox-switch.switch-danger > input:checked:disabled + span {
-    background-color: rgb(216, 119, 129);
-    border-color: rgb(216, 119, 129);
-    box-shadow: rgb(216, 119, 129) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-
-/* Switch Primary */
-.checkbox.checbox-switch.switch-primary label > input:checked + span,
-.checkbox-inline.checbox-switch.switch-primary > input:checked + span {
-    background-color: rgb(0, 105, 217);
-    border-color: rgb(0, 105, 217);
-    box-shadow: rgb(0, 105, 217) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-.checkbox.checbox-switch.switch-primary label > input:checked:disabled + span,
-.checkbox-inline.checbox-switch.switch-primary > input:checked:disabled + span {
-    background-color: rgb(109, 163, 221);
-    border-color: rgb(109, 163, 221);
-    box-shadow: rgb(109, 163, 221) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-
-/* Switch Info */
-.checkbox.checbox-switch.switch-info label > input:checked + span,
-.checkbox-inline.checbox-switch.switch-info > input:checked + span {
-    background-color: rgb(23, 162, 184);
-    border-color: rgb(23, 162, 184);
-    box-shadow: rgb(23, 162, 184) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-.checkbox.checbox-switch.switch-info label > input:checked:disabled + span,
-.checkbox-inline.checbox-switch.switch-info > input:checked:disabled + span {
-    background-color: rgb(102, 192, 206);
-    border-color: rgb(102, 192, 206);
-    box-shadow: rgb(102, 192, 206) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-
-/* Switch Warning */
-.checkbox.checbox-switch.switch-warning label > input:checked + span,
-.checkbox-inline.checbox-switch.switch-warning > input:checked + span {
-    background-color: rgb(255, 193, 7);
-    border-color: rgb(255, 193, 7);
-    box-shadow: rgb(255, 193, 7) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
-}
-.checkbox.checbox-switch.switch-warning label > input:checked:disabled + span,
-.checkbox-inline.checbox-switch.switch-warning > input:checked:disabled + span {
-    background-color: rgb(226, 195, 102);
-    border-color: rgb(226, 195, 102);
-    box-shadow: rgb(226, 195, 102) 0px 0px 0px 8px inset;
-    transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
+  cursor: not-allowed;
 }
