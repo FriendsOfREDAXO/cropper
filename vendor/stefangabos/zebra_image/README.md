@@ -6,7 +6,7 @@
 
 [![Latest Stable Version](https://poser.pugx.org/stefangabos/zebra_image/v/stable)](https://packagist.org/packages/stefangabos/zebra_image) [![Total Downloads](https://poser.pugx.org/stefangabos/zebra_image/downloads)](https://packagist.org/packages/stefangabos/zebra_image) [![Monthly Downloads](https://poser.pugx.org/stefangabos/zebra_image/d/monthly)](https://packagist.org/packages/stefangabos/zebra_image) [![Daily Downloads](https://poser.pugx.org/stefangabos/zebra_image/d/daily)](https://packagist.org/packages/stefangabos/zebra_image) [![License](https://poser.pugx.org/stefangabos/zebra_image/license)](https://packagist.org/packages/stefangabos/zebra_image)
 
-Use Zebra Image to **resize**, **flip**, **rotate**, **crop** and **sharpen** images. The library supports loading and saving images in the **GIF**, **JPEG**, **PNG** and **WEBP** formats and preserves transparency of **GIF**, **PNG8**, **PNG24** and **WEBP** images and it doesn't require any external libraries other than the [GD2 extension](https://www.php.net/manual/en/book.image.php) (with which PHP usually comes pre-compiled with).
+Use Zebra Image to **resize**, **flip**, **rotate**, **crop** and **sharpen** images. The library supports loading and saving images in the **BMP**, **GIF**, **JPEG**, **PNG** and **WEBP** formats and preserves transparency of **GIF**, **PNG8**, **PNG24** and **WEBP** images, and it doesn't require any external libraries other than the [GD2 extension](https://www.php.net/manual/en/book.image.php) (with which PHP usually comes pre-compiled with).
 
 All the [filters supported by PHP](https://www.php.net/manual/en/function.imagefilter.php) can be applied to images. These filters include negate, grayscale, brightness, contrast, colorize, edgedetect, emboss, gaussian blur, selective blur, mean removal, smooth and pixelate. Multiple filters can be applied at once for creating custom filters.
 
@@ -68,6 +68,7 @@ Here are the results of resizing a 800×573 pixels image to a 200×200 pixels im
 ## Features
 
 - can be used to resize, flip, rotate, crop and sharpen images
+- supports handling of BMP, GIF, JPG, PNG and WEBP images
 - all the [filters supported by PHP](https://www.php.net/manual/en/function.imagefilter.php) can be applied to images: negate, grayscale, brightness, contrast, colorize, edgedetect, emboss, gaussian blur, selective blur, mean removal, smooth and pixelate; multiple filters can be applied at once for creating custom filters;
 - images can be resized to *exact* sizes and maintaining aspect ratio by automatically cropping them
 - preserves transparency of GIF, PNG8, PNG24 and WEBP images
@@ -82,16 +83,14 @@ Check out the [awesome documentation](https://stefangabos.github.io/Zebra_Image/
 
 ## 🎂 Support the development of this project
 
-Your support means a lot and it keeps me motivated to keep working on open source projects.<br>
-If you like this project please ⭐ it by clicking on the star button at the top of the page.<br>
-If you are feeling generous, you can buy me a coffee by donating through PayPal, or you can become a sponsor.<br>
-Either way - **Thank you!** 🎉
+Your support is greatly appreciated and it keeps me motivated continue working on open source projects. If you enjoy this project please star it by clicking on the star button at the top of the page. If you're feeling generous, you can also buy me a coffee through PayPal or become a sponsor.
+**Thank you for your support!** 🎉
 
 [<img src="https://img.shields.io/github/stars/stefangabos/zebra_image?color=green&label=star%20it%20on%20GitHub" width="132" height="20" alt="Star it on GitHub">](https://github.com/stefangabos/Zebra_Image) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BXHCKWCF6JCPQ) [<img src="https://img.shields.io/badge/-Sponsor-fafbfc?logo=GitHub%20Sponsors">](https://github.com/sponsors/stefangabos)
 
 ## Requirements
 
-PHP 5+, bundled GD 2.0.28+ (PHP 7.0.0+ for WEBP support)
+PHP 5+, bundled GD 2.0.28+ (PHP 7.0.0+ for WEBP support, PHP 7.2.0+ for BMP support)
 
 PHP needs to be compiled with `--enable-exif` (Windows users enable `php_mbstring.dll` and `php_exif.dll` extensions in `php.ini`) for auto-fixing image rotation so images are always shown correctly regardless of how the camera was held when the pictures were taken.
 

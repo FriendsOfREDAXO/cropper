@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "stefangabos/zebra_image",
-            "version": "2.8.1",
-            "version_normalized": "2.8.1.0",
+            "version": "2.8.2",
+            "version_normalized": "2.8.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stefangabos/Zebra_Image.git",
-                "reference": "2d266592bfe18e784203a02507beb0a29d4bc0f5"
+                "reference": "11c343fa312d8cc3ffc70231f027af6bdd01f42b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/2d266592bfe18e784203a02507beb0a29d4bc0f5",
-                "reference": "2d266592bfe18e784203a02507beb0a29d4bc0f5",
+                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/11c343fa312d8cc3ffc70231f027af6bdd01f42b",
+                "reference": "11c343fa312d8cc3ffc70231f027af6bdd01f42b",
                 "shasum": ""
             },
             "require": {
@@ -22,7 +22,7 @@
                 "phpstan/phpstan": "^1.8",
                 "squizlabs/php_codesniffer": "*"
             },
-            "time": "2022-12-29T14:47:12+00:00",
+            "time": "2023-01-25T14:53:20+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -55,7 +55,7 @@
             ],
             "support": {
                 "issues": "https://github.com/stefangabos/Zebra_Image/issues",
-                "source": "https://github.com/stefangabos/Zebra_Image/tree/2.8.1"
+                "source": "https://github.com/stefangabos/Zebra_Image/tree/2.8.2"
             },
             "funding": [
                 {
