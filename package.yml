@@ -3,6 +3,11 @@ version: '1.5.1'
 author: Friends Of REDAXO
 supportpage: https://github.com/FriendsOfREDAXO/cropper
 
+page:
+    title: 'translate:cropper_settings_title'
+    subpages:
+        settings:
+            title: "translate:cropper_settings"
 pages:
     mediapool/cropper:
         title: cropper

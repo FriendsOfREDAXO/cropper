@@ -1,3 +1,4 @@
+cropper_settings_title = Cropper
 cropper_media_crop_title = Edit image "%s"
 cropper_img_save_info = Save resulting image as a new media file
 cropper_jpg_quality = JPEG quality
