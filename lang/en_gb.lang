@@ -1,4 +1,6 @@
 cropper_settings_title = Cropper
+cropper_settings_aspect_ratios = Aspect Ratios
+cropper_settings = Settings
 cropper_media_crop_title = Edit image "%s"
 cropper_img_save_info = Save resulting image as a new media file
 cropper_jpg_quality = JPEG quality

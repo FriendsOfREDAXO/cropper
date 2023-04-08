@@ -19,7 +19,7 @@
         }
 ?>
 <div class="cropper_image_wrapper">
-    <img id="cropper_image" src="<?= $mediaUrl;?>?buster=<?= $mtime;?>">
+    <img id="cropper_image" src="<?= $mediaUrl;?>?buster=<?= $mtime;?>" alt="">
     <div class="docs-buttons">
         <div class="btn-group">
             <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="move" data-toggle="tooltip" data-original-title="Move" data-animation="false">

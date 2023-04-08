@@ -9,7 +9,7 @@ $form = rex_config_form::factory('cropper');
 //$field = $form->addFieldset($addon->i18n('config_legend1'));
 
 // 1.1 Einfaches Textfeld
-$field = $form->addTextAreaField('aspect_ratios', ['class' => 'form-control']);
+$field = $form->addTextAreaField('aspect_ratios', null,['class' => 'form-control']);
 $field->setLabel($addon->i18n('cropper_settings_aspect_ratios'));
 
 
