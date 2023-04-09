@@ -59,7 +59,7 @@
 
             <?php foreach ($ratios AS $i => $ratio) :?>
             <label class="btn btn-primary" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: <?= $ratio['w']?> / <?= $ratio['h']?>">
-                <input type="radio" class="sr-only" id="aspectRatio<?= $i;?>" name="aspectRatio" value="<?= $ratio['h'];?>"><?= $ratio['w']?>:<?= $ratio['h']?>
+                <input type="radio" class="sr-only" id="aspectRatio<?= $i;?>" name="aspectRatio" value="<?= $ratio['r'];?>"><?= $ratio['w']?>:<?= $ratio['h']?>
             </label>
             <?php endforeach;?>
 
