@@ -50,12 +50,15 @@ siehe [LICENSE.md](https://github.com/FriendsOfREDAXO/cropper/blob/master/LICENS
 
 **Projekt-Lead**
 
-[Thomas Skerbis](https://github.com/skerbis)
+[Alexander Wenz](https://github.com/alexwenz)
+
 
 **Credits**
 
-Developer: 
+Initiator: 
+[Thomas Skerbis](https://github.com/skerbis)
 
+1st Developer: 
 [Joachim Dörr](https://github.com/joachimdoerr)
 
 Danke an: 
