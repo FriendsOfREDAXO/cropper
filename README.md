@@ -50,7 +50,7 @@ siehe [LICENSE.md](https://github.com/FriendsOfREDAXO/cropper/blob/master/LICENS
 
 **Projekt-Lead**
 
-[Alexander Wenz](https://github.com/alexwenz)
+[Alex Wenz](https://github.com/alexwenz)
 
 
 **Credits**
