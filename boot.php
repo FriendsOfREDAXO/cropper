@@ -51,4 +51,39 @@ if (rex::isBackend() && rex::getUser()) {
         }
     });
 
+    rex_extension::register( 'MEDIA_LIST_FUNCTIONS', function( rex_extension_point $ep ){
+
+
+
+        if (!rex::getUser()->hasPerm('cropper[]')) return false; // don't show the button
+
+        /** @var rex_sql $media */
+        $media = $ep->getParam('media');
+
+
+        $msg = rex_request::request('cropper_msg', 'string', null);
+        $cropper_error = rex_request::request('cropper_error', 'boolean', false);
+
+        if (!is_null($msg)) {
+            echo ($cropper_error) ? rex_view::error(rex_i18n::msg($msg)) : rex_view::success(rex_i18n::msg($msg));
+        }
+
+        /** @var rex_media $rexMedia */
+        $rexMedia = rex_media::get($media->getValue('name'));
+
+        if ($rexMedia instanceof rex_media && $rexMedia->isImage()) {
+
+            $link = rex_url::backendPage('mediapool/cropper', array(
+                'rex_file_category' => rex_request::get('rex_file_category', 'integer', 0),
+                'file_id' => $ep->getParam('id'),
+                'media_name' => $media->getValue('name'),
+            ), true);
+
+            return '<a href="' . $link . '"><span>' . rex_i18n::msg('cropper_media_edit_link') . '</span> <i class="fa fa-crop"></i></a>';
+        }
+
+    });
+
+
+
 }
