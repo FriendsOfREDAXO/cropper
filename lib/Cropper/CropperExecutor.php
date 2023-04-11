@@ -183,6 +183,8 @@ class CropperExecutor
             $this->zebraImage->crop($this->parameter['x'], $this->parameter['y'], ($this->parameter['x'] + $this->parameter['width']), ($this->parameter['y'] + $this->parameter['height']));
             $zebraErrors[] = $this->zebraImage->error;
         }
+        $imgwidth=$this->parameter['width'];
+        $imgheight=$this->parameter['height'];
 
         rex_media_cache::delete($media->getFileName());
         rex_media_manager::deleteCache(pathinfo($media->getFileName(), PATHINFO_FILENAME));
@@ -196,6 +198,17 @@ class CropperExecutor
 
         $result = rex_mediapool_updateMedia(array('name' => 'none'), $FILEINFOS, rex::getUser()->getValue('login'));
         $msgType = ($this->update) ? 'updated' : 'created';
+
+        // Abmessungen abspeichern
+        $sql = rex_sql::factory();
+        $sql->setTable(rex::getTablePrefix() . 'media');
+        $sql->setWhere(['id' => $media->getId()]);
+        $sql->setValue('filesize', filesize(rex_path::media($media->getFileName())));
+        $sql->setValue('width', $imgwidth);
+        $sql->setValue('height', $imgheight);
+        $sql->addGlobalUpdateFields(rex::getUser()->getValue('login'));
+        $sql->update();
+
 
         if (isset($result['ok']) && $result['ok'] == 1 && isset($result['filename'])) {
             $media = rex_media::get($result['filename']);
