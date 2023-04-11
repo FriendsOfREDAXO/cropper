@@ -1,3 +1,6 @@
+cropper_settings_title = Cropper
+cropper_settings_aspect_ratios = Bildförhållande
+cropper_settings = Inställningar
 cropper_media_crop_title = Bearbeta bild "%s"
 cropper_img_save_info = Spara resultatet av redigering som en ny mediefil
 cropper_jpg_quality = JPEG kvalité
