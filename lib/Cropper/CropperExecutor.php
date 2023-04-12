@@ -199,21 +199,25 @@ class CropperExecutor
         $result = rex_mediapool_updateMedia(array('name' => 'none'), $FILEINFOS, rex::getUser()->getValue('login'));
         $msgType = ($this->update) ? 'updated' : 'created';
 
-        // Abmessungen abspeichern
-        $sql = rex_sql::factory();
-        $sql->setTable(rex::getTablePrefix() . 'media');
-        $sql->setWhere(['id' => $media->getId()]);
-        $sql->setValue('filesize', filesize(rex_path::media($media->getFileName())));
-        $sql->setValue('width', $imgwidth);
-        $sql->setValue('height', $imgheight);
-        $sql->addGlobalUpdateFields(rex::getUser()->getValue('login'));
-        $sql->update();
-
-
         if (isset($result['ok']) && $result['ok'] == 1 && isset($result['filename'])) {
             $media = rex_media::get($result['filename']);
             $msg = 'cropper_successful_' . $msgType;
             $ok = true;
+
+            $size = @getimagesize($this->zebraImage->target_path);
+
+            $sql = rex_sql::factory();
+            $sql->setTable(rex::getTable('media'));
+            $sql->setWhere(['filename' => $result['filename']]);
+            $sql->setValue('filesize', filesize($this->zebraImage->target_path));
+
+            if ($size) {
+                $sql->setValue('width', $size[0]);
+                $sql->setValue('height', $size[1]);
+            }
+
+            $sql->update();
+            
         } else {
             $msg = 'cropper_failed_' . $msgType;
             $ok = false;
