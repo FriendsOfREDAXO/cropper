@@ -18,6 +18,7 @@
             }
         }
 ?>
+
 <div class="cropper_image_wrapper">
     <img id="cropper_image" src="<?= $mediaUrl;?>?buster=<?= $mtime;?>" alt="">
     <div class="docs-buttons">
@@ -49,6 +50,7 @@
             <button type="button" class="btn btn-primary" data-method="scaleY" data-option="-1" data-toggle="tooltip" data-original-title="Flip Vertical" data-animation="false">
                 <span class="fa fa-arrows-v"></span>
             </button>
+
         </div>
     </div>
     <div class="docs-toggles">
@@ -66,10 +68,30 @@
             <label class="btn btn-primary active free" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: NaN">
                 <input type="radio" class="sr-only" id="aspectRatio-free" name="aspectRatio" value="NaN">Free
             </label>
+
+            <div class="cropper-settings dropdown" style="display: inline-block">
+                <button class="btn dropdown-toggle" type="button" id="cropper-settings" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="cropper-settings">
+                    <li><label for="zoomOnWheel">
+                            <input class="form-check-input" id="zoomOnWheel" type="checkbox" name="zoomOnWheel" data-form-type="other">
+                            per Mausrad zoomen
+                        </label>
+                    </li>
+                    <li>
+                        <label for="zoomOnTouch">
+                            <input class="form-check-input" id="zoomOnTouch" type="checkbox" name="zoomOnTouch" checked data-form-type="other">
+                            per Touch zoomen
+                        </label>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 
+
+</div>
 <input type="hidden" id="dataX" name="x">
 <input type="hidden" id="dataY" name="y">
 <input type="hidden" id="dataWidth" name="width">
