@@ -5,7 +5,7 @@ Bildbearbeitung für REDAXO.
 
 Stellt den Image-Cropper [Cropper.js](https://fengyuanchen.github.io/cropperjs/) im Medienpool zur Verfügung. Lizenz: [MIT](https://github.com/fengyuanchen/cropperjs/blob/master/LICENSE)
 
-![Screenshot](https://github.com/FriendsOfREDAXO/cropper/blob/assets/screen.png?raw=true)
+![Screenshot](https://github.com/FriendsOfREDAXO/cropper/raw/assets/cropper_screenshot.png)
 
 ## Features
 - Zuschneiden 
