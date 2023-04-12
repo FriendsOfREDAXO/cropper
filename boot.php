@@ -12,6 +12,7 @@ if (rex::isBackend() && is_object(rex::getUser())) {
 if (rex::isBackend() && rex::getUser()) {
 
     rex_view::addCssFile($this->getAssetsUrl('css/cropper.css'));
+    rex_view::addCssFile($this->getAssetsUrl('cropper_ui_fix.css'));
     if (rex_be_controller::getCurrentPagePart(2) == 'cropper') {
         rex_view::addJsFile($this->getAssetsUrl('js/cropper.min.js'));
         rex_view::addJsFile($this->getAssetsUrl('js/jquery-cropper.min.js'));
