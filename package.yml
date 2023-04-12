@@ -5,6 +5,8 @@ supportpage: https://github.com/FriendsOfREDAXO/cropper
 
 page:
     title: 'translate:cropper_settings_title'
+    icon: rex-icon fa-crop
+    perm: cropper[settings]
     subpages:
         settings:
             title: "translate:cropper_settings"

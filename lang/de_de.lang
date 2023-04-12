@@ -1,4 +1,5 @@
 cropper_settings_title = Cropper
+perm_general_cropper[settings] = Cropper: Settings
 cropper_settings_aspect_ratios = Seitenverhältnisse
 cropper_settings = Einstellungen
 cropper_media_crop_title = Bild "%s" bearbeiten
