@@ -66,6 +66,7 @@ Initiator:
 Danke an: 
 
 - [Wasserverbund Niederrhein](https://wv-n.de)
+- [REXFamilyWeek](https://ferien-am-tressower-see.de/rexfamilyweek-2023/)
 - [Sven Haustein](https://github.com/shauste)
 
 
