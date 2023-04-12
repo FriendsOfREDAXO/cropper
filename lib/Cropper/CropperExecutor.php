@@ -100,6 +100,7 @@ class CropperExecutor
      */
     private function mediaWriteInitial()
     {
+
         if (!file_exists(rex_path::media($this->originalFilename))) {
             throw new CroppingException('File ' . rex_path::media($this->originalFilename) . ' not exist');
         }
@@ -217,7 +218,7 @@ class CropperExecutor
             }
 
             $sql->update();
-            
+
         } else {
             $msg = 'cropper_failed_' . $msgType;
             $ok = false;
