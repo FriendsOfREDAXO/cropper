@@ -79,6 +79,7 @@ try {
         $pngCompression = rex_request::request('png_compression', 'integer', 9);
         $newFileExtension = rex_request::request('new_file_extension', 'string', null);
         $newFileName = rex_request::request('new_file_name', 'string', rex_escape(pathinfo($media->getFileName(), PATHINFO_FILENAME)));
+        $newMediaPoolCategory = rex_request::request('rex_file_category', 'integer', default: null);
 
         $allowed = (is_null($newFileExtension)) ? false : true;
 
@@ -172,7 +173,34 @@ try {
                             </div>',
             ),
         ), false);
-        $panel .= "<div id=\"new_file_name\" class=\"collapse in\">" . $fragment->parse('core/form/form.php') . "</div>";
+
+
+        // Medienpool-Kategorien zur Auswahl
+        $rex_file_category = $media->getCategoryId();
+        $PERMALL = rex::getUser()->getComplexPerm('media')->hasCategoryPerm(0);
+        if (!$PERMALL && !rex::getUser()->getComplexPerm('media')->hasCategoryPerm($rex_file_category))
+        {
+            $rex_file_category = 0;
+        }
+        $cats_sel = new rex_media_category_select();
+        $cats_sel->setStyle('class="form-control"');
+        $cats_sel->setSize(1);
+        $cats_sel->setName('rex_file_category');
+        $cats_sel->setId('rex-mediapool-category');
+        $cats_sel->addOption(rex_i18n::msg('pool_kats_no'), '0');
+        $cats_sel->setSelected($rex_file_category);
+
+        $mediacat_select = '
+        <dl class="rex-form-group form-group">
+                        <dt>
+                            <label for="rex-mediapool-category">'. rex_i18n::msg('pool_file_category') .'</label>
+                        </dt>
+                        <dd>
+                            ' . $cats_sel->get() .'
+                        </dd>
+                    </dl>';
+
+        $panel .= "<div id=\"new_file_name\" class=\"collapse in\">" . $fragment->parse('core/form/form.php') . $mediacat_select ."</div>";
 
         // FORM ELEMENTS
         // JPG QUALITY
