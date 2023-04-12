@@ -1,0 +1,4 @@
+.cropper_image_wrapper .docs-buttons,
+.cropper_image_wrapper .docs-toggles {
+    z-index: 200;
+}
