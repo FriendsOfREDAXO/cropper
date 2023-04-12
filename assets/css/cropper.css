@@ -340,13 +340,13 @@
     right: 1rem;
 }
 
-.cropper_image_wrapper .docs-toggles label,
+.cropper_image_wrapper .docs-toggles >div > label,
 .cropper_image_wrapper .docs-buttons button {
     background: transparent;
     border: none;
 }
 
-.cropper_image_wrapper .docs-toggles label:hover,
+.cropper_image_wrapper .docs-toggles > div > label:hover,
 .cropper_image_wrapper .docs-buttons button:hover {
     background: #0074d9;
     border: none;
@@ -359,9 +359,23 @@
 }
 
 .cropper_image_wrapper .docs-toggles label.active {
-    background: #000;
 }
 
+.cropper-settings label {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 4px 10px;
+}
+.cropper-settings button {
+    background: transparent;
+    padding: 4px 10px;
+    font-size: 14px;
+    border-radius: 0;
+}
+.cropper-settings button:hover {
+    background: #2088db;
+    color: white;
+}
 .docs-toggles {
     margin-bottom: 15px;
 }

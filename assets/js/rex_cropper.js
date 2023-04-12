@@ -47,6 +47,7 @@ function image_cropper_init(element) {
         $dataScaleY = $('#dataScaleY'),
         options = {
             dragMode: 'move',
+            zoomOnWheel: false,
             crop: function (e) {
                 $dataX.val(Math.round(e.detail.x));
                 $dataY.val(Math.round(e.detail.y));
