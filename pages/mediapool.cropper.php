@@ -184,7 +184,7 @@ try {
         }
         $cats_sel = new rex_media_category_select();
         $cats_sel->setStyle('class="form-control selectpicker"');
-        $$cats_sel->setAttribute('data-live-search', 'true');
+        $cats_sel->setAttribute('data-live-search', 'true');
         $cats_sel->setSize(1);
         $cats_sel->setName('rex_file_category');
         $cats_sel->setId('rex-mediapool-category');
