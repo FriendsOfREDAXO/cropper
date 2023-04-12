@@ -12,7 +12,7 @@ Stellt den Image-Cropper [Cropper.js](https://fengyuanchen.github.io/cropperjs/)
 - Drehen
 - Spiegeln
 - Speichern als neue Datei
-- Speichern in ausgwähle Kategorie
+- Speichern in ausgewählte Kategorie
 - Überschreiben des Originals
 - Rechte für Benutzer
 - Einstellungsmöglichkeit für "Aspect Ratios"
