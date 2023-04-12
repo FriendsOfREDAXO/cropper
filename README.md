@@ -12,9 +12,11 @@ Stellt den Image-Cropper [Cropper.js](https://fengyuanchen.github.io/cropperjs/)
 - Drehen
 - Spiegeln
 - Speichern als neue Datei
+- Speichern in ausgewählte Kategorie
 - Überschreiben des Originals
 - Rechte für Benutzer
 - Einstellungsmöglichkeit für "Aspect Ratios"
+- Einstellung für Zoom-Modus: Touch, Mouse
 
 ## Beschreibung 
 
@@ -64,6 +66,7 @@ Initiator:
 Danke an: 
 
 - [Wasserverbund Niederrhein](https://wv-n.de)
+- [REXFamilyWeek](https://ferien-am-tressower-see.de/rexfamilyweek-2023/)
 - [Sven Haustein](https://github.com/shauste)
 
 
