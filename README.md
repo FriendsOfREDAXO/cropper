@@ -36,7 +36,7 @@ Du hast einen Fehler gefunden oder ein nettes Feature parat? [Lege bitte ein Iss
 
 ## Changelog
 
-siehe [CHANGELOG.md](https://github.com/FriendsOfREDAXO/cropper/blob/master/CHANGELOG.md)
+siehe [Release notes](https://github.com/FriendsOfREDAXO/cropper/releases)
 
 ## Lizenz
 
