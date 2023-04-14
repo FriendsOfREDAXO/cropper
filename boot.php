@@ -59,9 +59,9 @@ if (rex::isBackend() && rex::getUser()) {
 
     rex_extension::register( 'MEDIA_LIST_FUNCTIONS', function( rex_extension_point $ep ){
 
-
-
         if (!rex::getUser()->hasPerm('cropper[]')) return false; // don't show the button
+
+        $subject = $ep->getSubject();
 
         /** @var rex_sql $media */
         $media = $ep->getParam('media');
@@ -90,7 +90,11 @@ if (rex::isBackend() && rex::getUser()) {
 
             $link = rex_url::backendPage('mediapool/cropper', $linkParams, true);
 
-            return '<a href="' . $link . '"><span>' . rex_i18n::msg('cropper_media_edit_link') . '</span> <i class="fa fa-crop"></i></a>';
+            // a bit dirty, but it works...
+            return '<a href="' . $link . '"><span>' . rex_i18n::msg('cropper_media_edit_link') . '</span> <i class="fa fa-crop"></i></a>' .
+                '</td>' .
+                '<td class="rex-table-action">' .
+                $subject;
         }
 
     });
