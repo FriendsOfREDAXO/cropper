@@ -36,12 +36,17 @@ if (rex::isBackend() && rex::getUser()) {
         $rexMedia = rex_media::get($media->getValue('filename'));
 
         if ($rexMedia instanceof rex_media && $rexMedia->isImage()) {
-
-            $link = rex_url::backendPage('mediapool/cropper', array(
+            $linkParams = array(
                 'rex_file_category' => rex_request::get('rex_file_category', 'integer', 0),
                 'file_id' => $ep->getParam('id'),
                 'media_name' => $media->getValue('filename'),
-            ), true);
+            );
+
+            if (rex_get('opener_input_field', 'string')) {
+                $linkParams['opener_input_field'] = rex_get('opener_input_field', 'string');
+            }
+
+            $link = rex_url::backendPage('mediapool/cropper', $linkParams, true);
 
             $fragment = new rex_fragment();
             $fragment->setVar('elements', array(array(
@@ -73,12 +78,17 @@ if (rex::isBackend() && rex::getUser()) {
         $rexMedia = rex_media::get($media->getValue('name'));
 
         if ($rexMedia instanceof rex_media && $rexMedia->isImage()) {
-
-            $link = rex_url::backendPage('mediapool/cropper', array(
+            $linkParams = array(
                 'rex_file_category' => rex_request::get('rex_file_category', 'integer', 0),
                 'file_id' => $ep->getParam('id'),
                 'media_name' => $media->getValue('name'),
-            ), true);
+            );
+
+            if (rex_get('opener_input_field', 'string')) {
+                $linkParams['opener_input_field'] = rex_get('opener_input_field', 'string');
+            }
+
+            $link = rex_url::backendPage('mediapool/cropper', $linkParams, true);
 
             return '<a href="' . $link . '"><span>' . rex_i18n::msg('cropper_media_edit_link') . '</span> <i class="fa fa-crop"></i></a>';
         }

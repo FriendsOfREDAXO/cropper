@@ -41,6 +41,11 @@ try {
             $media = ($result['media'] instanceof rex_media) ? $result['media'] : null;
             $urlParameter['file_id'] = $media->getId();
             $urlParameter['cropper_msg'] = $result['msg'];
+
+            if (rex_post('opener_input_field', 'string')) {
+                $urlParameter['opener_input_field'] = rex_post('opener_input_field', 'string');
+            }
+
             rex_response::sendRedirect(rex_url::backendPage(POOL_MEDIA, $urlParameter, false));
         } else {
             // don't jump stay and get error msg
@@ -241,6 +246,7 @@ try {
             <input type="hidden" name="file_id" value="' . rex_request::request('file_id', 'integer') . '" />
             <input type="hidden" name="media_name" value="' . $mediaName . '" />
             <input type="hidden" name="rex_file_category" value="' . rex_request::request('rex_file_category', 'integer') . '" />
+            <input type="hidden" name="opener_input_field" value="' . rex_request::request('opener_input_field', 'string') . '" />
             ' . $panel . $buttons . '
         </form>';
     }
