@@ -12,5 +12,5 @@ cropper_media_edit_label = Cropper
 cropper_save_options = Speicheroption
 cropper_successful_updated = Datei wurde erfolgreich aktualisiert!
 cropper_successful_created = Datei wurde erfolgreich erstellt!
-cropper_settings_show_edit_in_list = Bearbeiten-Link in der Medienliste einblenden
-cropper_settings_show = Bearbeiten-Link einblenden
+cropper_settings_show_edit_in_list = Zuschneiden-Link in der Medienliste einblenden
+cropper_settings_show = Zuschneiden-Link einblenden
