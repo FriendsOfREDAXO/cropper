@@ -4,6 +4,7 @@ cropper_settings_aspect_ratios = Seitenverhältnisse
 cropper_settings = Einstellungen
 cropper_media_crop_title = Bild "%s" zuschneiden
 cropper_img_save_info = Resultat der Bearbeitung als neue Datei speichern
+cropper_img_save_info_nochoice = Das Resultat der Bearbeitung wird als neue Datei gespeichert.
 cropper_jpg_quality = JPEG Qualität
 cropper_png_compression = PNG Kompression
 cropper_back_to_media = Zurück

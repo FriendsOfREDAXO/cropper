@@ -145,19 +145,18 @@ try {
 
         // FORM ELEMENTS
         // SAVE OPTION
-        $checkbox = '<input type="checkbox" name="create_new_image" id="create_new_image" checked />';
+        $checkbox = '
+            <label class="checkbox-inline checbox-switch switch-primary">
+                <input type="checkbox" name="create_new_image" id="create_new_image" checked />
+            <span></span>' . rex_i18n::msg('cropper_img_save_info') . '</label>';
         if (!rex::getUser()->hasPerm('cropper[overwrite]')) :
-            $checkbox = '<input type="checkbox" name="create_new_image_cb" id="create_new_image_cb" disabled checked />
-                            <input type="hidden" name="create_new_image" id="create_new_image" value="on">';
+            $checkbox =  '<div class="nocheckbox">' . rex_i18n::msg('cropper_img_save_info_nochoice') .'</div>';
         endif;
         $fragment = new rex_fragment();
         $fragment->setVar('elements', array(
             array(
                 'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_save_options') . '</label>',
-                'field' => '<label class="checkbox-inline checbox-switch switch-primary">
-                                '.$checkbox.'
-                                <span></span>' . rex_i18n::msg('cropper_img_save_info') . '
-                            </label>',
+                'field' => $checkbox,
             ),
         ), false);
         $panel .= $fragment->parse('core/form/form.php');

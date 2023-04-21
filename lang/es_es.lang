@@ -3,6 +3,7 @@ cropper_settings_aspect_ratios = Relaciones de aspecto
 cropper_settings = Ajustes
 cropper_media_crop_title = Recortar imagen "%s"
 cropper_img_save_info = Guarde el resultado de la edición como un nuevo archivo multimedia.
+cropper_img_save_info_nochoice = El resultado de la edición se guarda como un nuevo archivo.
 cropper_jpg_quality = Calidad JPEG
 cropper_png_compression= Compresión PNG
 cropper_back_to_media = Atrás
