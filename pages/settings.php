@@ -13,8 +13,8 @@ $field = $form->addTextAreaField('aspect_ratios', null,['class' => 'form-control
 $field->setLabel($addon->i18n('cropper_settings_aspect_ratios'));
 
 $field = $form->addCheckboxField('hide_edit_in_list');
-$field->setLabel($addon->i18n('cropper_settings_hide'));
-$field->addOption($addon->i18n('cropper_settings_hide_edit_in_list'), 1);
+$field->setLabel($addon->i18n('cropper_settings_show'));
+$field->addOption($addon->i18n('cropper_settings_show_edit_in_list'), 1);
 
 // Ausgabe des Formulars
 $fragment = new rex_fragment();

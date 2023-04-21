@@ -63,7 +63,7 @@ if (rex::isBackend() && rex::getUser()) {
 
         $subject = $ep->getSubject();
 
-        if ($this->getConfig('hide_edit_in_list') !== null) {
+        if ($this->getConfig('hide_edit_in_list') === null) {
             return $subject;
         }
 
