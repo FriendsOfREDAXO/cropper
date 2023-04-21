@@ -371,6 +371,11 @@
     padding: 4px 10px;
     font-size: 14px;
     border-radius: 0;
+    color: white;
+}
+
+.cropper-settings button i {
+    color: currentColor;
 }
 .cropper-settings button:hover {
     background: #2088db;
