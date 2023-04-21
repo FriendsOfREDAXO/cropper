@@ -3,6 +3,7 @@ cropper_settings_aspect_ratios = Bildförhållande
 cropper_settings = Inställningar
 cropper_media_crop_title = Beskära bilden "%s"
 cropper_img_save_info = Spara resultatet av redigering som en ny mediefil
+cropper_img_save_info_nochoice = Resultatet av redigeringen sparas som en ny fil.
 cropper_jpg_quality = JPEG kvalité
 cropper_png_compression= PNG kompression
 cropper_back_to_media = Tillbaka

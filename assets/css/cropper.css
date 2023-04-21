@@ -597,3 +597,6 @@ Release Dtae : 15 November, 2017
     transition: border 0.4s ease 0s, box-shadow 0.4s ease 0s, background-color 1.2s ease 0s;
     cursor: not-allowed;
 }
+
+
+.nocheckbox {padding-top: 7px;}
