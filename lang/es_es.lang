@@ -1,13 +1,15 @@
 cropper_settings_title = Cropper
 cropper_settings_aspect_ratios = Relaciones de aspecto
 cropper_settings = Ajustes
-cropper_media_crop_title = Editar imagen "%s"
+cropper_media_crop_title = Recortar imagen "%s"
 cropper_img_save_info = Guarde el resultado de la edición como un nuevo archivo multimedia.
 cropper_jpg_quality = Calidad JPEG
 cropper_png_compression= Compresión PNG
 cropper_back_to_media = Atrás
-cropper_media_edit_link = Editar imagen
+cropper_media_edit_link = Recortar imagen
 cropper_media_edit_label = Cropper
 cropper_save_options = Opción de almacenamiento
 cropper_successful_updated = ¡El archivo fue actualizado exitosamente!
 cropper_successful_created = El archivo fue creado con éxito!
+cropper_settings_show_edit_in_list = Mostrar enlace de recorte en la lista de medios
+cropper_settings_show = Mostrar enlace de recorte
