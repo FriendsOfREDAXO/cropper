@@ -21,7 +21,6 @@ if (rex::isBackend() && rex::getUser()) {
     if (rex::getUser()->hasPerm('cropper[]')) {
         rex_extension::register('MEDIA_FORM_EDIT', function (rex_extension_point $ep) {
 
-
             /** @var rex_sql $media */
             $media = $ep->getParam('media');
 
@@ -56,7 +55,8 @@ if (rex::isBackend() && rex::getUser()) {
                 return $fragment->parse('core/form/form.php');
             }
         });
-        if ($this->getConfig('hide_edit_in_list') !== NULL) {
+    }
+        if (rex::getUser()->hasPerm('cropper[]')) && $this->getConfig('hide_edit_in_list') !== NULL) {
             rex_extension::register('MEDIA_LIST_FUNCTIONS', function (rex_extension_point $ep) {
 
                 $subject = $ep->getSubject();
@@ -93,5 +93,5 @@ if (rex::isBackend() && rex::getUser()) {
                 }
             });
         }
-    }
+   
 }
