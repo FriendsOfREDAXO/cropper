@@ -56,7 +56,7 @@ if (rex::isBackend() && rex::getUser()) {
             }
         });
     }
-        if (rex::getUser()->hasPerm('cropper[]')) && $this->getConfig('hide_edit_in_list') !== NULL) {
+        if (rex::getUser()->hasPerm('cropper[]') && $this->getConfig('hide_edit_in_list') !== NULL) {
             rex_extension::register('MEDIA_LIST_FUNCTIONS', function (rex_extension_point $ep) {
 
                 $subject = $ep->getSubject();
