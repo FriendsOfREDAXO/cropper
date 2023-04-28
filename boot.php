@@ -56,7 +56,7 @@ if (rex::isBackend() && rex::getUser()) {
                 return $fragment->parse('core/form/form.php');
             }
         });
-        if ($this->getConfig('hide_edit_in_list') === 1) {
+        if ($this->getConfig('hide_edit_in_list') === "1") {
             rex_extension::register('MEDIA_LIST_FUNCTIONS', function (rex_extension_point $ep) {
 
                 $subject = $ep->getSubject();
