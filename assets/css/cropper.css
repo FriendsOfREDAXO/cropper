@@ -600,3 +600,8 @@ Release Dtae : 15 November, 2017
 
 
 .nocheckbox {padding-top: 7px;}
+
+
+.cropper-media-edit-link {
+    display: block;margin-bottom: 10px;
+}

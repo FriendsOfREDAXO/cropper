@@ -94,10 +94,9 @@ if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) 
             $link = rex_url::backendPage('mediapool/cropper', $linkParams, true);
 
             // a bit dirty, but it works...
-            return '<a href="' . $link . '"><span>' . rex_i18n::msg('cropper_media_edit_link') . '</span> <i class="fa fa-crop"></i></a>' .
-                '</td>' .
-                '<td class="rex-table-action">' .
+            return '<a href="' . $link . '" class="cropper-media-edit-link"><span>' . rex_i18n::msg('cropper_media_edit_link') . '</span> <i class="fa fa-crop"></i></a>' .
                 $subject;
+
         }
 
     });
