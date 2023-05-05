@@ -9,7 +9,7 @@ if (rex::isBackend() && is_object(rex::getUser())) {
     rex_perm::register('cropper[overwrite]');
 }
 
-if (rex::isBackend() && rex::getUser()) {
+if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) {
 
     rex_view::addCssFile($this->getAssetsUrl('css/cropper.css'));
     rex_view::addCssFile($this->getAssetsUrl('cropper_ui_fix.css'));
@@ -20,7 +20,7 @@ if (rex::isBackend() && rex::getUser()) {
     }
 
     rex_extension::register( 'MEDIA_FORM_EDIT', function( rex_extension_point $ep ){
-        if (!rex::getUser()->hasPerm('cropper[]')) return false; // don't show the button
+      
 
         /** @var rex_sql $media */
         $media = $ep->getParam('media');
@@ -59,7 +59,6 @@ if (rex::isBackend() && rex::getUser()) {
 
     rex_extension::register( 'MEDIA_LIST_FUNCTIONS', function( rex_extension_point $ep ){
 
-        if (!rex::getUser()->hasPerm('cropper[]')) return false; // don't show the button
 
         $subject = $ep->getSubject();
 
