@@ -84,7 +84,7 @@ try {
         $pngCompression = rex_request::request('png_compression', 'integer', 9);
         $newFileExtension = rex_request::request('new_file_extension', 'string', null);
         $newFileName = rex_request::request('new_file_name', 'string', rex_escape(pathinfo($media->getFileName(), PATHINFO_FILENAME)));
-        $newMediaPoolCategory = rex_request::request('rex_file_category', 'integer', default: null);
+        $newMediaPoolCategory = rex_request::request('rex_file_category', 'integer', null);
 
         $allowed = (is_null($newFileExtension)) ? false : true;
 
