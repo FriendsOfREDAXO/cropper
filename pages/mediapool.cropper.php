@@ -150,7 +150,7 @@ try {
                 <input type="checkbox" name="create_new_image" id="create_new_image" checked />
             <span></span>' . rex_i18n::msg('cropper_img_save_info') . '</label>';
         if (!rex::getUser()->hasPerm('cropper[overwrite]')) :
-            $checkbox =  '<div class="nocheckbox">' . rex_i18n::msg('cropper_img_save_info_nochoice') .'</div>';
+            $checkbox =  '<div class="nocheckbox"><input type="hidden" name="create_new_image" value="1" />' . rex_i18n::msg('cropper_img_save_info_nochoice') .'</div>';
         endif;
         $fragment = new rex_fragment();
         $fragment->setVar('elements', array(
