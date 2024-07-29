@@ -140,6 +140,12 @@ class CropperExecutor
                         $sql->addGlobalUpdateFields(rex::getUser()->getValue('login'));
                         $sql->update();
 
+                        // Update metadata for the new media
+                        foreach ($metadata as $fieldName => $value) {
+                            $sql->setValue($fieldName, $value);
+                        }
+                        $sql->update();
+
                         return rex_media::get($this->filename);
                     }
                 }
