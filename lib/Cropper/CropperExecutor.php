@@ -7,7 +7,6 @@
 
 namespace Cropper;
 
-
 use rex;
 use rex_media;
 use rex_media_cache;
@@ -48,7 +47,7 @@ class CropperExecutor
     private $update;
 
     /**
-     * @var array()
+     * @var array
      */
     private $parameter;
 
@@ -96,22 +95,18 @@ class CropperExecutor
      * @return rex_media|null
      * @throws CroppingException
      * @throws \rex_sql_exception
-     * @author Joachim Doerr
      */
     private function mediaWriteInitial()
     {
-
         if (!file_exists(rex_path::media($this->originalFilename))) {
-            throw new CroppingException('File ' . rex_path::media($this->originalFilename) . ' not exist');
+            throw new CroppingException('File ' . rex_path::media($this->originalFilename) . ' does not exist');
         }
 
         if ($this->update) {
-
             return rex_media::get($this->originalFilename);
-
         } else {
-
             if (copy(rex_path::media($this->originalFilename), rex_path::media($this->tempFilename))) {
+                $originalMedia = rex_media::get($this->originalFilename);
 
                 $FILE = array(
                     'name' => $this->tempFilename,
@@ -119,7 +114,20 @@ class CropperExecutor
                     'type' => mime_content_type(rex_path::media($this->originalFilename)),
                 );
 
-                $return = rex_mediapool_saveMedia($FILE, $this->category, ['title' => ''], rex::getUser()->getValue('login'), false);
+                // Dynamically fetch all metadata from the original media
+                $metadata = [];
+                $sql = rex_sql::factory();
+                $sql->setQuery('SELECT * FROM ' . rex::getTablePrefix() . 'media WHERE filename = ?', [$this->originalFilename]);
+
+                if ($sql->getRows() == 1) {
+                    foreach ($sql->getFieldNames() as $fieldName) {
+                        if (!in_array($fieldName, ['id', 'filename', 'originalname', 'filetype', 'filesize', 'width', 'height', 'category_id'])) {
+                            $metadata[$fieldName] = $sql->getValue($fieldName);
+                        }
+                    }
+                }
+
+                $return = rex_mediapool_saveMedia($FILE, $this->category, $metadata, rex::getUser()->getValue('login'), false);
 
                 if ($return['ok'] == 1) {
                     $media = rex_media::get($this->tempFilename);
@@ -146,7 +154,7 @@ class CropperExecutor
         $media = $this->mediaWriteInitial();
 
         if (!$media instanceof rex_media) {
-            throw new CroppingException('Initial media file write was failed');
+            throw new CroppingException('Initial media file write failed');
         }
 
         $this->zebraImage->source_path = rex_path::media($media->getFileName());
@@ -184,8 +192,6 @@ class CropperExecutor
             $this->zebraImage->crop($this->parameter['x'], $this->parameter['y'], ($this->parameter['x'] + $this->parameter['width']), ($this->parameter['y'] + $this->parameter['height']));
             $zebraErrors[] = $this->zebraImage->error;
         }
-        $imgwidth=$this->parameter['width'];
-        $imgheight=$this->parameter['height'];
 
         rex_media_cache::delete($media->getFileName());
         rex_media_manager::deleteCache(pathinfo($media->getFileName(), PATHINFO_FILENAME));
@@ -226,5 +232,4 @@ class CropperExecutor
 
         return array('media' => $media, 'error' => $zebraErrors, 'msg' => $msg, 'ok' => $ok, 'update' => $this->update);
     }
-
 }
