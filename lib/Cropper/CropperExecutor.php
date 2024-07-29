@@ -133,12 +133,11 @@ class CropperExecutor
                     $media = rex_media::get($this->tempFilename);
                     if ($media instanceof rex_media && rename(rex_path::media($this->tempFilename), rex_path::media($this->filename))) {
                         $sql = rex_sql::factory();
-                        $sql->setTable(rex::getTablePrefix() . 'media');
+                        $sql->setTable(rex::getTable('media'));
                         $sql->setWhere(['id' => $media->getId()]);
                         $sql->setValue('originalname', $this->originalFilename);
                         $sql->setValue('filename', $this->filename);
                         $sql->addGlobalUpdateFields(rex::getUser()->getValue('login'));
-                        $sql->update();
 
                         // Update metadata for the new media
                         foreach ($metadata as $fieldName => $value) {
