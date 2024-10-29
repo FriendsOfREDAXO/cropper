@@ -8,6 +8,10 @@ if (rex::isBackend() && is_object(rex::getUser())) {
     rex_perm::register('cropper[]');
     rex_perm::register('cropper[overwrite]');
 }
+if (rex_addon::exists('yform') && rex_addon::get('yform')->isAvailable()) {
+    // register yform template path
+    rex_yform::addTemplatePath($this->getPath('ytemplates'));
+}
 
 if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) {
 
