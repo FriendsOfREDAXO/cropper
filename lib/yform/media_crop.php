@@ -135,19 +135,57 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
             'type' => 'value',
             'name' => 'media_crop',
             'values' => [
-                'name'      => ['type' => 'name', 'label' => rex_i18n::msg('yform_values_defaults_name')],
-                'label'     => ['type' => 'text', 'label' => rex_i18n::msg('yform_values_defaults_label')],
-                'required'  => ['type' => 'boolean', 'label' => 'Pflichtfeld'],
-                'category' => ['type' => 'text', 'label' => 'Medienkategorie ID'],
-                'crop_width' => ['type' => 'text', 'label' => 'Zielbreite für Crop'],
-                'crop_height' => ['type' => 'text', 'label' => 'Zielhöhe für Crop'],
-                'preview_width' => ['type' => 'text', 'label' => 'Breite der Vorschau (z.B: 800 oder 100%)'],
-                'preview_height' => ['type' => 'text', 'label' => 'Maximale Höhe der Vorschau in px'],
-                'preview_style' => ['type' => 'text', 'label' => 'Zusätzliche CSS Styles'],
-                'notice'    => ['type' => 'text', 'label' => rex_i18n::msg('yform_values_defaults_notice')],
+                'name' => [
+                    'type' => 'name',
+                    'label' => rex_i18n::msg('yform_values_defaults_name')
+                ],
+                'label' => [
+                    'type' => 'text',
+                    'label' => rex_i18n::msg('yform_values_defaults_label')
+                ],
+                'required' => [
+                    'type' => 'boolean',
+                    'label' => rex_i18n::msg('yform_media_crop_required')
+                ],
+                'category' => [
+                    'type' => 'text',
+                    'label' => rex_i18n::msg('yform_media_crop_category'),
+                    'notice' => rex_i18n::msg('yform_media_crop_category_notice')
+                ],
+                'crop_width' => [
+                    'type' => 'text',
+                    'label' => rex_i18n::msg('yform_media_crop_width'),
+                    'notice' => rex_i18n::msg('yform_media_crop_width_notice')
+                ],
+                'crop_height' => [
+                    'type' => 'text',
+                    'label' => rex_i18n::msg('yform_media_crop_height'),
+                    'notice' => rex_i18n::msg('yform_media_crop_height_notice')
+                ],
+                'preview_width' => [
+                    'type' => 'text',
+                    'label' => rex_i18n::msg('yform_media_crop_preview_width'),
+                    'notice' => rex_i18n::msg('yform_media_crop_preview_width_notice')
+                ],
+                'preview_height' => [
+                    'type' => 'text',
+                    'label' => rex_i18n::msg('yform_media_crop_preview_height'),
+                    'notice' => rex_i18n::msg('yform_media_crop_preview_height_notice')
+                ],
+                'preview_style' => [
+                    'type' => 'text',
+                    'label' => rex_i18n::msg('yform_media_crop_preview_style'),
+                    'notice' => rex_i18n::msg('yform_media_crop_preview_style_notice')
+                ],
+                'notice' => [
+                    'type' => 'text',
+                    'label' => rex_i18n::msg('yform_values_defaults_notice')
+                ],
             ],
-            'description' => 'Ein Medienfeld mit Crop-Funktion',
-            'db_type' => ['varchar(191)']
+            'description' => rex_i18n::msg('yform_media_crop_description'),
+            'db_type' => ['varchar(191)'],
+            'famous' => false,
+            'search' => false,
         ];
     }
 }
