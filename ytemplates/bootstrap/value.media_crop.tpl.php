@@ -20,7 +20,7 @@ if (is_numeric($preview_width)) {
 
 // Build style attributes
 $container_style = sprintf(
-    'width: %s; max-height: %spx; %s',
+    'width: %s; height: %spx; %s',
     $preview_width,
     $preview_height,
     $preview_style
@@ -63,9 +63,38 @@ $value = $this->getValue();
             </div>
         <?php endif; ?>
 
-        <!-- Preview for new upload -->
+        <!-- Preview for new upload with correct dimensions -->
         <div class="upload-preview" style="display: none;">
-            <img id="upload-image-<?= $field_id ?>" src="" style="max-width: 100%;">
+            <div style="<?= $container_style ?>">
+                <img id="upload-image-<?= $field_id ?>" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+            
+            <!-- Control buttons -->
+            <div class="cropper-controls" style="margin-top: 10px; text-align: center;">
+                <div class="btn-group" style="margin-right: 10px;">
+                    <button type="button" class="btn btn-default" data-action="zoom-in" title="Vergrößern">
+                        <span class="fa fa-search-plus"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" data-action="zoom-out" title="Verkleinern">
+                        <span class="fa fa-search-minus"></span>
+                    </button>
+                </div>
+                
+                <div class="btn-group" style="margin-right: 10px;">
+                    <button type="button" class="btn btn-default" data-action="rotate-left" title="Nach links drehen">
+                        <span class="fa fa-rotate-left"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" data-action="rotate-right" title="Nach rechts drehen">
+                        <span class="fa fa-rotate-right"></span>
+                    </button>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" data-action="reset" title="Zurücksetzen">
+                        <span class="fa fa-refresh"></span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -74,12 +103,43 @@ $value = $this->getValue();
 document.addEventListener('DOMContentLoaded', function() {
     const fieldId = '<?= $field_id ?>';
     const aspectRatio = <?= $aspectRatio ?>;
+    const previewHeight = <?= (int)$preview_height ?>;
     let cropper = null;
     let originalFile = null;
 
     const fileInput = document.getElementById(fieldId);
     const previewImage = document.getElementById('upload-image-' + fieldId);
-    const previewContainer = previewImage.parentElement;
+    const previewContainer = previewImage.parentElement.parentElement;
+    
+    // Initialize cropper controls
+    function initCropperControls() {
+        const controls = previewContainer.querySelectorAll('[data-action]');
+        controls.forEach(control => {
+            control.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!cropper) return;
+
+                const action = this.dataset.action;
+                switch (action) {
+                    case 'zoom-in':
+                        cropper.zoom(0.1);
+                        break;
+                    case 'zoom-out':
+                        cropper.zoom(-0.1);
+                        break;
+                    case 'rotate-left':
+                        cropper.rotate(-90);
+                        break;
+                    case 'rotate-right':
+                        cropper.rotate(90);
+                        break;
+                    case 'reset':
+                        cropper.reset();
+                        break;
+                }
+            });
+        });
+    }
 
     // Event: File Selected
     fileInput.addEventListener('change', function(e) {
@@ -104,11 +164,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 aspectRatio: aspectRatio,
                 viewMode: 2,
                 autoCropArea: 1,
-                responsive: true
+                responsive: true,
+                minContainerHeight: previewHeight,
+                maxContainerHeight: previewHeight,
+                // Enable additional features
+                zoomable: true,
+                rotatable: true,
+                scalable: true
             });
         };
         reader.readAsDataURL(file);
     });
+
+    // Initialize controls
+    initCropperControls();
 
     // Handle form submit
     const form = fileInput.closest('form');
