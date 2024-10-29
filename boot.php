@@ -8,6 +8,7 @@ if (rex::isBackend() && is_object(rex::getUser())) {
     rex_perm::register('cropper[]');
     rex_perm::register('cropper[overwrite]');
 }
+
 if (rex_addon::exists('yform') && rex_addon::get('yform')->isAvailable()) {
     // register yform template path
     rex_yform::addTemplatePath($this->getPath('ytemplates'));
@@ -17,7 +18,7 @@ if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) 
 
     rex_view::addCssFile($this->getAssetsUrl('css/cropper.css'));
     rex_view::addCssFile($this->getAssetsUrl('cropper_ui_fix.css'));
-    if (rex_be_controller::getCurrentPagePart(2) == 'cropper') {
+    if (rex_be_controller::getCurrentPagePart(2) == 'cropper' OR rex_be_controller::getCurrentPagePart(1) == 'yform') {
         rex_view::addJsFile($this->getAssetsUrl('js/cropper.min.js'));
         rex_view::addJsFile($this->getAssetsUrl('js/jquery-cropper.min.js'));
         rex_view::addJsFile($this->getAssetsUrl('js/rex_cropper.js'));
