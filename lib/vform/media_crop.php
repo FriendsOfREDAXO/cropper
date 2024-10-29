@@ -1,101 +1,151 @@
 <?php
+/**
+ * @var rex_yform_value_media_crop $this
+ * @psalm-scope-this rex_yform_value_media_crop
+ */
 
-class rex_yform_value_media_crop extends rex_yform_value_abstract
-{
-    public function enterObject()
-    {
-        if (!is_string($this->getValue())) {
-            $this->setValue('');
-        }
+$crop_width = $this->getElement('crop_width') ?: 1200;
+$crop_height = $this->getElement('crop_height') ?: 630;
+$aspectRatio = $crop_width / $crop_height;
 
-        $media_category_id = ('' == $this->getElement('category')) ? 0 : (int) $this->getElement('category');
-        $warnings = [];
+// Get style options with defaults
+$preview_width = $this->getElement('preview_width') ?: '100%';
+$preview_height = $this->getElement('preview_height') ?: '500';
+$preview_style = $this->getElement('preview_style') ?: '';
 
-        if ($this->params['send']) {
-            // Handle delete
-            if (isset($_POST[$this->getFieldName('delete')]) && $_POST[$this->getFieldName('delete')] == 1) {
-                $this->setValue('');
-            }
-            // Handle file upload
-            else {
-                $file_field = 'file_' . $this->getFieldId();
-                
-                if (isset($_FILES[$file_field]) && $_FILES[$file_field]['size'] > 0) {
-                    $file = $_FILES[$file_field];
-
-                    if ($file['error'] == 0) {
-                        try {
-                            // Prepare file data
-                            $data = [
-                                'title' => $file['name'],
-                                'category_id' => $media_category_id,
-                                'file' => [
-                                    'name' => $file['name'],
-                                    'tmp_name' => $file['tmp_name'],
-                                    'type' => $file['type'],
-                                    'size' => $file['size'],
-                                    'error' => $file['error']
-                                ]
-                            ];
-
-                            // Add to media pool
-                            $result = rex_media_service::addMedia($data, true);
-
-                            if ($result['ok']) {
-                                $this->setValue($result['filename']);
-                            } else {
-                                $warnings[] = implode(', ', $result['messages']);
-                            }
-
-                        } catch (Exception $e) {
-                            $warnings[] = $e->getMessage();
-                        }
-                    } else {
-                        $warnings[] = 'Fehler beim Datei-Upload: ' . $file['error'];
-                    }
-                }
-            }
-        }
-
-        // Handle warnings
-        if ($this->params['send'] && count($warnings) > 0) {
-            $this->params['warning'][$this->getId()] = $this->params['error_class'];
-            $this->params['warning_messages'][$this->getId()] = implode(', ', $warnings);
-        }
-
-        // Save to pool
-        if ($this->params['send']) {
-            $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
-            if ($this->saveInDb()) {
-                $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
-            }
-        }
-
-        // Output
-        if ($this->needsOutput()) {
-            $this->params['form_output'][$this->getId()] = $this->parse(['value.media_crop.tpl.php']);
-        }
-    }
-
-    public function getDefinitions(): array
-    {
-        return [
-            'type' => 'value',
-            'name' => 'media_crop',
-            'values' => [
-                'name'      => ['type' => 'name', 'label' => rex_i18n::msg('yform_values_defaults_name')],
-                'label'     => ['type' => 'text', 'label' => rex_i18n::msg('yform_values_defaults_label')],
-                'required'  => ['type' => 'boolean', 'label' => 'Pflichtfeld'],
-                'category' => ['type' => 'text', 'label' => 'Medienkategorie ID'],
-                'crop_width' => ['type' => 'text', 'label' => 'Zielbreite für Crop'],
-                'crop_height' => ['type' => 'text', 'label' => 'Zielhöhe für Crop'],
-                'preview_width' => ['type' => 'text', 'label' => 'Breite der Vorschau (z.B: 800 oder 100%)'],
-                'preview_height' => ['type' => 'text', 'label' => 'Maximale Höhe der Vorschau in px'],
-                'preview_style' => ['type' => 'text', 'label' => 'Zusätzliche CSS Styles'],
-                'notice'    => ['type' => 'text', 'label' => rex_i18n::msg('yform_values_defaults_notice')],
-            ],
-            'description' => 'Ein Medienfeld mit Crop-Funktion',
-            'db_type' => ['varchar(191)']
-        ];
-    }
+// Convert numeric width to pixels
+if (is_numeric($preview_width)) {
+    $preview_width = $preview_width . 'px';
 }
+
+// Build style attributes
+$container_style = sprintf(
+    'width: %s; max-height: %spx; %s',
+    $preview_width,
+    $preview_height,
+    $preview_style
+);
+
+$field_id = $this->getFieldId();
+$field_name = $this->getFieldName();
+$value = $this->getValue();
+?>
+
+<div class="<?= trim('form-group ' . $this->getHTMLClass() . ' ' . $this->getWarningClass()) ?>" id="<?= $this->getHTMLId() ?>">
+    <label class="control-label" for="<?= $field_id ?>"><?= $this->getLabel() ?></label>
+
+    <!-- File Upload Field -->
+    <input type="file" 
+           class="form-control" 
+           id="<?= $field_id ?>" 
+           name="file_<?= $field_id ?>"
+           accept="image/*">
+
+    <!-- Hidden field for current value -->
+    <input type="hidden" name="<?= $field_name ?>" value="<?= htmlspecialchars($value) ?>">
+
+    <!-- Preview Section -->
+    <div id="preview-container-<?= $field_id ?>" style="margin-top: 15px;">
+        <?php if ($value): ?>
+            <!-- Current Image -->
+            <div class="current-image">
+                <?php
+                    $mediaUrl = rex_url::media($value);
+                    $previewUrl = rex_media_manager::getUrl('rex_media_medium', $value);
+                ?>
+                <img src="<?= $previewUrl ?>" alt="Current Image" style="max-width: 200px;">
+                <div class="checkbox" style="margin-top: 10px;">
+                    <label>
+                        <input type="checkbox" name="<?= $field_name ?>_delete" value="1">
+                        Bild löschen
+                    </label>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <!-- Preview for new upload -->
+        <div class="upload-preview" style="display: none; <?= $container_style ?>">
+            <img id="upload-image-<?= $field_id ?>" src="" style="max-width: 100%;">
+        </div>
+    </div>
+</div>
+
+<script nonce="<?= rex_response::getNonce() ?>">
+document.addEventListener('DOMContentLoaded', function() {
+    const fieldId = '<?= $field_id ?>';
+    const cropWidth = <?= $crop_width ?>;
+    const cropHeight = <?= $crop_height ?>;
+    const aspectRatio = <?= $aspectRatio ?>;
+    
+    let cropper = null;
+    let originalFile = null;
+
+    const fileInput = document.getElementById(fieldId);
+    const previewImage = document.getElementById('upload-image-' + fieldId);
+    const previewContainer = previewImage.parentElement;
+
+    // Event: File Selected
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Store original file
+        originalFile = file;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            previewContainer.style.display = 'block';
+
+            // Initialize or reinitialize cropper
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(previewImage, {
+                aspectRatio: aspectRatio,
+                viewMode: 2,
+                autoCropArea: 1,
+                responsive: true,
+                background: false,
+                modal: false
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Handle form submit
+    const form = fileInput.closest('form');
+    form.addEventListener('submit', function(e) {
+        if (!cropper || !originalFile) return;
+
+        e.preventDefault();
+
+        // Get cropped canvas
+        const canvas = cropper.getCroppedCanvas({
+            width: cropWidth,
+            height: cropHeight,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+
+        // Convert canvas to blob
+        canvas.toBlob(function(blob) {
+            // Create new file with original name
+            const croppedFile = new File([blob], originalFile.name, {
+                type: 'image/jpeg',
+                lastModified: new Date().getTime()
+            });
+
+            // Replace file in input
+            const container = new DataTransfer();
+            container.items.add(croppedFile);
+            fileInput.files = container.files;
+
+            // Continue form submission
+            form.submit();
+        }, 'image/jpeg', 0.95);
+    });
+});
+</script>
