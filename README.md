@@ -1,4 +1,4 @@
-REDAXO-AddOn: Cropper
+REDAXO-AddOn: Cropper und yform_mediacrop
 ================================================================================
 
 Bildbearbeitung für REDAXO.
