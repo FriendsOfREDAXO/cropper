@@ -4,8 +4,12 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
 {
     public function enterObject()
     {
-        if (!is_string($this->getValue())) {
-            $this->setValue('');
+        $warnings = [];
+        $old_value = $this->getValue();
+
+        // Ensure string value
+        if (!is_string($old_value)) {
+            $old_value = '';
         }
 
         // Get media category
@@ -17,12 +21,25 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
             }
         }
 
-        $warnings = [];
-
         if ($this->params['send']) {
+            $delete_field = md5($this->getFieldName('delete'));
+
             // Handle delete request
-            if (isset($_POST[$this->getFieldName('delete')]) && $_POST[$this->getFieldName('delete')] == 1) {
+            if (isset($_POST[$delete_field]) && $_POST[$delete_field] == 1) {
+                // First clear the value
                 $this->setValue('');
+
+                // Try to delete the media file if it exists
+                if ($old_value !== '') {
+                    try {
+                        rex_media_service::deleteMedia($old_value);
+                    } catch (rex_exception $e) {
+                        // Only show warning if file exists but can't be deleted
+                        if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
+                            $warnings[] = $e->getMessage();
+                        }
+                    }
+                }
             }
             // Handle file upload
             else {
@@ -33,7 +50,7 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
 
                     if ($file['error'] == 0) {
                         try {
-                            // Add Media - Upload new file
+                            // Upload the new file
                             $media_data = [
                                 'title' => $file['name'],
                                 'category_id' => $media_category_id,
@@ -62,7 +79,20 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
                                     rex_media_service::updateMedia($filename, $update_data);
                                 }
 
+                                // Set new value
                                 $this->setValue($filename);
+
+                                // Try to delete the old file
+                                if ($old_value !== '' && $old_value !== $filename) {
+                                    try {
+                                        rex_media_service::deleteMedia($old_value);
+                                    } catch (rex_exception $e) {
+                                        // Ignore file not found errors
+                                        if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
+                                            $warnings[] = $e->getMessage();
+                                        }
+                                    }
+                                }
                             } else {
                                 $warnings[] = implode(', ', $result['messages']);
                             }
@@ -75,6 +105,8 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
                     }
                 }
             }
+        } else {
+            $this->setValue($old_value);
         }
 
         // Handle warnings
