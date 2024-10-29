@@ -8,6 +8,24 @@ $crop_width = $this->getElement('crop_width') ?: 1200;
 $crop_height = $this->getElement('crop_height') ?: 630;
 $aspectRatio = $crop_width / $crop_height;
 
+// Get style options with defaults
+$preview_width = $this->getElement('preview_width') ?: '100%';
+$preview_height = $this->getElement('preview_height') ?: '500';
+$preview_style = $this->getElement('preview_style') ?: '';
+
+// Convert numeric width to pixels
+if (is_numeric($preview_width)) {
+    $preview_width = $preview_width . 'px';
+}
+
+// Build style attributes
+$container_style = sprintf(
+    'width: %s; max-height: %spx; %s',
+    $preview_width,
+    $preview_height,
+    $preview_style
+);
+
 $field_id = $this->getFieldId();
 $field_name = $this->getFieldName();
 $value = $this->getValue();
@@ -46,7 +64,7 @@ $value = $this->getValue();
         <?php endif; ?>
 
         <!-- Preview for new upload -->
-        <div class="upload-preview" style="display: none;">
+        <div class="upload-preview" style="display: none; <?= $container_style ?>">
             <img id="upload-image-<?= $field_id ?>" src="" style="max-width: 100%;">
         </div>
     </div>
@@ -89,7 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 aspectRatio: aspectRatio,
                 viewMode: 2,
                 autoCropArea: 1,
-                responsive: true
+                responsive: true,
+                background: false,
+                modal: false
             });
         };
         reader.readAsDataURL(file);
@@ -105,7 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get cropped canvas
         const canvas = cropper.getCroppedCanvas({
             width: cropWidth,
-            height: cropHeight
+            height: cropHeight,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
         });
 
         // Convert canvas to blob
@@ -123,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Continue form submission
             form.submit();
-        }, 'image/jpeg');
+        }, 'image/jpeg', 0.95);
     });
 });
 </script>
