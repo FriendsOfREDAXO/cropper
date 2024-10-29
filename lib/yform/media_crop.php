@@ -8,11 +8,19 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
             $this->setValue('');
         }
 
-        $media_category_id = ('' == $this->getElement('category')) ? 0 : (int) $this->getElement('category');
+        // Get media category
+        $media_category_id = 0;
+        if ($cat_id = $this->getElement('category')) {
+            $media_category_id = (int) $cat_id;
+            if (!rex_media_category::get($media_category_id)) {
+                $media_category_id = 0;
+            }
+        }
+
         $warnings = [];
 
         if ($this->params['send']) {
-            // Handle delete
+            // Handle delete request
             if (isset($_POST[$this->getFieldName('delete')]) && $_POST[$this->getFieldName('delete')] == 1) {
                 $this->setValue('');
             }
@@ -25,8 +33,8 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
 
                     if ($file['error'] == 0) {
                         try {
-                            // Prepare file data
-                            $data = [
+                            // Add Media - Upload new file
+                            $media_data = [
                                 'title' => $file['name'],
                                 'category_id' => $media_category_id,
                                 'file' => [
@@ -37,17 +45,29 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
                                     'error' => $file['error']
                                 ]
                             ];
-
+                            
                             // Add to media pool
-                            $result = rex_media_service::addMedia($data, true);
+                            $result = rex_media_service::addMedia($media_data, true);
 
                             if ($result['ok']) {
-                                $this->setValue($result['filename']);
+                                $filename = $result['filename'];
+
+                                // Update Media - Set category
+                                if ($media_category_id > 0) {
+                                    $update_data = [
+                                        'category_id' => $media_category_id,
+                                        'title' => $file['name']
+                                    ];
+
+                                    rex_media_service::updateMedia($filename, $update_data);
+                                }
+
+                                $this->setValue($filename);
                             } else {
                                 $warnings[] = implode(', ', $result['messages']);
                             }
 
-                        } catch (Exception $e) {
+                        } catch (rex_exception $e) {
                             $warnings[] = $e->getMessage();
                         }
                     } else {
@@ -63,7 +83,7 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
             $this->params['warning_messages'][$this->getId()] = implode(', ', $warnings);
         }
 
-        // Save to pool
+        // Save to value pool
         if ($this->params['send']) {
             $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
             if ($this->saveInDb()) {
