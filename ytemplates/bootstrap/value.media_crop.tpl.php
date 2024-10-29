@@ -56,7 +56,7 @@ $value = $this->getValue();
                 <img src="<?= $previewUrl ?>" alt="Current Image" style="max-width: 200px;">
                 <div class="checkbox" style="margin-top: 10px;">
                     <label>
-                        <input type="checkbox" name="<?= $field_name ?>_delete" value="1">
+                        <input type="checkbox" name="<?= md5($this->getFieldName('delete')) ?>" value="1">
                         Bild löschen
                     </label>
                 </div>
@@ -64,7 +64,7 @@ $value = $this->getValue();
         <?php endif; ?>
 
         <!-- Preview for new upload -->
-        <div class="upload-preview" style="display: none; <?= $container_style ?>">
+        <div class="upload-preview" style="display: none;">
             <img id="upload-image-<?= $field_id ?>" src="" style="max-width: 100%;">
         </div>
     </div>
@@ -73,10 +73,7 @@ $value = $this->getValue();
 <script nonce="<?= rex_response::getNonce() ?>">
 document.addEventListener('DOMContentLoaded', function() {
     const fieldId = '<?= $field_id ?>';
-    const cropWidth = <?= $crop_width ?>;
-    const cropHeight = <?= $crop_height ?>;
     const aspectRatio = <?= $aspectRatio ?>;
-    
     let cropper = null;
     let originalFile = null;
 
@@ -107,9 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 aspectRatio: aspectRatio,
                 viewMode: 2,
                 autoCropArea: 1,
-                responsive: true,
-                background: false,
-                modal: false
+                responsive: true
             });
         };
         reader.readAsDataURL(file);
@@ -124,8 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Get cropped canvas
         const canvas = cropper.getCroppedCanvas({
-            width: cropWidth,
-            height: cropHeight,
+            width: <?= $crop_width ?>,
+            height: <?= $crop_height ?>,
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high'
         });
