@@ -29,6 +29,17 @@ Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der 
 3. Rechte für Rollen anpassen
 4. Wenn gewünscht: eigene Vorgaben für Seitenverhältnisse in den Einstellungen hinterlegen
 
+## Yform media_crop
+
+Das AddOn liefert ein Cropper Value media_crop mit. Es ist im Table-Manager und auch regulär verfügbar. 
+
+Pipe-Schreibwiese 
+
+`media_crop|crops|Bild |0|1|800|600|`
+
+PHP Schreibweise 
+
+`$yform->setValueField('media_crop', ['crops','Zugeschnitten ','0','1','800','600']);`
 
 ## Bugtracker
 
