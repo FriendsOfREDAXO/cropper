@@ -7,6 +7,7 @@
 $crop_width = $this->getElement('crop_width') ?: 1200;
 $crop_height = $this->getElement('crop_height') ?: 630;
 $required = $this->getElement('required');
+$notice = $this->getElement('notice');
 
 // Get style options with defaults
 $preview_width = $this->getElement('preview_width') ?: '100%';
@@ -46,6 +47,10 @@ $value = $this->getValue();
            name="file_<?= $field_id ?>"
            accept="image/*"
            <?= $required ? 'required' : '' ?>>
+
+    <?php if ($notice !== ''): ?>
+        <span class="help-block"><?= htmlspecialchars($notice) ?></span>
+    <?php endif; ?>
 
     <!-- Hidden field for current value -->
     <input type="hidden" name="<?= $field_name ?>" value="<?= htmlspecialchars($value) ?>">
