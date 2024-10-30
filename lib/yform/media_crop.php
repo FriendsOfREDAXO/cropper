@@ -101,7 +101,7 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
                             $warnings[] = $e->getMessage();
                         }
                     } else {
-                        $warnings[] = rex_i18n::msg('yform_media_crop_error_on_upload') . $file['error'];
+                        $warnings[] = rex_i18n::msg('yform_media_crop_error_on_upload') .' '. $file['error'];
                     }
                 }
             }
