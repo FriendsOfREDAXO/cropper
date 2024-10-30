@@ -31,6 +31,7 @@ yform_media_crop_preview_height_notice = "Höhe der Vorschaubilddarstellung fest
 yform_media_crop_preview_style = "Vorschaustil"
 yform_media_crop_preview_style_notice = "CSS-Stile für die Vorschaubilddarstellung definieren (optional)"
 yform_media_crop_error_on_upload = "Fehler beim Hochladen der Datei:"
+yform_media_crop_delete_image = "Bild löschen"
 
 # Standardtexte
 yform_values_defaults_name = "Feldname"
