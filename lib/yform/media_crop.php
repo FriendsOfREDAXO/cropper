@@ -153,14 +153,18 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
                     'notice' => rex_i18n::msg('yform_media_crop_category_notice')
                 ],
                 'crop_width' => [
-                    'type' => 'text',
+                    'type' => 'integer',
                     'label' => rex_i18n::msg('yform_media_crop_width'),
-                    'notice' => rex_i18n::msg('yform_media_crop_width_notice')
+                    'notice' => rex_i18n::msg('yform_media_crop_width_notice'),
+                    'min' => 1,
+					'default' => 800,
                 ],
                 'crop_height' => [
-                    'type' => 'text',
+                    'type' => 'integer',
                     'label' => rex_i18n::msg('yform_media_crop_height'),
-                    'notice' => rex_i18n::msg('yform_media_crop_height_notice')
+                    'notice' => rex_i18n::msg('yform_media_crop_height_notice'),
+                    'min' => 1,
+					'default' => 450,
                 ],
                 'preview_width' => [
                     'type' => 'text',
