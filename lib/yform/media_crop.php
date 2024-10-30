@@ -25,96 +25,85 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
         if ($this->params['send']) {
             $delete_field = md5($this->getFieldName('delete'));
 
-            // Handle delete request
-            if (rex_post($delete_field, 'int') == 1) {
-                // Check if field is required and no new file is being uploaded
-                if ($required && $old_value !== '' && !isset($_FILES['file_' . $this->getFieldId()])) {
-                    $warnings[] = $this->params['error_class'];
-                    $this->params['warning_messages'][$this->getId()] = rex_i18n::msg('yform_values_required_msg');
-                } else {
-                    // First clear the value
-                    $this->setValue('');
+            // Handle delete request - only possible if not required
+            if (!$required && rex_post($delete_field, 'int') == 1) {
+                $this->setValue('');
 
-                    // Try to delete the media file if it exists
-                    if ($old_value !== '') {
-                        try {
-                            rex_media_service::deleteMedia($old_value);
-                        } catch (rex_exception $e) {
-                            // Only show warning if file exists but can't be deleted
-                            if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
-                                $warnings[] = $e->getMessage();
-                            }
+                // Try to delete the media file if it exists
+                if ($old_value !== '') {
+                    try {
+                        rex_media_service::deleteMedia($old_value);
+                    } catch (rex_exception $e) {
+                        // Only show warning if file exists but can't be deleted
+                        if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
+                            $warnings[] = $e->getMessage();
                         }
                     }
                 }
             }
+
             // Handle file upload
-            else {
-                $file_field = 'file_' . $this->getFieldId();
-                
-                if (isset($_FILES[$file_field]) && $_FILES[$file_field]['size'] > 0) {
-                    $file = $_FILES[$file_field];
+            $file_field = 'file_' . $this->getFieldId();
+            if (isset($_FILES[$file_field]) && $_FILES[$file_field]['size'] > 0) {
+                $file = $_FILES[$file_field];
 
-                    if ($file['error'] == 0) {
-                        try {
-                            // Upload the new file
-                            $media_data = [
-                                'title' => $file['name'],
-                                'category_id' => $media_category_id,
-                                'file' => [
-                                    'name' => $file['name'],
-                                    'tmp_name' => $file['tmp_name'],
-                                    'type' => $file['type'],
-                                    'size' => $file['size'],
-                                    'error' => $file['error']
-                                ]
-                            ];
-                            
-                            // Add to media pool
-                            $result = rex_media_service::addMedia($media_data, true);
+                if ($file['error'] == 0) {
+                    try {
+                        // Upload the new file
+                        $media_data = [
+                            'title' => $file['name'],
+                            'category_id' => $media_category_id,
+                            'file' => [
+                                'name' => $file['name'],
+                                'tmp_name' => $file['tmp_name'],
+                                'type' => $file['type'],
+                                'size' => $file['size'],
+                                'error' => $file['error']
+                            ]
+                        ];
 
-                            if ($result['ok']) {
-                                $filename = $result['filename'];
+                        // Add to media pool
+                        $result = rex_media_service::addMedia($media_data, true);
 
-                                // Update Media - Set category
-                                if ($media_category_id > 0) {
-                                    $update_data = [
-                                        'category_id' => $media_category_id,
-                                        'title' => $file['name']
-                                    ];
+                        if ($result['ok']) {
+                            $filename = $result['filename'];
 
-                                    rex_media_service::updateMedia($filename, $update_data);
-                                }
+                            // Update Media - Set category
+                            if ($media_category_id > 0) {
+                                $update_data = [
+                                    'category_id' => $media_category_id,
+                                    'title' => $file['name']
+                                ];
 
-                                // Set new value
-                                $this->setValue($filename);
-
-                                // Try to delete the old file
-                                if ($old_value !== '' && $old_value !== $filename) {
-                                    try {
-                                        rex_media_service::deleteMedia($old_value);
-                                    } catch (rex_exception $e) {
-                                        // Ignore file not found errors
-                                        if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
-                                            $warnings[] = $e->getMessage();
-                                        }
-                                    }
-                                }
-                            } else {
-                                $warnings[] = implode(', ', $result['messages']);
+                                rex_media_service::updateMedia($filename, $update_data);
                             }
 
-                        } catch (rex_exception $e) {
-                            $warnings[] = $e->getMessage();
+                            // Set new value
+                            $this->setValue($filename);
+
+                            // Try to delete the old file
+                            if ($old_value !== '' && $old_value !== $filename) {
+                                try {
+                                    rex_media_service::deleteMedia($old_value);
+                                } catch (rex_exception $e) {
+                                    // Ignore file not found errors
+                                    if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
+                                        $warnings[] = $e->getMessage();
+                                    }
+                                }
+                            }
+                        } else {
+                            $warnings[] = implode(', ', $result['messages']);
                         }
-                    } else {
-                        $warnings[] = rex_i18n::msg('yform_media_crop_error_on_upload') .' '. $file['error'];
+                    } catch (rex_exception $e) {
+                        $warnings[] = $e->getMessage();
                     }
-                } else if ($required && empty($old_value)) {
-                    // Required field validation when no new file is uploaded
-                    $warnings[] = $this->params['error_class'];
-                    $this->params['warning_messages'][$this->getId()] = rex_i18n::msg('yform_values_required_msg');
+                } else {
+                    $warnings[] = rex_i18n::msg('yform_media_crop_error_on_upload') . ' ' . $file['error'];
                 }
+            } else if ($required && empty($old_value)) {
+                // Required field validation
+                $warnings[] = rex_i18n::msg('yform_values_required_msg');
             }
         } else {
             $this->setValue($old_value);
