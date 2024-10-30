@@ -31,7 +31,7 @@ Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der 
 
 ## Yform media_crop
 
-Das AddOn liefert ein Cropper Value media_crop mit. Es ist im Table-Manager und auch regulär verfügbar. 
+Das AddOn liefert ein Cropper Value media_crop mit. Es ist im Table-Manager und auch im Frontend verfügbar. 
 
 Pipe-Schreibwiese 
 
