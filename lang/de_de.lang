@@ -44,8 +44,9 @@ yform_media_crop_preview_style_notice = Zusätzliche CSS-Styles für das Vorscha
 yform_media_crop_error_no_image = Bitte wählen Sie ein Bild aus
 yform_media_crop_error_wrong_format = Falsches Dateiformat. Erlaubt sind: jpg, png, gif
 yform_media_crop_error_upload = Fehler beim Upload
-yform_media_crop_error_min_size = Bild ist zu klein. Mindestgröße: {0}x{1} Pixel
+yform_media_crop_error_min_size = Bild ist zu klein. 
 yform_media_crop_error_max_size = Bild ist zu groß. Maximalgröße: 2 MB
+yform_media_crop_error_on_upload = Fehler beim Hochladen der Datei: 
 
 # Button & Labels
 yform_media_crop_button_select = Bild auswählen
