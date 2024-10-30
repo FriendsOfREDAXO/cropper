@@ -6,6 +6,7 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
     {
         $warnings = [];
         $old_value = $this->getValue();
+        $required = $this->getElement('required');
 
         // Ensure string value
         if (!is_string($old_value)) {
@@ -26,17 +27,23 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
 
             // Handle delete request
             if (rex_post($delete_field, 'int') == 1) {
-                // First clear the value
-                $this->setValue('');
+                // Check if field is required and no new file is being uploaded
+                if ($required && $old_value !== '' && !isset($_FILES['file_' . $this->getFieldId()])) {
+                    $warnings[] = $this->params['error_class'];
+                    $this->params['warning_messages'][$this->getId()] = rex_i18n::msg('yform_values_required_msg');
+                } else {
+                    // First clear the value
+                    $this->setValue('');
 
-                // Try to delete the media file if it exists
-                if ($old_value !== '') {
-                    try {
-                        rex_media_service::deleteMedia($old_value);
-                    } catch (rex_exception $e) {
-                        // Only show warning if file exists but can't be deleted
-                        if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
-                            $warnings[] = $e->getMessage();
+                    // Try to delete the media file if it exists
+                    if ($old_value !== '') {
+                        try {
+                            rex_media_service::deleteMedia($old_value);
+                        } catch (rex_exception $e) {
+                            // Only show warning if file exists but can't be deleted
+                            if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
+                                $warnings[] = $e->getMessage();
+                            }
                         }
                     }
                 }
@@ -103,6 +110,10 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
                     } else {
                         $warnings[] = rex_i18n::msg('yform_media_crop_error_on_upload') .' '. $file['error'];
                     }
+                } else if ($required && empty($old_value)) {
+                    // Required field validation when no new file is uploaded
+                    $warnings[] = $this->params['error_class'];
+                    $this->params['warning_messages'][$this->getId()] = rex_i18n::msg('yform_values_required_msg');
                 }
             }
         } else {
@@ -157,14 +168,14 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
                     'label' => rex_i18n::msg('yform_media_crop_width'),
                     'notice' => rex_i18n::msg('yform_media_crop_width_notice'),
                     'min' => 1,
-					'default' => 800,
+                    'default' => 800,
                 ],
                 'crop_height' => [
                     'type' => 'integer',
                     'label' => rex_i18n::msg('yform_media_crop_height'),
                     'notice' => rex_i18n::msg('yform_media_crop_height_notice'),
                     'min' => 1,
-					'default' => 450,
+                    'default' => 450,
                 ],
                 'preview_width' => [
                     'type' => 'text',
