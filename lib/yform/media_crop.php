@@ -25,7 +25,7 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
             $delete_field = md5($this->getFieldName('delete'));
 
             // Handle delete request
-            if (isset($_POST[$delete_field]) && $_POST[$delete_field] == 1) {
+            if (rex_post($delete_field, 'int') == 1) {
                 // First clear the value
                 $this->setValue('');
 
