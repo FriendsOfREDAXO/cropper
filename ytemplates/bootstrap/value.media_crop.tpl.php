@@ -6,6 +6,7 @@
 
 $crop_width = $this->getElement('crop_width') ?: 1200;
 $crop_height = $this->getElement('crop_height') ?: 630;
+$required = $this->getElement('required');
 
 // Get style options with defaults
 $preview_width = $this->getElement('preview_width') ?: '100%';
@@ -43,7 +44,8 @@ $value = $this->getValue();
            class="form-control" 
            id="<?= $field_id ?>" 
            name="file_<?= $field_id ?>"
-           accept="image/*">
+           accept="image/*"
+           <?= $required ? 'required' : '' ?>>
 
     <!-- Hidden field for current value -->
     <input type="hidden" name="<?= $field_name ?>" value="<?= htmlspecialchars($value) ?>">
@@ -58,12 +60,14 @@ $value = $this->getValue();
                     $previewUrl = rex_media_manager::getUrl('rex_media_medium', $value);
                 ?>
                 <img src="<?= $previewUrl ?>" alt="Current Image" style="max-width: 200px;">
+                <?php if (!$required): ?>
                 <div class="checkbox" style="margin-top: 10px;">
                     <label>
                         <input type="checkbox" name="<?= md5($this->getFieldName('delete')) ?>" value="1">
-                        Bild löschen
+                        <?= rex_i18n::msg('yform_media_crop_delete_image') ?>
                     </label>
                 </div>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 
@@ -74,37 +78,36 @@ $value = $this->getValue();
             </div>
             
             <div class="cropper-controls" style="margin-top: 10px; text-align: center;">
-    <div class="btn-group" style="margin-right: 10px;">
-        <button type="button" class="btn btn-default" data-action="zoom-in" title="Vergrößern">
-            <span class="fa fa-search-plus"></span>
-        </button>
-        <button type="button" class="btn btn-default" data-action="zoom-out" title="Verkleinern">
-            <span class="fa fa-search-minus"></span>
-        </button>
-    </div>
-    
-    <div class="btn-group" style="margin-right: 10px;">
-        <button type="button" class="btn btn-default" data-action="rotate-left" title="Nach links drehen">
-            <span class="fa fa-rotate-left"></span>
-        </button>
-        <button type="button" class="btn btn-default" data-action="rotate-right" title="Nach rechts drehen">
-            <span class="fa fa-rotate-right"></span>
-        </button>
-    </div>
+                <div class="btn-group" style="margin-right: 10px;">
+                    <button type="button" class="btn btn-default" data-action="zoom-in" title="Vergrößern">
+                        <span class="fa fa-search-plus"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" data-action="zoom-out" title="Verkleinern">
+                        <span class="fa fa-search-minus"></span>
+                    </button>
+                </div>
+                
+                <div class="btn-group" style="margin-right: 10px;">
+                    <button type="button" class="btn btn-default" data-action="rotate-left" title="Nach links drehen">
+                        <span class="fa fa-rotate-left"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" data-action="rotate-right" title="Nach rechts drehen">
+                        <span class="fa fa-rotate-right"></span>
+                    </button>
+                </div>
 
-    <div class="btn-group" style="margin-right: 10px;">
-        <button type="button" class="btn btn-default" data-action="toggle-drag" title="Zwischen Verschieben und Zuschneiden wechseln">
-            <span class="fa fa-arrows"></span>
-        </button>
-    </div>
+                <div class="btn-group" style="margin-right: 10px;">
+                    <button type="button" class="btn btn-default" data-action="toggle-drag" title="Zwischen Verschieben und Zuschneiden wechseln">
+                        <span class="fa fa-arrows"></span>
+                    </button>
+                </div>
 
-    <div class="btn-group">
-        <button type="button" class="btn btn-default" data-action="reset" title="Zurücksetzen">
-            <span class="fa fa-refresh"></span>
-        </button>
-    </div>
-</div>
-
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default" data-action="reset" title="Zurücksetzen">
+                        <span class="fa fa-refresh"></span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
