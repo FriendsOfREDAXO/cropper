@@ -16,8 +16,6 @@ cropper_successful_created = Datei wurde erfolgreich erstellt!
 cropper_settings_show_edit_in_list = Zuschneiden-Link in der Medienliste einblenden
 cropper_settings_show = Zuschneiden-Link einblenden
 
-# DE Sprachdatei für rex_yform_value_media_crop
-
 yform_media_crop_description = "Ermöglicht das Hochladen und Zuschneiden von Medien."
 yform_media_crop_required = "Pflichtfeld aktivieren"
 yform_media_crop_category = "Medienkategorie"
