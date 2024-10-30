@@ -16,39 +16,25 @@ cropper_successful_created = Datei wurde erfolgreich erstellt!
 cropper_settings_show_edit_in_list = Zuschneiden-Link in der Medienliste einblenden
 cropper_settings_show = Zuschneiden-Link einblenden
 
-# YForm Media Crop
-yform_media_crop = Bild mit Zuschnitt
-yform_media_crop_description = Ein Medienfeld mit automatischem Bildausschnitt
+# DE Sprachdatei für rex_yform_value_media_crop
 
-# Feld Optionen
-yform_media_crop_required = Pflichtfeld
-yform_media_crop_category = Medienkategorie ID
-yform_media_crop_category_notice = ID der Kategorie im Medienpool
+yform_media_crop_description = "Ermöglicht das Hochladen und Zuschneiden von Medien."
+yform_media_crop_required = "Pflichtfeld aktivieren"
+yform_media_crop_category = "Medienkategorie"
+yform_media_crop_category_notice = "Geben Sie die ID der Medienkategorie an, in der die Datei gespeichert werden soll."
+yform_media_crop_width = "Zuschneide-Breite"
+yform_media_crop_width_notice = "Breite für den Bildzuschnitt festlegen (optional)"
+yform_media_crop_height = "Zuschneide-Höhe"
+yform_media_crop_height_notice = "Höhe für den Bildzuschnitt festlegen (optional)"
+yform_media_crop_preview_width = "Vorschaubreite"
+yform_media_crop_preview_width_notice = "Breite der Vorschaubilddarstellung festlegen (optional)"
+yform_media_crop_preview_height = "Vorschauhöhe"
+yform_media_crop_preview_height_notice = "Höhe der Vorschaubilddarstellung festlegen (optional)"
+yform_media_crop_preview_style = "Vorschaustil"
+yform_media_crop_preview_style_notice = "CSS-Stile für die Vorschaubilddarstellung definieren (optional)"
+yform_media_crop_error_on_upload = "Fehler beim Hochladen der Datei:"
 
-yform_media_crop_width = Zielbreite
-yform_media_crop_width_notice = Breite des zugeschnittenen Bildes in Pixel
-
-yform_media_crop_height = Zielhöhe
-yform_media_crop_height_notice = Höhe des zugeschnittenen Bildes in Pixel
-
-yform_media_crop_preview_width = Vorschaubreite
-yform_media_crop_preview_width_notice = Breite des Vorschaufensters (z.B: 800 oder 100%)
-
-yform_media_crop_preview_height = Vorschauhöhe
-yform_media_crop_preview_height_notice = Maximale Höhe des Vorschaufensters in Pixel
-
-yform_media_crop_preview_style = Zusätzliche Styles
-yform_media_crop_preview_style_notice = Zusätzliche CSS-Styles für das Vorschaufenster
-
-# Meldungen
-yform_media_crop_error_no_image = Bitte wählen Sie ein Bild aus
-yform_media_crop_error_wrong_format = Falsches Dateiformat. Erlaubt sind: jpg, png, gif
-yform_media_crop_error_upload = Fehler beim Upload
-yform_media_crop_error_min_size = Bild ist zu klein. 
-yform_media_crop_error_max_size = Bild ist zu groß. Maximalgröße: 2 MB
-yform_media_crop_error_on_upload = Fehler beim Hochladen der Datei: 
-
-# Button & Labels
-yform_media_crop_button_select = Bild auswählen
-yform_media_crop_button_delete = Bild löschen
-yform_media_crop_current_image = Aktuelles Bild
+# Standardtexte
+yform_values_defaults_name = "Feldname"
+yform_values_defaults_label = "Label"
+yform_values_defaults_notice = "Hinweistext"
