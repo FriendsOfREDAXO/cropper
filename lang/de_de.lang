@@ -15,3 +15,25 @@ cropper_successful_updated = Datei wurde erfolgreich aktualisiert!
 cropper_successful_created = Datei wurde erfolgreich erstellt!
 cropper_settings_show_edit_in_list = Zuschneiden-Link in der Medienliste einblenden
 cropper_settings_show = Zuschneiden-Link einblenden
+
+yform_media_crop_description = "Ermöglicht das Hochladen und Zuschneiden von Medien."
+yform_media_crop_required = "Pflichtfeld aktivieren"
+yform_media_crop_category = "Medienkategorie"
+yform_media_crop_category_notice = "Geben Sie die ID der Medienkategorie an, in der die Datei gespeichert werden soll."
+yform_media_crop_width = "Zuschneide-Breite"
+yform_media_crop_width_notice = "Breite für den Bildzuschnitt festlegen (optional)"
+yform_media_crop_height = "Zuschneide-Höhe"
+yform_media_crop_height_notice = "Höhe für den Bildzuschnitt festlegen (optional)"
+yform_media_crop_preview_width = "Vorschaubreite"
+yform_media_crop_preview_width_notice = "Breite der Vorschaubilddarstellung festlegen (optional)"
+yform_media_crop_preview_height = "Vorschauhöhe"
+yform_media_crop_preview_height_notice = "Höhe der Vorschaubilddarstellung festlegen (optional)"
+yform_media_crop_preview_style = "Vorschaustil"
+yform_media_crop_preview_style_notice = "CSS-Stile für die Vorschaubilddarstellung definieren (optional)"
+yform_media_crop_error_on_upload = "Fehler beim Hochladen der Datei:"
+yform_media_crop_delete_image = "Bild löschen"
+
+# Standardtexte
+yform_values_defaults_name = "Feldname"
+yform_values_defaults_label = "Label"
+yform_values_defaults_notice = "Hinweistext"
