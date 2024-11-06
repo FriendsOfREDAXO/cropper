@@ -31,8 +31,3 @@ yform_media_crop_preview_style = "Preview style"
 yform_media_crop_preview_style_notice = "Define CSS styles for preview image display (optional)"
 yform_media_crop_error_on_upload = "Error uploading file:"
 yform_media_crop_delete_image = "Delete image"
-
-# Default texts
-yform_values_defaults_name = "Field name"
-yform_values_defaults_label = "Label"
-yform_values_defaults_notice = "Notice text"
