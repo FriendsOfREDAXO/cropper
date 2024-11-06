@@ -14,3 +14,25 @@ cropper_successful_updated = File successfully updated!
 cropper_successful_created = File successfully created!
 cropper_settings_show_edit_in_list = Show cropping link in media list
 cropper_settings_show = Show cropping link
+
+yform_media_crop_description = "Enables uploading and cropping of media."
+yform_media_crop_required = "Activate required field"
+yform_media_crop_category = "Media category"
+yform_media_crop_category_notice = "Specify the ID of the media category where the file should be stored."
+yform_media_crop_width = "Crop width"
+yform_media_crop_width_notice = "Set width for image cropping (optional)"
+yform_media_crop_height = "Crop height"
+yform_media_crop_height_notice = "Set height for image cropping (optional)"
+yform_media_crop_preview_width = "Preview width"
+yform_media_crop_preview_width_notice = "Set width for preview image display (optional)"
+yform_media_crop_preview_height = "Preview height"
+yform_media_crop_preview_height_notice = "Set height for preview image display (optional)"
+yform_media_crop_preview_style = "Preview style"
+yform_media_crop_preview_style_notice = "Define CSS styles for preview image display (optional)"
+yform_media_crop_error_on_upload = "Error uploading file:"
+yform_media_crop_delete_image = "Delete image"
+
+# Default texts
+yform_values_defaults_name = "Field name"
+yform_values_defaults_label = "Label"
+yform_values_defaults_notice = "Notice text"
