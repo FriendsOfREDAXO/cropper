@@ -174,7 +174,7 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
                 'preview_height' => [
                     'type' => 'integer',
                     'label' => rex_i18n::msg('yform_media_crop_preview_height'),
-                    'notice' => rex_i18n::msg('yform_media_crop_preview_height_notice')m
+                    'notice' => rex_i18n::msg('yform_media_crop_preview_height_notice'),
                     'min' => 300,
                     'default' => 450
                 ],
