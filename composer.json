@@ -5,6 +5,6 @@
     "installer-name": "cropper"
   },
   "require": {
-    "stefangabos/zebra_image": "^2.8.2"
+    "stefangabos/zebra_image": "^3.0.0"
   }
 }
