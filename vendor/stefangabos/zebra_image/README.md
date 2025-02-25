@@ -90,7 +90,7 @@ Your support is greatly appreciated and it keeps me motivated continue working o
 
 ## Requirements
 
-PHP 5+, bundled GD 2.0.28+ (PHP 7.0.0+ for WEBP support, PHP 7.2.0+ for BMP support)
+PHP 5.3.0+, bundled GD 2.0.28+ (PHP 7.0.0+ for WEBP support, PHP 7.2.0+ for BMP support)
 
 PHP needs to be compiled with `--enable-exif` (Windows users enable `php_mbstring.dll` and `php_exif.dll` extensions in `php.ini`) for auto-fixing image rotation so images are always shown correctly regardless of how the camera was held when the pictures were taken.
 
@@ -122,7 +122,7 @@ require_once 'Zebra_Image.php';
 require 'path/to/Zebra_Image.php';
 
 // create a new instance of the class
-$image = new Zebra_Image();
+$image = new stefangabos\Zebra_Image\Zebra_Image();
 
 // if you handle image uploads from users and you have enabled exif-support with --enable-exif
 // (or, on a Windows machine you have enabled php_mbstring.dll and php_exif.dll in php.ini)

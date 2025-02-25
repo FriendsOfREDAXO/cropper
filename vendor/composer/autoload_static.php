@@ -6,14 +6,29 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit5471e79cdf6c234cef2a81460bd6959f
 {
+    public static $prefixLengthsPsr4 = array (
+        's' => 
+        array (
+            'stefangabos\\Zebra_Image\\' => 24,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'stefangabos\\Zebra_Image\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stefangabos/zebra_image',
+        ),
+    );
+
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Zebra_Image' => __DIR__ . '/..' . '/stefangabos/zebra_image/Zebra_Image.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5471e79cdf6c234cef2a81460bd6959f::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5471e79cdf6c234cef2a81460bd6959f::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit5471e79cdf6c234cef2a81460bd6959f::$classMap;
 
         }, null, ClassLoader::class);

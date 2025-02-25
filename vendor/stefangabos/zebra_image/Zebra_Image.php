@@ -1,5 +1,7 @@
 <?php
 
+namespace stefangabos\Zebra_Image;
+
 /**
  *  Methods used with the {@link resize()} method.
  */
@@ -16,9 +18,6 @@ define('ZEBRA_IMAGE_CROP_BOTTOMLEFT', 8);
 define('ZEBRA_IMAGE_CROP_BOTTOMCENTER', 9);
 define('ZEBRA_IMAGE_CROP_BOTTOMRIGHT', 10);
 
-// this enables handling of partially broken JPEG files without warnings/errors
-ini_set('gd.jpeg_ignore_warning', '1');
-
 /**
  *  A single-file, lightweight PHP library designed for efficient image manipulation featuring methods for modifying
  *  images and applying filters Supports WEBP format.
@@ -26,8 +25,8 @@ ini_set('gd.jpeg_ignore_warning', '1');
  *  Read more {@link https://github.com/stefangabos/Zebra_Image/ here}
  *
  *  @author     Stefan Gabos <contact@stefangabos.ro>
- *  @version    2.8.2 (last revision: January 25, 2023)
- *  @copyright  © 2006 - 2023 Stefan Gabos
+ *  @version    3.0.0 (last revision: January 28, 2025)
+ *  @copyright  © 2006 - 2025 Stefan Gabos
  *  @license    https://www.gnu.org/licenses/lgpl-3.0.txt GNU LESSER GENERAL PUBLIC LICENSE
  *  @package    Zebra_Image
  */
@@ -110,7 +109,7 @@ class Zebra_Image {
      *  - `4` - unsupported source file type *(note that you will also get this for animated WEBP images!)*
      *  - `5` - unsupported target file type
      *  - `6` - GD library version does not support target file format
-     *  - `7` - GD library is not installed!
+     *  - `7` - GD library is not installed
      *  - `8` - "chmod" command is disabled via configuration
      *  - `9` - "exif_read_data" function is not available
      *
@@ -298,6 +297,10 @@ class Zebra_Image {
      *
      *  Initializes the class and the default properties.
      *
+     *  >   Be aware that this will call<br>
+     *      `ini_set('gd.jpeg_ignore_warning', '1')`<br>
+     *      in order for it to be able to handle partially broken JPEG files without warnings/errors
+     *
      *  @return void
      */
     public function __construct() {
@@ -319,6 +322,9 @@ class Zebra_Image {
 
         $this->source_path = $this->target_path = '';
 
+        // this enables handling of partially broken JPEG files without warnings/errors
+        ini_set('gd.jpeg_ignore_warning', '1');
+
     }
 
     /**
@@ -334,7 +340,7 @@ class Zebra_Image {
      *  require 'path/to/Zebra_Image.php';
      *
      *  // instantiate the class
-     *  $img = new Zebra_Image();
+     *  $img = new stefangabos\Zebra_Image\Zebra_Image();
      *
      *  // a source image
      *  // (where "ext" is one of the supported file types extension)
@@ -534,7 +540,7 @@ class Zebra_Image {
      *  require 'path/to/Zebra_Image.php';
      *
      *  // instantiate the class
-     *  $img = new Zebra_Image();
+     *  $img = new stefangabos\Zebra_Image\Zebra_Image();
      *
      *  // a source image
      *  // (where "ext" is one of the supported file types extension)
@@ -559,7 +565,7 @@ class Zebra_Image {
      *
      *  @param  mixed       $background_color   (Optional) A hexadecimal color value (like `#FFFFFF` or `#FFF`) used when
      *                                          the cropping coordinates are off-scale (negative values and/or values
-     *                                          greater than the image's size) to fill the remaining space.
+     *                                          greater than the image's size) to fill the remaining space with.
      *
      *                                          When set to `-1` the script will preserve transparency for transparent `GIF`
      *                                          and `PNG` images. For non-transparent images the background will be black
@@ -583,7 +589,7 @@ class Zebra_Image {
         // for PHP 8.0.0+ GD functions return and accept \GdImage objects instead of resources (https://php.watch/versions/8.0/gdimage)
         if (isset($args[5]) && (is_resource($args[5]) || (version_compare(PHP_VERSION, '8.0.0', '>=') && $args[5] instanceof \GdImage))) {
 
-            // that it is the image identifier that we'll be using further on
+            // this is the image identifier that we'll be using going forward
             $this->source_identifier = $args[5];
 
             // set this to true so that the script will continue to execute at the next IF
@@ -683,7 +689,7 @@ class Zebra_Image {
      *  require 'path/to/Zebra_Image.php';
      *
      *  // instantiate the class
-     *  $img = new Zebra_Image();
+     *  $img = new stefangabos\Zebra_Image\Zebra_Image();
      *
      *  // a source image
      *  // (where "ext" is one of the supported file types extension)
@@ -719,7 +725,7 @@ class Zebra_Image {
      *  require 'path/to/Zebra_Image.php';
      *
      *  // instantiate the class
-     *  $img = new Zebra_Image();
+     *  $img = new stefangabos\Zebra_Image\Zebra_Image();
      *
      *  // a source image
      *  // (where "ext" is one of the supported file types extension)
@@ -753,7 +759,7 @@ class Zebra_Image {
      *  require 'path/to/Zebra_Image.php';
      *
      *  // instantiate the class
-     *  $img = new Zebra_Image();
+     *  $img = new stefangabos\Zebra_Image\Zebra_Image();
      *
      *  // a source image
      *  // (where "ext" is one of the supported file types extension)
@@ -787,7 +793,7 @@ class Zebra_Image {
      *  require 'path/to/Zebra_Image.php';
      *
      *  // instantiate the class
-     *  $img = new Zebra_Image();
+     *  $img = new stefangabos\Zebra_Image\Zebra_Image();
      *
      *  // a source image
      *  // (where "ext" is one of the supported file types extension)
@@ -1254,13 +1260,15 @@ class Zebra_Image {
     /**
      *  Rotates the image given as {@link source_path} and outputs the resulted image as {@link target_path}.
      *
+     *  >   Note that rotating transparent GIFs will most likely **not** work!
+     *
      *  <code>
      *  // include the Zebra_Image library
      *  // (you don't need this if you installed using composer)
      *  require 'path/to/Zebra_Image.php';
      *
      *  // instantiate the class
-     *  $img = new Zebra_Image();
+     *  $img = new stefangabos\Zebra_Image\Zebra_Image();
      *
      *  // a source image
      *  // (where "ext" is one of the supported file types extension)
@@ -1349,7 +1357,7 @@ class Zebra_Image {
 
                         // make color transparent
                         // (imagecolorallocate may return FALSE, that's why the elvis operator)
-                        imagecolortransparent($this->source_identifier, $background_color ? : null);
+                        imagecolortransparent($this->source_identifier, $background_color ?: null);
 
                     }
 
