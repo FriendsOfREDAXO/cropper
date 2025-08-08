@@ -1,68 +1,55 @@
 <?php
+
 /**
  * User: joachimdoerr
  * Date: 2019-02-17
- * Time: 10:48
+ * Time: 10:48.
  * @package Cropper
  */
 
-namespace Cropper;
+namespace FriendsOfRedaxo\Cropper\Cropper;
 
+use Exception;
+use InvalidArgumentException;
 use rex;
 use rex_media;
 use rex_media_cache;
 use rex_media_manager;
 use rex_path;
 use rex_sql;
-use stefangabos\Zebra_Image\Zebra_Image; // Import the Zebra_Image class
+use rex_sql_exception;
+use stefangabos\Zebra_Image\Zebra_Image;
 
-class CroppingException extends \Exception {}
+use const PATHINFO_EXTENSION;
+use const PATHINFO_FILENAME;
+
+ // Import the Zebra_Image class
+
+class CroppingException extends Exception {}
 
 class CropperExecutor
 {
-    const MSG_SUCCESSFUL_CREATED = 'cropper_successful_created';
-    const MSG_SUCCESSFUL_UPDATED = 'cropper_successful_updated';
-    const MSG_FAILED_CREATED = 'cropper_failed_created';
-    const MSG_FAILED_UPDATED = 'cropper_failed_updated';
+    public const MSG_SUCCESSFUL_CREATED = 'cropper_successful_created';
+    public const MSG_SUCCESSFUL_UPDATED = 'cropper_successful_updated';
+    public const MSG_FAILED_CREATED = 'cropper_failed_created';
+    public const MSG_FAILED_UPDATED = 'cropper_failed_updated';
 
-    /**
-     * @var Zebra_Image
-     */
     private Zebra_Image $zebraImage; // Use the imported class
 
-    /**
-     * @var string
-     */
     private string $originalFilename;
 
-    /**
-     * @var string
-     */
     private string $tempFilename;
 
-    /**
-     * @var string
-     */
     private string $filename;
 
-    /**
-     * @var string
-     */
     private string $category;
 
-    /**
-     * @var bool
-     */
     private bool $update;
 
-    /**
-     * @var array
-     */
     private array $parameter;
 
     /**
-     * @param array $parameter
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(array $parameter = [])
     {
@@ -90,14 +77,13 @@ class CropperExecutor
         }
 
         if (empty($this->originalFilename)) {
-            throw new \InvalidArgumentException("'media_name' parameter is required.");
+            throw new InvalidArgumentException("'media_name' parameter is required.");
         }
     }
 
     /**
-     * @return rex_media|null
      * @throws CroppingException
-     * @throws \rex_sql_exception
+     * @throws rex_sql_exception
      */
     private function mediaWriteInitial(): ?rex_media
     {
@@ -118,7 +104,7 @@ class CropperExecutor
 
             $return = rex_mediapool_saveMedia($FILE, $this->category, ['title' => ''], rex::getUser()->getValue('login'), false);
 
-            if ($return['ok'] == 1) {
+            if (1 == $return['ok']) {
                 $media = rex_media::get($this->tempFilename);
                 if ($media instanceof rex_media && rename(rex_path::media($this->tempFilename), rex_path::media($this->filename))) {
                     $sql = rex_sql::factory();
@@ -129,8 +115,8 @@ class CropperExecutor
                     $sql->addGlobalUpdateFields(rex::getUser()->getValue('login'));
                     $sql->update();
 
-                    if(rex_media::get($this->filename) instanceof rex_media) {
-                        return rex_media::get($this->filename); //Safe return
+                    if (rex_media::get($this->filename) instanceof rex_media) {
+                        return rex_media::get($this->filename); // Safe return
                     }
                 }
             }
@@ -140,7 +126,6 @@ class CropperExecutor
     }
 
     /**
-     * @return array
      * @throws CroppingException
      */
     public function crop(): array
@@ -156,18 +141,17 @@ class CropperExecutor
         $zebraErrors = [];
 
         // flip image
-        if ($this->parameter['scaleX'] == -1 && $this->parameter['scaleY'] == 1) {
+        if (-1 == $this->parameter['scaleX'] && 1 == $this->parameter['scaleY']) {
             $this->zebraImage->flip_horizontal();
-        } else if ($this->parameter['scaleX'] == 1 && $this->parameter['scaleY'] == -1) {
+        } elseif (1 == $this->parameter['scaleX'] && -1 == $this->parameter['scaleY']) {
             $this->zebraImage->flip_vertical();
-        } else if ($this->parameter['scaleX'] == -1 && $this->parameter['scaleY'] == -1) {
+        } elseif (-1 == $this->parameter['scaleX'] && -1 == $this->parameter['scaleY']) {
             $this->zebraImage->flip_both();
         }
         $zebraErrors[] = $this->zebraImage->error; // Capture errors *after* all flip operations
 
-
         // rotate image
-        if ($this->parameter['rotate'] != 0) {
+        if (0 != $this->parameter['rotate']) {
             $this->zebraImage->rotate($this->parameter['rotate']);
             $zebraErrors[] = $this->zebraImage->error; // Capture errors
         }
@@ -177,14 +161,14 @@ class CropperExecutor
             $this->zebraImage->crop(
                 $this->parameter['x'],
                 $this->parameter['y'],
-                ($this->parameter['x'] + $this->parameter['width']),
-                ($this->parameter['y'] + $this->parameter['height'])
+                $this->parameter['x'] + $this->parameter['width'],
+                $this->parameter['y'] + $this->parameter['height'],
             );
             $zebraErrors[] = $this->zebraImage->error; // Capture errors
         }
-        //These two lines did nothing useful, and were not used anywhere
-        //$imgwidth=$this->parameter['width'];
-        //$imgheight=$this->parameter['height'];
+        // These two lines did nothing useful, and were not used anywhere
+        // $imgwidth=$this->parameter['width'];
+        // $imgheight=$this->parameter['height'];
 
         rex_media_cache::delete($media->getFileName());
         rex_media_manager::deleteCache(pathinfo($media->getFileName(), PATHINFO_FILENAME));
@@ -199,13 +183,13 @@ class CropperExecutor
         $result = rex_mediapool_updateMedia(['name' => 'none'], $FILEINFOS, rex::getUser()->getValue('login'));
         $msgType = ($this->update) ? self::MSG_SUCCESSFUL_UPDATED : self::MSG_SUCCESSFUL_CREATED;
 
-        if (isset($result['ok']) && $result['ok'] == 1 && isset($result['filename'])) {
+        if (isset($result['ok']) && 1 == $result['ok'] && isset($result['filename'])) {
             $media = rex_media::get($result['filename']);
             $msg = $msgType;
             $ok = true;
 
             $size = getimagesize($this->zebraImage->target_path);
-            if ($size !== false) {
+            if (false !== $size) {
                 $sql = rex_sql::factory();
                 $sql->setTable(rex::getTable('media'));
                 $sql->setWhere(['filename' => $result['filename']]);
@@ -213,12 +197,10 @@ class CropperExecutor
                 $sql->setValue('width', $size[0]);
                 $sql->setValue('height', $size[1]);
                 $sql->update();
-            } else {
-                // Handle the error - maybe log it
-                // rex_logger::logError(E_WARNING, 'Could not get image size for ' . $this->zebraImage->target_path);
-                // Optionally set width/height to 0 or some default
             }
-
+            // Handle the error - maybe log it
+            // rex_logger::logError(E_WARNING, 'Could not get image size for ' . $this->zebraImage->target_path);
+            // Optionally set width/height to 0 or some default
         } else {
             $msg = ($this->update) ? self::MSG_FAILED_UPDATED : self::MSG_FAILED_CREATED;
             $ok = false;
@@ -229,7 +211,7 @@ class CropperExecutor
             'error' => array_filter($zebraErrors), // Filter out empty error codes
             'msg' => $msg,
             'ok' => $ok,
-            'update' => $this->update
+            'update' => $this->update,
         ];
     }
 }
