@@ -238,6 +238,39 @@ try {
         ), false);
         $buttons = $fragment->parse('core/form/submit.php');
 
+        // METAINFO-Felder (med_*) des Originals als versteckte Felder mitschicken.
+        // Das metainfo-AddOn speichert seine Felder aus dem POST; ohne diese Felder
+        // würde es sie beim Zuschneiden leeren.
+        $metaHiddenFields = '';
+        if (rex_addon::get('metainfo')->isAvailable()) {
+            $sql = rex_sql::factory();
+            $prefix = $sql->escapeLikeWildcards(rex_metainfo_media_handler::PREFIX) . '%';
+            $metaFields = $sql->getArray(
+                'SELECT name, type_id, attributes FROM ' . rex::getTable('metainfo_field') . ' WHERE name LIKE :prefix',
+                ['prefix' => $prefix]
+            );
+
+            foreach ($metaFields as $metaField) {
+                $name = (string) $metaField['name'];
+                $stored = (string) $media->getValue($name);
+                $typeId = (int) $metaField['type_id'];
+                $attributes = (string) $metaField['attributes'];
+
+                $isMulti = rex_metainfo_table_manager::FIELD_CHECKBOX === $typeId
+                    || (rex_metainfo_table_manager::FIELD_SELECT === $typeId && str_contains($attributes, 'multiple'));
+
+                if ($isMulti && '' !== $stored) {
+                    // Mehrwertige Felder sind als |a|b| gespeichert -> als name="feld[]"
+                    foreach (array_filter(explode('|', $stored), static fn ($v) => '' !== $v) as $part) {
+                        $metaHiddenFields .= '<input type="hidden" name="' . rex_escape($name) . '[]" value="' . rex_escape($part) . '" />';
+                    }
+                } else {
+                    // Einwertige Felder (inkl. Datum als Timestamp): Wert unverändert
+                    $metaHiddenFields .= '<input type="hidden" name="' . rex_escape($name) . '" value="' . rex_escape($stored) . '" />';
+                }
+            }
+        }
+
         // FINAL BODY CREATION
         $body = '
         <form action="' . rex_url::currentBackendPage() . '" method="post" enctype="multipart/form-data" data-pjax="false">
@@ -246,6 +279,7 @@ try {
             <input type="hidden" name="media_name" value="' . $mediaName . '" />
             <input type="hidden" name="rex_file_category" value="' . rex_request::request('rex_file_category', 'integer') . '" />
             <input type="hidden" name="opener_input_field" value="' . rex_request::request('opener_input_field', 'string') . '" />
+            ' . $metaHiddenFields . '
             ' . $panel . $buttons . '
         </form>';
     }
