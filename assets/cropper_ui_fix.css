@@ -1,4 +1,348 @@
-.cropper_image_wrapper .docs-buttons,
-.cropper_image_wrapper .docs-toggles {
-    z-index: 200;
+#cropper-workspace {
+    --cropper-bg: #f7f9fc;
+    --cropper-panel: #ffffff;
+    --cropper-panel-alt: #edf2f7;
+    --cropper-border: #d7dee8;
+    --cropper-text: #1f2d3d;
+    --cropper-text-soft: #5c6b7a;
+    --cropper-accent: #2f7dbd;
+    --cropper-stage-height: 520px;
+    color: var(--cropper-text);
 }
+
+    body.rex-theme-dark #cropper-workspace {
+        --cropper-bg: #18212b;
+        --cropper-panel: #202b36;
+        --cropper-panel-alt: #253240;
+        --cropper-border: #3a4654;
+        --cropper-text: #edf3f8;
+        --cropper-text-soft: #aec0d1;
+        --cropper-accent: #5bb1ff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        body.rex-has-theme:not(.rex-theme-light) #cropper-workspace {
+            --cropper-bg: #18212b;
+            --cropper-panel: #202b36;
+            --cropper-panel-alt: #253240;
+            --cropper-border: #3a4654;
+            --cropper-text: #edf3f8;
+            --cropper-text-soft: #aec0d1;
+            --cropper-accent: #5bb1ff;
+        }
+    }
+
+    #cropper-workspace .cropper-hero {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        margin-bottom: 24px;
+    }
+
+    #cropper-workspace .cropper-main-panel,
+    #cropper-workspace .cropper-sidebar {
+        min-width: 0;
+    }
+
+    #cropper-workspace .cropper-stage-card,
+    #cropper-workspace .cropper-sidebar-panel,
+    #cropper-workspace .docs-buttons,
+    #cropper-workspace .docs-toggles {
+        background: var(--cropper-panel);
+        border: 1px solid var(--cropper-border);
+        box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+    }
+
+    #cropper-workspace .cropper-stage-card {
+        overflow: hidden;
+    }
+
+    #cropper-workspace .cropper-stage-header,
+    #cropper-workspace .docs-buttons,
+    #cropper-workspace .docs-toggles,
+    #cropper-workspace .cropper-sidebar-panel {
+        padding: 18px 20px;
+    }
+
+    #cropper-workspace .cropper-stage-header {
+        align-items: flex-start;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+    }
+
+    #cropper-workspace .cropper-stage-kicker,
+    #cropper-workspace .cropper-toolbar-label {
+        color: var(--cropper-text-soft);
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    #cropper-workspace .cropper-stage-title {
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.3;
+        margin: 0;
+    }
+
+    #cropper-workspace .cropper_image_wrapper {
+        padding: 0 20px 20px;
+    }
+
+    #cropper-workspace .cropper-stage {
+        background:
+            radial-gradient(circle at top left, rgba(47, 125, 189, 0.12), transparent 40%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.08)),
+            var(--cropper-bg);
+        border: 1px solid var(--cropper-border);
+        min-height: var(--cropper-stage-height);
+        overflow: hidden;
+        padding: 14px;
+        position: relative;
+    }
+
+    #cropper-workspace cropper-canvas {
+        background-color: transparent;
+        border-radius: 12px;
+        height: var(--cropper-stage-height);
+        min-height: var(--cropper-stage-height);
+        width: 100%;
+    }
+
+    #cropper-workspace .docs-buttons,
+    #cropper-workspace .docs-toggles {
+        display: grid;
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    #cropper-workspace .cropper-mode-bar {
+        align-items: center;
+        border-top: 1px solid var(--cropper-border);
+        display: flex;
+        gap: 14px;
+        padding: 14px 20px 18px;
+    }
+
+    #cropper-workspace .cropper-mode-badge {
+        background: rgba(47, 125, 189, 0.12);
+        border: 1px solid rgba(47, 125, 189, 0.22);
+        border-radius: 999px;
+        color: var(--cropper-accent);
+        flex: 0 0 auto;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        padding: 7px 12px;
+        text-transform: uppercase;
+    }
+
+    #cropper-workspace .cropper-mode-hint {
+        color: var(--cropper-text-soft);
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    #cropper-workspace .cropper-selection-overlay {
+        border: 1px dashed rgba(47, 125, 189, 0.9);
+        border-radius: 12px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        z-index: 20;
+    }
+
+    #cropper-workspace .cropper-selection-grab {
+        align-items: center;
+        background: color-mix(in srgb, var(--cropper-accent) 88%, #ffffff 12%);
+        border: 0;
+        border-radius: 999px;
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.2);
+        color: #fff;
+        display: inline-flex;
+        gap: 8px;
+        left: 50%;
+        min-height: 30px;
+        opacity: 0;
+        padding: 5px 10px;
+        pointer-events: auto;
+        position: absolute;
+        top: 0;
+        transform: translate(-50%, calc(-100% + 6px));
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    #cropper-workspace .cropper-selection-grab-label {
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    #cropper-workspace.is-move-mode .cropper-stage:hover .cropper-selection-grab,
+    #cropper-workspace.is-move-mode .cropper-selection-grab:focus-visible,
+    #cropper-workspace.is-move-mode .cropper-selection-grab:active {
+        opacity: 1;
+        transform: translate(-50%, calc(-100% + 2px));
+    }
+
+    #cropper-workspace.is-move-mode .cropper-stage {
+        cursor: grab;
+    }
+
+    #cropper-workspace.is-move-mode .cropper-selection-grab {
+        cursor: grab;
+    }
+
+    #cropper-workspace.is-crop-mode .cropper-selection-overlay {
+        display: none;
+    }
+
+    #cropper-workspace .cropper-toolbar-section {
+        align-items: flex-start;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    #cropper-workspace .cropper-toolbar-section--compact {
+        align-items: center;
+    }
+
+    #cropper-workspace .cropper-preset-control {
+        min-width: 220px;
+    }
+
+    #cropper-workspace .cropper-preset-control .form-control {
+        border-radius: 10px;
+        min-height: 42px;
+    }
+
+    #cropper-workspace .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    #cropper-workspace .btn-group > .btn,
+    #cropper-workspace .btn-group > label.btn,
+    #cropper-workspace .cropper-settings > .btn {
+        border-radius: 10px;
+        min-height: 42px;
+        min-width: 42px;
+    }
+
+    #cropper-workspace .cropper-ratio-group {
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+
+    #cropper-workspace .cropper-settings {
+        margin-left: auto;
+    }
+
+    #cropper-workspace .cropper-sidebar {
+        display: grid;
+        gap: 16px;
+        grid-auto-rows: min-content;
+    }
+
+    #cropper-workspace .cropper-sidebar-header h4 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 14px;
+    }
+
+    #cropper-workspace .cropper-preview-frame {
+        align-items: center;
+        aspect-ratio: 4 / 3;
+        background: var(--cropper-panel-alt);
+        border: 1px dashed var(--cropper-border);
+        border-radius: 14px;
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+        padding: 12px;
+    }
+
+    #cropper-workspace .cropper-preview-image {
+        display: block;
+        height: auto;
+        max-height: 100%;
+        max-width: 100%;
+    }
+
+    #cropper-workspace .cropper-preview-empty {
+        color: var(--cropper-text-soft);
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+        text-align: center;
+    }
+
+    #cropper-workspace .cropper-meta-list {
+        display: grid;
+        gap: 14px;
+        margin: 0;
+    }
+
+    #cropper-workspace .cropper-meta-list > div {
+        background: var(--cropper-panel-alt);
+        border: 1px solid var(--cropper-border);
+        border-radius: 12px;
+        padding: 12px 14px;
+    }
+
+    #cropper-workspace .cropper-meta-list dt {
+        color: var(--cropper-text-soft);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+    }
+
+    #cropper-workspace .cropper-meta-list dd {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    @media (max-width: 1199px) {
+        #cropper-workspace .cropper-hero {
+            grid-template-columns: 1fr;
+        }
+
+        #cropper-workspace .cropper-sidebar {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 767px) {
+        #cropper-workspace {
+            --cropper-stage-height: 320px;
+        }
+
+        #cropper-workspace .cropper-stage-header {
+            flex-direction: column;
+        }
+
+        #cropper-workspace .cropper-stage-hint {
+            max-width: none;
+            text-align: left;
+        }
+
+        #cropper-workspace .cropper-sidebar {
+            grid-template-columns: 1fr;
+        }
+
+        #cropper-workspace .cropper-mode-bar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }

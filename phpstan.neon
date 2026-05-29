@@ -1,0 +1,18 @@
+parameters:
+    level: 8
+    phpVersion: 80200
+    treatPhpDocTypesAsCertain: false
+    bootstrapFiles:
+        - vendor/autoload.php
+    paths:
+        - boot.php
+        - install.php
+        - update.php
+        - lib/
+        - pages/
+        - fragments/
+    excludePaths:
+        analyse:
+            - vendor/
+            - assets/
+            - node_modules/

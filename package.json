@@ -1,0 +1,11 @@
+{
+  "name": "@friendsofredaxo/cropper-addon",
+  "private": true,
+  "packageManager": "pnpm@10.22.0",
+  "scripts": {
+    "build": "node ./tools/build-assets.mjs"
+  },
+  "dependencies": {
+    "cropperjs": "2.1.1"
+  }
+}
