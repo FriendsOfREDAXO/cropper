@@ -116,7 +116,10 @@ class CropperExecutor
                 'type' => mime_content_type(rex_path::media($this->originalFilename)),
             ];
 
-            $return = rex_mediapool_saveMedia($FILE, $this->category, ['title' => ''], rex::getUser()->getValue('login'), false);
+            $original = rex_media::get($this->originalFilename);
+            $title = $original instanceof rex_media ? $original->getTitle() : '';
+
+            $return = rex_mediapool_saveMedia($FILE, $this->category, ['title' => $title], rex::getUser()->getValue('login'), false);
 
             if ($return['ok'] == 1) {
                 $media = rex_media::get($this->tempFilename);
