@@ -1,20 +1,21 @@
 <?php
+
 /**
  * Author: Joachim Doerr
  * Date: 2019-02-15
- * Time: 12:04
+ * Time: 12:04.
  */
 
-use Cropper\CropperExecutor;
-use Cropper\CroppingException;
+use FriendsOfRedaxo\Cropper\Cropper\CropperExecutor;
+use FriendsOfRedaxo\Cropper\Cropper\CroppingException;
 
 const POOL_MEDIA = 'mediapool/media';
 
 $csrf = rex_csrf_token::factory('mediapool_structure');
 
-$allowedExtensions = array('jpg' => array('jpg', 'jpeg'), 'png' => array('png'), 'gif' => array('gif'));
+$allowedExtensions = ['jpg' => ['jpg', 'jpeg'], 'png' => ['png'], 'gif' => ['gif']];
 $mediaName = rex_request::request('media_name', 'string', null);
-$urlParameter = array('file_id' => rex_request::request('file_id', 'integer'), 'rex_file_category' => rex_request::request('rex_file_category', 'integer'));
+$urlParameter = ['file_id' => rex_request::request('file_id', 'integer'), 'rex_file_category' => rex_request::request('rex_file_category', 'integer')];
 
 $body = '';
 $title = '';
@@ -27,8 +28,7 @@ if (!rex::getUser()->hasPerm('cropper[]')) {
 }
 
 try {
-    if (rex_request::request('btn_save', 'integer', 0) === 1) {
-
+    if (1 === rex_request::request('btn_save', 'integer', 0)) {
         if (!$csrf->isValid()) {
             throw new CroppingException('EXCEPTION csrf not valide'); // TODO text!
         }
@@ -53,7 +53,7 @@ try {
         }
     }
 
-    if (rex_request::request('btn_abort', 'integer', 0) === 1) {
+    if (1 === rex_request::request('btn_abort', 'integer', 0)) {
         rex_response::sendRedirect(rex_url::backendPage(POOL_MEDIA, $urlParameter, false));
     }
 
@@ -63,22 +63,21 @@ try {
     if (rex_addon::exists('media_manager') && !rex_addon::get('media_manager')->isAvailable()) {
         throw new CroppingException('EXCEPTION error MSG media_manager must be active'); // TODO text!
     }
-    if (is_null($mediaName)) {
+    if (null === $mediaName) {
         throw new CroppingException('EXCEPTION! NO NAME!'); // TODO text!
     }
     if (!$media = rex_media::get($mediaName)) {
         throw new CroppingException('EXCEPTION! NO MEDIA OBJ'); // TODO text!
     }
     if ($media instanceof rex_media && rex_media::isImageType(rex_file::extension($mediaName))) {
-
-        $formElements = array();
+        $formElements = [];
         $panel = '';
-        $options = array();
+        $options = [];
 
         $title = sprintf(rex_i18n::msg('cropper_media_crop_title'), pathinfo($media->getFileName(), PATHINFO_FILENAME));
 
-        $pngIn = ($media->getExtension() == 'png' && rex::getUser()->isAdmin()) ? ' in' : '';
-        $jpgIn = (($media->getExtension() == 'jpg' or $media->getExtension() == 'jpeg') && rex::getUser()->isAdmin()) ? ' in' : '';
+        $pngIn = ('png' == $media->getExtension() && rex::getUser()->isAdmin()) ? ' in' : '';
+        $jpgIn = (('jpg' == $media->getExtension() || 'jpeg' == $media->getExtension()) && rex::getUser()->isAdmin()) ? ' in' : '';
 
         $jpgQuality = rex_request::request('jpg_quality', 'integer', 100);
         $pngCompression = rex_request::request('png_compression', 'integer', 9);
@@ -86,24 +85,24 @@ try {
         $newFileName = rex_request::request('new_file_name', 'string', rex_escape(pathinfo($media->getFileName(), PATHINFO_FILENAME)));
         $newMediaPoolCategory = rex_request::request('rex_file_category', 'integer', null);
 
-        $allowed = (is_null($newFileExtension)) ? false : true;
+        $allowed = (null === $newFileExtension) ? false : true;
 
         // img type options and check is possible to use for my media file
         foreach ($allowedExtensions as $item => $ass) {
             $selected = '';
-            if (in_array($media->getExtension(), $ass) && is_null($newFileExtension)) {
+            if (in_array($media->getExtension(), $ass) && null === $newFileExtension) {
                 $selected = 'selected="selected"';
                 $allowed = true;
             }
-            if (!is_null($newFileExtension) && in_array($newFileExtension, $ass)) {
+            if (null !== $newFileExtension && in_array($newFileExtension, $ass)) {
                 $selected = 'selected="selected"';
-                if ($item == 'jpg') {
+                if ('jpg' == $item) {
                     $pngIn = '';
                     $jpgIn = ' in';
-                } else if ($item == 'png') {
+                } elseif ('png' == $item) {
                     $pngIn = ' in';
                     $jpgIn = '';
-                } else if ($item == 'gif') {
+                } elseif ('gif' == $item) {
                     $pngIn = '';
                     $jpgIn = '';
                 }
@@ -117,30 +116,28 @@ try {
 
         $mtime = @filemtime(rex_url::media($mediaName)) . uniqid();
 
-
         $fragment = new rex_fragment();
         $fragment->setVar('mediaUrl', rex_url::media($mediaName));
         $fragment->setVar('media', $media);
         $fragment->setVar('mtime', $mtime);
         $panel = $fragment->parse('cropper_panel.php');
 
-
         // JPG QUALITY
         $fragment = new rex_fragment();
-        $fragment->setVar('elements', array(array(
+        $fragment->setVar('elements', [[
             'class' => 'rex-range-input-group',
             'left' => '<input id="rex-js-rating-source-jpg-quality" type="range" min="0" max="100" step="1" value="' . $jpgQuality . '" />',
             'field' => '<input class="form-control" id="rex-js-rating-text-jpg-quality" type="text" name="jpg_quality" value="' . $jpgQuality . '" />',
-        )), false);
+        ]], false);
         $jpgQualityElement = $fragment->parse('core/form/input_group.php');
 
         // PNG COMPRESSION
         $fragment = new rex_fragment();
-        $fragment->setVar('elements', array(array(
+        $fragment->setVar('elements', [[
             'class' => 'rex-range-input-group',
             'left' => '<input id="rex-js-rating-source-png-compression" type="range" min="0" max="9" step="1" value="' . $pngCompression . '" />',
             'field' => '<input class="form-control" id="rex-js-rating-text-png-compression" type="text" name="png_compression" value="' . $pngCompression . '" />',
-        )), false);
+        ]], false);
         $pngCompressionElement = $fragment->parse('core/form/input_group.php');
 
         // FORM ELEMENTS
@@ -150,40 +147,38 @@ try {
                 <input type="checkbox" name="create_new_image" id="create_new_image" checked />
             <span></span>' . rex_i18n::msg('cropper_img_save_info') . '</label>';
         if (!rex::getUser()->hasPerm('cropper[overwrite]')) :
-            $checkbox =  '<div class="nocheckbox"><input type="hidden" name="create_new_image" value="1" />' . rex_i18n::msg('cropper_img_save_info_nochoice') .'</div>';
+            $checkbox = '<div class="nocheckbox"><input type="hidden" name="create_new_image" value="1" />' . rex_i18n::msg('cropper_img_save_info_nochoice') . '</div>';
         endif;
         $fragment = new rex_fragment();
-        $fragment->setVar('elements', array(
-            array(
+        $fragment->setVar('elements', [
+            [
                 'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_save_options') . '</label>',
                 'field' => $checkbox,
-            ),
-        ), false);
+            ],
+        ], false);
         $panel .= $fragment->parse('core/form/form.php');
 
         // FILENAME
         $fragment = new rex_fragment();
-        $fragment->setVar('elements', array(
-            array(
+        $fragment->setVar('elements', [
+            [
                 'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('pool_filename') . '</label>',
-//                'field' => '<div class="input-group">
-//                            <input class="form-control" type="text" name="new_file_name" value="' . $newFileName . '" />
-//                            <select name="new_file_extension" class="selectpicker" readonly="readonly">' . implode("\n", $options) . '</select>
-//                        </div>',
+                //                'field' => '<div class="input-group">
+                //                            <input class="form-control" type="text" name="new_file_name" value="' . $newFileName . '" />
+                //                            <select name="new_file_extension" class="selectpicker" readonly="readonly">' . implode("\n", $options) . '</select>
+                //                        </div>',
                 'field' => '<div class="input-group">
                                 <input class="form-control" type="text" name="new_file_name" value="' . $newFileName . '" />
                                 <input type="hidden" name="new_file_extension" value="' . $media->getExtension() . '" />
                                 <span class="input-group-addon">' . $media->getExtension() . '</span>
                             </div>',
-            ),
-        ), false);
-
+            ],
+        ], false);
 
         // Medienpool-Kategorien zur Auswahl
         $rex_file_category = $media->getCategoryId();
         $PERMALL = rex::getUser()->getComplexPerm('media')->hasCategoryPerm(0);
-        if (!$PERMALL && !rex::getUser()->getComplexPerm('media')->hasCategoryPerm($rex_file_category))
-        {
+        if (!$PERMALL && !rex::getUser()->getComplexPerm('media')->hasCategoryPerm($rex_file_category)) {
             $rex_file_category = 0;
         }
         $cats_sel = new rex_media_category_select();
@@ -198,44 +193,44 @@ try {
         $mediacat_select = '
         <dl class="rex-form-group form-group">
                         <dt>
-                            <label for="rex-mediapool-category">'. rex_i18n::msg('pool_file_category') .'</label>
+                            <label for="rex-mediapool-category">' . rex_i18n::msg('pool_file_category') . '</label>
                         </dt>
                         <dd>
-                            ' . $cats_sel->get() .'
+                            ' . $cats_sel->get() . '
                         </dd>
                     </dl>';
 
-        $panel .= "<div id=\"new_file_name\" class=\"collapse in\">" . $fragment->parse('core/form/form.php') . $mediacat_select ."</div>";
+        $panel .= '<div id="new_file_name" class="collapse in">' . $fragment->parse('core/form/form.php') . $mediacat_select . '</div>';
 
         // FORM ELEMENTS
         // JPG QUALITY
         $fragment = new rex_fragment();
-        $fragment->setVar('elements', array(
-            array(
+        $fragment->setVar('elements', [
+            [
                 'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_jpg_quality') . '</label>',
                 'field' => $jpgQualityElement,
-            ),
-        ), false);
+            ],
+        ], false);
         $panel .= "<div class=\"collapse $jpgIn\">" . $fragment->parse('core/form/form.php') . '</div>';
 
         // FORM ELEMENTS
         // PNG COMPRESSION
         $fragment = new rex_fragment();
-        $fragment->setVar('elements', array(
-            array(
+        $fragment->setVar('elements', [
+            [
                 'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_png_compression') . '</label>',
                 'field' => $pngCompressionElement,
-            ),
-        ), false);
+            ],
+        ], false);
         $panel .= "<div class=\"collapse $pngIn\">" . $fragment->parse('core/form/form.php') . '</div>';
 
         // FORM FOOTER
         // BUTTONS
         $fragment = new rex_fragment();
-        $fragment->setVar('elements', array(
-            array('field' => '<button class="btn btn-apply rex-form-aligned" type="submit" value="1" name="btn_save">' . rex_i18n::msg('form_save') . '</button>'),
-            array('field' => '<button class="btn btn-abort" type="submit" value="1" name="btn_abort">' . rex_i18n::msg('form_abort') . '</button>'),
-        ), false);
+        $fragment->setVar('elements', [
+            ['field' => '<button class="btn btn-apply rex-form-aligned" type="submit" value="1" name="btn_save">' . rex_i18n::msg('form_save') . '</button>'],
+            ['field' => '<button class="btn btn-abort" type="submit" value="1" name="btn_abort">' . rex_i18n::msg('form_abort') . '</button>'],
+        ], false);
         $buttons = $fragment->parse('core/form/submit.php');
 
         // METAINFO-Felder (med_*) des Originals als versteckte Felder mitschicken.
