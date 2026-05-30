@@ -96,10 +96,10 @@
                 <div class="cropper-toolbar-section">
                     <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_toolbar_mode') ?></span>
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary active" data-method="setDragMode" data-option="move" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_move') ?>" data-animation="false">
+                        <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="move" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_move') ?>" data-animation="false">
                             <span class="fa fa-arrows"></span>
                         </button>
-                        <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="crop" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_select') ?>" data-animation="false">
+                        <button type="button" class="btn btn-primary active" data-method="setDragMode" data-option="crop" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_select') ?>" data-animation="false">
                             <span class="fa fa-crop"></span>
                         </button>
                         <button type="button" class="btn btn-primary" data-method="centerSelection" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_center') ?>" data-animation="false">

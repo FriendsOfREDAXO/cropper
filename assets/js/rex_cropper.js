@@ -219,12 +219,16 @@ class BackendCropper {
         this.handleWindowResize = this.updateStageHeight.bind(this);
         this.handleSelectionGripMove = this.moveSelectionWithGrip.bind(this);
         this.handleSelectionGripEnd = this.stopSelectionGripDrag.bind(this);
+        this.handleImageDragMove = this.moveImageWithStageDrag.bind(this);
+        this.handleImageDragEnd = this.stopImageStageDrag.bind(this);
         this.selectionGripDrag = null;
+        this.imageStageDrag = null;
 
         this.cropperImage.$ready(() => {
             this.updateStageHeight();
             this.bindControls();
             this.configureSelection();
+            this.scheduleInitialFit();
             this.syncHiddenFields();
         });
     }
@@ -253,6 +257,7 @@ class BackendCropper {
             if (input instanceof HTMLSelectElement && input.name === 'selectionPreset') {
                 const presetValue = Number.parseFloat(input.value);
                 if (Number.isFinite(presetValue) && presetValue > 0) {
+                    this.setDragMode('crop');
                     this.applySelectionCoverage(presetValue);
                 }
                 return;
@@ -263,6 +268,7 @@ class BackendCropper {
             }
 
             if (input.type === 'radio' && input.name === 'aspectRatio') {
+                this.setDragMode('crop');
                 this.applyAspectRatio(readAspectRatio(input.value));
                 return;
             }
@@ -291,6 +297,39 @@ class BackendCropper {
         this.selectionGrabHandle?.addEventListener('pointerdown', (event) => {
             this.startSelectionGripDrag(event);
         });
+
+        this.stage?.addEventListener('pointerdown', (event) => {
+            this.startImageStageDrag(event);
+        });
+    }
+
+    scheduleInitialFit() {
+        this.fitImageToCanvas();
+
+        window.requestAnimationFrame(() => {
+            this.fitImageToCanvas();
+            this.syncHiddenFields();
+        });
+
+        window.setTimeout(() => {
+            this.fitImageToCanvas();
+            this.syncHiddenFields();
+        }, 120);
+    }
+
+    fitImageToCanvas() {
+        if (!this.cropperImage) {
+            return;
+        }
+
+        if (typeof this.cropperImage.$center === 'function') {
+            this.cropperImage.$center('contain');
+            return;
+        }
+
+        if (typeof this.cropperImage.$resetTransform === 'function') {
+            this.cropperImage.$resetTransform();
+        }
     }
 
     initSidebarToggle() {
@@ -366,9 +405,23 @@ class BackendCropper {
         const mediaWidth = Number.parseFloat(this.root.dataset.mediaWidth || '0');
         const mediaHeight = Number.parseFloat(this.root.dataset.mediaHeight || '0');
         const mediaRatio = mediaWidth > 0 && mediaHeight > 0 ? mediaWidth / mediaHeight : 1;
+        const stageWidth = this.stage instanceof HTMLElement ? this.stage.clientWidth : 0;
+
+        // For landscape and square images, keep the stage in the original image ratio.
+        if (mediaRatio >= 1 && stageWidth > 0) {
+            const exactStageHeight = Math.round(stageWidth / mediaRatio);
+            const minStageHeight = viewportWidth < 768 ? 220 : 260;
+            const stageHeight = Math.max(minStageHeight, exactStageHeight);
+
+            this.root.style.setProperty('--cropper-stage-height', `${stageHeight}px`);
+            this.updateSelectionOverlay();
+            return;
+        }
+
+        // Portrait images stay viewport-adaptive to avoid a too narrow crop stage.
         let factor = mediaRatio > 1.6 ? 0.5 : 0.62;
 
-        if (viewportWidth < 1200) {
+        if (viewportWidth < 1080) {
             factor = mediaRatio > 1.6 ? 0.46 : 0.56;
         }
 
@@ -414,6 +467,34 @@ class BackendCropper {
             this.cropperSelection.$reset();
         }
 
+        if (this.cropperSelection.width < 8 || this.cropperSelection.height < 8) {
+            const canvasWidth = this.cropperCanvas.offsetWidth;
+            const canvasHeight = this.cropperCanvas.offsetHeight;
+            const ratio = this.getSelectedAspectRatio();
+            let width = Math.max(64, canvasWidth * 0.55);
+            let height = Math.max(64, canvasHeight * 0.55);
+
+            if (Number.isFinite(ratio) && ratio > 0) {
+                if (width / height > ratio) {
+                    width = height * ratio;
+                } else {
+                    height = width / ratio;
+                }
+            }
+
+            width = Math.min(width, canvasWidth);
+            height = Math.min(height, canvasHeight);
+
+            this.cropperSelection.$change(
+                (canvasWidth - width) / 2,
+                (canvasHeight - height) / 2,
+                width,
+                height,
+                ratio,
+                true,
+            );
+        }
+
         this.clampSelectionToCanvas();
 
         this.cropperSelection.$render();
@@ -457,9 +538,10 @@ class BackendCropper {
     setDragMode(mode) {
         this.state.dragMode = mode === 'crop' ? 'crop' : 'move';
         this.stopSelectionGripDrag();
+        this.stopImageStageDrag();
         this.cropperSelection.movable = this.state.dragMode === 'crop';
         this.cropperSelection.resizable = this.state.dragMode === 'crop';
-        this.cropperCanvas.$setAction(this.state.dragMode === 'crop' ? 'select' : 'move');
+        this.cropperCanvas.$setAction(this.state.dragMode === 'crop' ? 'select' : 'none');
         this.root.classList.toggle('is-move-mode', this.state.dragMode === 'move');
         this.root.classList.toggle('is-crop-mode', this.state.dragMode === 'crop');
 
@@ -480,6 +562,69 @@ class BackendCropper {
         });
 
         this.updateSelectionOverlay();
+    }
+
+    startImageStageDrag(event) {
+        if (this.state.dragMode !== 'move' || !this.cropperImage) {
+            return;
+        }
+
+        if (!event.isPrimary || event.button !== 0) {
+            return;
+        }
+
+        const target = event.target;
+        if (target instanceof Element && target.closest('button, input, select, textarea, a, label, #cropper-selection-grab')) {
+            return;
+        }
+
+        event.preventDefault();
+        this.imageStageDrag = {
+            pointerId: event.pointerId,
+            clientX: event.clientX,
+            clientY: event.clientY,
+        };
+
+        document.addEventListener('pointermove', this.handleImageDragMove);
+        document.addEventListener('pointerup', this.handleImageDragEnd);
+        document.addEventListener('pointercancel', this.handleImageDragEnd);
+    }
+
+    moveImageWithStageDrag(event) {
+        if (!this.imageStageDrag || !this.cropperImage) {
+            return;
+        }
+
+        if (event.pointerId !== this.imageStageDrag.pointerId) {
+            return;
+        }
+
+        const deltaX = event.clientX - this.imageStageDrag.clientX;
+        const deltaY = event.clientY - this.imageStageDrag.clientY;
+
+        if (deltaX === 0 && deltaY === 0) {
+            return;
+        }
+
+        this.cropperImage.$move(deltaX, deltaY);
+        this.imageStageDrag.clientX = event.clientX;
+        this.imageStageDrag.clientY = event.clientY;
+        this.syncHiddenFields();
+    }
+
+    stopImageStageDrag(event) {
+        if (!this.imageStageDrag) {
+            return;
+        }
+
+        if (event && event.pointerId !== this.imageStageDrag.pointerId) {
+            return;
+        }
+
+        this.imageStageDrag = null;
+        document.removeEventListener('pointermove', this.handleImageDragMove);
+        document.removeEventListener('pointerup', this.handleImageDragEnd);
+        document.removeEventListener('pointercancel', this.handleImageDragEnd);
     }
 
     startSelectionGripDrag(event) {
