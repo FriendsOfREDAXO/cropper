@@ -226,6 +226,9 @@
 
                 const submitter = event.submitter instanceof HTMLElement ? event.submitter : null;
                 const outputMimeType = this.originalFile.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                const outputFilename = outputMimeType === 'image/png'
+                    ? this.originalFile.name
+                    : this.originalFile.name.replace(/\.[^.]*$/, '') + '.jpg';
 
                 try {
                     const canvas = await this.cropperSelection.$toCanvas({
@@ -240,7 +243,7 @@
                             return;
                         }
 
-                        const croppedFile = new File([blob], this.originalFile.name, {
+                        const croppedFile = new File([blob], outputFilename, {
                             type: outputMimeType,
                             lastModified: Date.now(),
                         });
