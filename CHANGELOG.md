@@ -28,6 +28,7 @@
 - Rexstan-Lauf für das Addon bereinigt; die aktuelle Version läuft ohne Analysefehler.
 - Typ- und Null-Sicherheitsprobleme in CropperExecutor, Medienpool-Seite und YForm-Value behoben.
 - Zuschneiden behält jetzt die normalen REDAXO-Metadaten im Speichervorgang konsistent bei.
+- Beim Speichern wird die UI jetzt mit Ladehinweis blockiert, um Mehrfachklicks und parallele Verarbeitungen zu verhindern (Issue #56).
 
 ### Zusammenfassung der gemergten PRs seit 2.0.3
 

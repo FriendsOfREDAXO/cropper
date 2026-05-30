@@ -9,6 +9,7 @@ $(document).on('rex:ready', function (event, container) {
 
     initLinkedInputs($container);
     initSaveToggle($container);
+    initSaveGuard($container);
     initTooltips($container);
     new BackendCropper(imageElement, $container.get(0), CropperConstructor);
 });
@@ -78,6 +79,60 @@ function initSaveToggle(container) {
         .on('click', function () {
             return $(this).data('disable') !== 1;
         });
+}
+
+function initSaveGuard(container) {
+    container.find('form').each(function () {
+        const form = this;
+
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+
+        if (!form.querySelector('button[name="btn_save"]')) {
+            return;
+        }
+
+        if (form.dataset.cropperSaveGuard === '1') {
+            return;
+        }
+
+        form.dataset.cropperSaveGuard = '1';
+
+        form.addEventListener('submit', (event) => {
+            const submitter = event.submitter instanceof HTMLElement ? event.submitter : null;
+            const submitterName = submitter ? submitter.getAttribute('name') : '';
+
+            if (submitterName === 'btn_abort') {
+                return;
+            }
+
+            if (form.dataset.cropperSaving === '1') {
+                event.preventDefault();
+                return;
+            }
+
+            form.dataset.cropperSaving = '1';
+            form.classList.add('cropper-is-saving');
+
+            if (!form.querySelector('.cropper-save-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'cropper-save-overlay';
+                overlay.innerHTML = '<span class="fa fa-spinner fa-spin" aria-hidden="true"></span><span>Bild wird gespeichert...</span>';
+                form.appendChild(overlay);
+            }
+
+            form.querySelectorAll('button, input, select, textarea').forEach((field) => {
+                if (field instanceof HTMLInputElement && field.type === 'hidden') {
+                    return;
+                }
+
+                if (field instanceof HTMLElement) {
+                    field.setAttribute('disabled', 'disabled');
+                }
+            });
+        });
+    });
 }
 
 function readAspectRatio(value) {

@@ -10,6 +10,22 @@
     color: var(--cropper-text);
 }
 
+form.cropper-is-saving {
+    position: relative;
+}
+
+form.cropper-is-saving .cropper-save-overlay {
+    align-items: center;
+    background: rgba(15, 23, 42, 0.48);
+    color: #ffffff;
+    display: inline-flex;
+    gap: 10px;
+    inset: 0;
+    justify-content: center;
+    position: absolute;
+    z-index: 1200;
+}
+
     body.rex-theme-dark #cropper-workspace {
         --cropper-bg: #18212b;
         --cropper-panel: #202b36;

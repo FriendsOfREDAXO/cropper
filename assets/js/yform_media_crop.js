@@ -53,6 +53,7 @@
             this.originalFile = null;
             this.dragMode = 'crop';
             this.skipNextSubmit = false;
+            this.isSaving = false;
 
             this.previewImage = document.getElementById(`upload-image-${this.fieldId}`);
             this.previewContainer = this.previewImage ? this.previewImage.closest('.upload-preview') : null;
@@ -210,12 +211,18 @@
             }
 
             this.form.addEventListener('submit', async (event) => {
+                if (this.isSaving) {
+                    event.preventDefault();
+                    return;
+                }
+
                 if (this.skipNextSubmit || !this.cropperSelection || !this.originalFile) {
                     this.skipNextSubmit = false;
                     return;
                 }
 
                 event.preventDefault();
+                this.setSavingState(true);
 
                 const submitter = event.submitter instanceof HTMLElement ? event.submitter : null;
                 const outputMimeType = this.originalFile.type === 'image/png' ? 'image/png' : 'image/jpeg';
@@ -252,13 +259,45 @@
             });
         }
 
+        setSavingState(state) {
+            this.isSaving = state;
+
+            if (!this.form) {
+                return;
+            }
+
+            this.form.classList.toggle('cropper-is-saving', state);
+
+            let overlay = this.form.querySelector('.cropper-save-overlay');
+            if (!overlay && state) {
+                overlay = document.createElement('div');
+                overlay.className = 'cropper-save-overlay';
+                overlay.innerHTML = '<span class="fa fa-spinner fa-spin" aria-hidden="true"></span><span>Bild wird gespeichert...</span>';
+                this.form.appendChild(overlay);
+            }
+
+            if (overlay instanceof HTMLElement) {
+                overlay.hidden = !state;
+            }
+
+            this.form.querySelectorAll('button, input, select, textarea').forEach((field) => {
+                if (field instanceof HTMLInputElement && field.type === 'hidden') {
+                    return;
+                }
+
+                if (state) {
+                    field.setAttribute('disabled', 'disabled');
+                }
+            });
+        }
+
         resubmitForm(submitter) {
             if (!this.form) {
                 return;
             }
 
             if (typeof this.form.requestSubmit === 'function') {
-                if (submitter instanceof HTMLElement) {
+                if (submitter instanceof HTMLElement && !submitter.hasAttribute('disabled')) {
                     this.form.requestSubmit(submitter);
                     return;
                 }
