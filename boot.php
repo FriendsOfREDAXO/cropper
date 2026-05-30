@@ -5,7 +5,17 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 $user = rex::getUser();
-$assetVersion = '?v=' . rawurlencode((string) $this->getVersion());
+$addon = $this;
+$assetVersion = static function (string $assetPath) use ($addon): string {
+    $fullPath = $addon->getPath('assets/' . $assetPath);
+    $mtime = @filemtime($fullPath);
+
+    if (false === $mtime) {
+        return '?v=' . rawurlencode((string) $addon->getVersion());
+    }
+
+    return '?v=' . rawurlencode((string) $mtime);
+};
 
 if (rex::isBackend() && $user instanceof rex_user) {
     rex_perm::register('cropper[]');
@@ -14,16 +24,20 @@ if (rex::isBackend() && $user instanceof rex_user) {
 
 if (rex::isBackend() && $user instanceof rex_user && $user->hasPerm('cropper[]')) {
 
-    rex_view::addCssFile($this->getAssetsUrl('vendor/cropper/cropper.css') . $assetVersion);
-    rex_view::addCssFile($this->getAssetsUrl('cropper_ui_fix.css') . $assetVersion);
+    rex_view::setJsProperty('cropperI18n', [
+        'savingMessage' => rex_i18n::msg('cropper_saving_message'),
+    ]);
+
+    rex_view::addCssFile($this->getAssetsUrl('vendor/cropper/cropper.css') . $assetVersion('vendor/cropper/cropper.css'));
+    rex_view::addCssFile($this->getAssetsUrl('cropper_ui_fix.css') . $assetVersion('cropper_ui_fix.css'));
     if (rex_be_controller::getCurrentPagePart(2) == 'cropper' || rex_be_controller::getCurrentPagePart(1) == 'yform') {
-        rex_view::addJsFile($this->getAssetsUrl('vendor/cropper/cropper.min.js') . $assetVersion);
-        rex_view::addJsFile($this->getAssetsUrl('js/rex_cropper.js') . $assetVersion);
+        rex_view::addJsFile($this->getAssetsUrl('vendor/cropper/cropper.min.js') . $assetVersion('vendor/cropper/cropper.min.js'));
+        rex_view::addJsFile($this->getAssetsUrl('js/rex_cropper.js') . $assetVersion('js/rex_cropper.js'));
     }
 
     if (rex_addon::exists('yform') && rex_addon::get('yform')->isAvailable()) {
         rex_yform::addTemplatePath($this->getPath('ytemplates'));
-        rex_view::addJsFile($this->getAssetsUrl('js/yform_media_crop.js') . $assetVersion);
+        rex_view::addJsFile($this->getAssetsUrl('js/yform_media_crop.js') . $assetVersion('js/yform_media_crop.js'));
     }
 
     rex_extension::register('MEDIA_FORM_EDIT', function (rex_extension_point $ep) {

@@ -118,21 +118,26 @@ function initSaveGuard(container) {
             if (!form.querySelector('.cropper-save-overlay')) {
                 const overlay = document.createElement('div');
                 overlay.className = 'cropper-save-overlay';
-                overlay.innerHTML = '<span class="fa fa-spinner fa-spin" aria-hidden="true"></span><span>Bild wird gespeichert...</span>';
+                overlay.setAttribute('role', 'status');
+                overlay.setAttribute('aria-live', 'polite');
+                overlay.innerHTML = `<span class="fa fa-spinner fa-spin" aria-hidden="true"></span><span>${getSavingMessage()}</span>`;
                 form.appendChild(overlay);
             }
-
-            form.querySelectorAll('button, input, select, textarea').forEach((field) => {
-                if (field instanceof HTMLInputElement && field.type === 'hidden') {
-                    return;
-                }
-
-                if (field instanceof HTMLElement) {
-                    field.setAttribute('disabled', 'disabled');
-                }
-            });
         });
     });
+}
+
+function getSavingMessage() {
+    if (
+        typeof window !== 'undefined'
+        && window.cropperI18n
+        && typeof window.cropperI18n.savingMessage === 'string'
+        && window.cropperI18n.savingMessage !== ''
+    ) {
+        return window.cropperI18n.savingMessage;
+    }
+
+    return 'Saving image...';
 }
 
 function readAspectRatio(value) {

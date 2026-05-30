@@ -34,6 +34,31 @@
         return Math.min(Math.max(value, min), max);
     }
 
+    function getSavingMessage() {
+        if (
+            typeof window !== 'undefined'
+            && window.cropperI18n
+            && typeof window.cropperI18n.savingMessage === 'string'
+            && window.cropperI18n.savingMessage !== ''
+        ) {
+            return window.cropperI18n.savingMessage;
+        }
+
+        return 'Saving image...';
+    }
+
+    function getOutputFilename(originalName, outputMimeType) {
+        if (outputMimeType === 'image/png') {
+            return originalName;
+        }
+
+        if (/\.jpe?g$/i.test(originalName)) {
+            return originalName;
+        }
+
+        return originalName.replace(/\.[^.]*$/, '') + '.jpg';
+    }
+
     class YFormMediaCrop {
         constructor(element, options = {}) {
             this.fieldId = element.id;
@@ -211,13 +236,18 @@
             }
 
             this.form.addEventListener('submit', async (event) => {
+                if (this.skipNextSubmit) {
+                    this.skipNextSubmit = false;
+                    this.setSavingState(false);
+                    return;
+                }
+
                 if (this.isSaving) {
                     event.preventDefault();
                     return;
                 }
 
-                if (this.skipNextSubmit || !this.cropperSelection || !this.originalFile) {
-                    this.skipNextSubmit = false;
+                if (!this.cropperSelection || !this.originalFile) {
                     return;
                 }
 
@@ -226,9 +256,7 @@
 
                 const submitter = event.submitter instanceof HTMLElement ? event.submitter : null;
                 const outputMimeType = this.originalFile.type === 'image/png' ? 'image/png' : 'image/jpeg';
-                const outputFilename = outputMimeType === 'image/png'
-                    ? this.originalFile.name
-                    : this.originalFile.name.replace(/\.[^.]*$/, '') + '.jpg';
+                const outputFilename = getOutputFilename(this.originalFile.name, outputMimeType);
 
                 try {
                     const canvas = await this.cropperSelection.$toCanvas({
@@ -275,23 +303,15 @@
             if (!overlay && state) {
                 overlay = document.createElement('div');
                 overlay.className = 'cropper-save-overlay';
-                overlay.innerHTML = '<span class="fa fa-spinner fa-spin" aria-hidden="true"></span><span>Bild wird gespeichert...</span>';
+                overlay.setAttribute('role', 'status');
+                overlay.setAttribute('aria-live', 'polite');
+                overlay.innerHTML = `<span class="fa fa-spinner fa-spin" aria-hidden="true"></span><span>${getSavingMessage()}</span>`;
                 this.form.appendChild(overlay);
             }
 
             if (overlay instanceof HTMLElement) {
                 overlay.hidden = !state;
             }
-
-            this.form.querySelectorAll('button, input, select, textarea').forEach((field) => {
-                if (field instanceof HTMLInputElement && field.type === 'hidden') {
-                    return;
-                }
-
-                if (state) {
-                    field.setAttribute('disabled', 'disabled');
-                }
-            });
         }
 
         resubmitForm(submitter) {
@@ -300,7 +320,7 @@
             }
 
             if (typeof this.form.requestSubmit === 'function') {
-                if (submitter instanceof HTMLElement && !submitter.hasAttribute('disabled')) {
+                if (submitter instanceof HTMLElement) {
                     this.form.requestSubmit(submitter);
                     return;
                 }

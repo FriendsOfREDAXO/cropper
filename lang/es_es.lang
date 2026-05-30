@@ -10,6 +10,7 @@ cropper_back_to_media = Atrás
 cropper_media_edit_link = Recortar imagen
 cropper_media_edit_label = Cropper
 cropper_save_options = Opción de almacenamiento
+cropper_saving_message = Guardando imagen...
 cropper_successful_updated = ¡El archivo fue actualizado exitosamente!
 cropper_successful_created = El archivo fue creado con éxito!
 cropper_settings_show_edit_in_list = Mostrar enlace de recorte en la lista de medios

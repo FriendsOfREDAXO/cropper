@@ -15,6 +15,7 @@ cropper_successful_updated = Datei wurde erfolgreich aktualisiert!
 cropper_successful_created = Datei wurde erfolgreich erstellt!
 cropper_settings_show_edit_in_list = Zuschneiden-Link in der Medienliste einblenden
 cropper_settings_show = Zuschneiden-Link einblenden
+cropper_saving_message = Bild wird gespeichert...
 cropper_workspace_title = Arbeitsbereich
 cropper_workspace_hint = Mehr Platz, schnelleres Zuschneiden: Ausschnitt ziehen, mit den Presets skalieren und direkt in der Vorschau kontrollieren.
 cropper_toolbar_mode = Werkzeuge
