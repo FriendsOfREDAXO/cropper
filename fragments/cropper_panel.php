@@ -25,20 +25,48 @@
         $originalRatio = $media->getHeight() > 0
             ? (string) ($media->getWidth() / $media->getHeight())
             : 'NaN';
-        $compactToolbarConfig = rex_config::get('cropper', 'compact_toolbar_in_stage', 0);
-        $compactToolbarInStage = false;
-        if (is_bool($compactToolbarConfig)) {
-            $compactToolbarInStage = $compactToolbarConfig;
-        } elseif (is_int($compactToolbarConfig) || is_float($compactToolbarConfig)) {
-            $compactToolbarInStage = (int) $compactToolbarConfig === 1;
-        } elseif (is_string($compactToolbarConfig)) {
-            $trimmedConfig = trim($compactToolbarConfig);
-            if ('' !== $trimmedConfig) {
-                $compactToolbarInStage = preg_match('/(^|\|)1(\||$)/', $trimmedConfig) === 1;
+
+        $configEnabled = static function ($value): bool {
+            if (is_bool($value)) {
+                return $value;
             }
-        } elseif (is_array($compactToolbarConfig)) {
-            $compactToolbarInStage = in_array(1, $compactToolbarConfig, true) || in_array('1', $compactToolbarConfig, true);
+
+            if (is_int($value) || is_float($value)) {
+                return (int) $value === 1;
+            }
+
+            if (is_string($value)) {
+                $trimmedValue = trim($value);
+                if ('' === $trimmedValue) {
+                    return false;
+                }
+
+                if (preg_match('/(^|\|)1(\||$)/', $trimmedValue) === 1) {
+                    return true;
+                }
+
+                return in_array(strtolower($trimmedValue), ['1', 'true', 'yes', 'on'], true);
+            }
+
+            if (is_array($value)) {
+                return in_array(1, $value, true) || in_array('1', $value, true);
+            }
+
+            return false;
+        };
+
+        $toolbarMode = rex_config::get('cropper', 'toolbar_mode', null);
+        if (!is_string($toolbarMode) || '' === trim($toolbarMode)) {
+            $compactEnabled = $configEnabled(rex_config::get('cropper', 'compact_toolbar_in_stage', 0));
+            $legacyLayoutEnabled = $configEnabled(rex_config::get('cropper', 'compact_toolbar_legacy_layout', 0));
+            $toolbarMode = 'legacy';
+            if ($compactEnabled) {
+                $toolbarMode = $legacyLayoutEnabled ? 'legacy' : 'compact';
+            }
         }
+
+        $compactToolbarInStage = in_array($toolbarMode, ['compact', 'legacy'], true);
+        $legacyCompactLayout = $toolbarMode === 'legacy';
 
         $showSidebarInitiallyConfig = rex_config::get('cropper', 'show_info_sidebar_initially', 0);
         $showSidebarInitially = false;
@@ -58,7 +86,7 @@
 
 <div
     id="cropper-workspace"
-    class="cropper-workspace<?= $compactToolbarInStage ? ' is-compact-toolbar' : '' ?>"
+    class="cropper-workspace<?= $compactToolbarInStage ? ' is-compact-toolbar' : '' ?><?= ($compactToolbarInStage && $legacyCompactLayout) ? ' is-legacy-compact-toolbar' : '' ?>"
     data-media-width="<?= (int) $media->getWidth() ?>"
     data-media-height="<?= (int) $media->getHeight() ?>"
     data-sidebar-initial-open="<?= $showSidebarInitially ? '1' : '0' ?>"
@@ -97,11 +125,9 @@
                         data-crop-hint="<?= rex_i18n::msg('cropper_mode_hint_crop') ?>"
                     ><?= rex_i18n::msg('cropper_mode_hint_crop') ?></p>
                 </div>
-            </div>
-
-            <div class="cropper-toolbar-rail" id="cropper-toolbar-rail">
+                <div class="cropper-toolbar-rail" id="cropper-toolbar-rail">
                 <div id="cropper-toolbar-buttons" class="docs-buttons">
-                    <?php if ($compactToolbarInStage) : ?>
+                    <?php if ($compactToolbarInStage && !$legacyCompactLayout) : ?>
                     <button
                         type="button"
                         id="cropper_toolbar_close"
@@ -209,6 +235,7 @@
                         </ul>
                     </div>
                 </div>
+            </div>
             </div>
             </div>
         </section>

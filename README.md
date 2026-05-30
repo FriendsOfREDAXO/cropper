@@ -19,6 +19,8 @@ Das AddOn nutzt für die Browser-Assets Cropper.js 2.x. Vendor-Dateien liegen ge
 - Rechte für Benutzer
 - Einstellungsmöglichkeit für "Aspect Ratios"
 - Einstellung für Zoom-Modus: Touch, Mouse
+- Werkzeugleisten-Modus wählbar: Modern, Compact oder Legacy Compact
+- Optionale Info-Sidebar (initial ein-/ausblendbar)
 
 ## Beschreibung 
 
@@ -59,6 +61,12 @@ Du hast einen Fehler gefunden oder ein nettes Feature parat? [Lege bitte ein Iss
 ## Changelog
 
 siehe [CHANGELOG.md](CHANGELOG.md) und [Release notes](https://github.com/FriendsOfREDAXO/cropper/releases)
+
+## Hinweise zu 3.0.2
+
+- Fokus auf UX-Stabilisierung der Overlay-Toolbars im Legacy-Modus.
+- "Speichern als neue Datei" wurde intern robuster umgesetzt.
+- Einstellungen fuer Toolbar-Modus wurden auf eine klarere Select-Auswahl umgestellt.
 
 ## Lizenz
 

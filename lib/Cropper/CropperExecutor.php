@@ -120,39 +120,44 @@ class CropperExecutor
             throw new CroppingException('Initial media file write failed');
         }
 
-        if (rex_file::copy($sourcePath, rex_path::media($this->tempFilename))) {
-            $file = [
-                'name' => $this->tempFilename,
-                'size' => filesize($sourcePath),
-                'type' => rex_file::mimeType($sourcePath),
-            ];
-
-            $original = rex_media::get($this->originalFilename);
-            $title = $original instanceof rex_media ? $original->getTitle() : '';
-            $user = $this->getCurrentUser();
-
-            $return = rex_mediapool_saveMedia($file, $this->category, ['title' => $title], $user->getValue('login'), false);
-
-            if (isset($return['ok']) && 1 === (int) $return['ok']) {
-                $media = rex_media::get($this->tempFilename);
-                if ($media instanceof rex_media && rex_file::move(rex_path::media($this->tempFilename), rex_path::media($this->filename))) {
-                    $sql = rex_sql::factory();
-                    $sql->setTable(rex::getTablePrefix() . 'media');
-                    $sql->setWhere(['id' => $media->getId()]);
-                    $sql->setValue('originalname', $this->originalFilename);
-                    $sql->setValue('filename', $this->filename);
-                    $sql->addGlobalUpdateFields($user->getValue('login'));
-                    $sql->update();
-
-                    $createdMedia = rex_media::get($this->filename);
-                    if ($createdMedia instanceof rex_media) {
-                        return $createdMedia;
-                    }
-                }
-            }
+        $targetPath = rex_path::media($this->filename);
+        if (!rex_file::copy($sourcePath, $targetPath)) {
+            throw new CroppingException('File copy failed: ' . $sourcePath . ' -> ' . $targetPath);
         }
 
-        throw new CroppingException('File ' . $sourcePath . ' copy failed');
+        $original = rex_media::get($this->originalFilename);
+        $title = $original instanceof rex_media ? $original->getTitle() : '';
+        $user = $this->getCurrentUser();
+
+        $return = rex_mediapool_syncFile(
+            $this->filename,
+            $this->category,
+            $title,
+            filesize($targetPath),
+            rex_file::mimeType($targetPath),
+            $user->getValue('login'),
+        );
+
+        if (!(isset($return['ok']) && 1 === (int) $return['ok'])) {
+            rex_file::delete($targetPath);
+            $message = isset($return['msg']) && is_string($return['msg']) ? $return['msg'] : 'unknown error';
+            throw new CroppingException('Create media entry failed: ' . $message);
+        }
+
+        $createdMedia = rex_media::get($this->filename);
+        if (!$createdMedia instanceof rex_media) {
+            rex_file::delete($targetPath);
+            throw new CroppingException('Created media not found: ' . $this->filename);
+        }
+
+        $sql = rex_sql::factory();
+        $sql->setTable(rex::getTablePrefix() . 'media');
+        $sql->setWhere(['id' => $createdMedia->getId()]);
+        $sql->setValue('originalname', $this->originalFilename);
+        $sql->addGlobalUpdateFields($user->getValue('login'));
+        $sql->update();
+
+        return $createdMedia;
     }
 
     /**

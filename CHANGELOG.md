@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.2
+
+### Geaendert
+
+- Neue Einstellung `toolbar_mode` als Select mit den Modi Modern, Compact und Legacy Compact.
+- Standardmodus fuer neue und migrierte Installationen auf Legacy Compact vereinheitlicht.
+- Overlay-Positionierung und Verdichtung der Legacy-Toolbars in der Buehne weiter optimiert.
+
+### Behoben
+
+- Backend-Fatal in den Einstellungen behoben (`rex_form_select_element::addOption()` wurde auf die korrekte Select-API umgestellt).
+- "Speichern als neue Datei" stabilisiert: robustere Dateierstellung inkl. sauberem Mediapool-Sync und klareren Fehlermeldungen.
+- Legacy-Toolbar ueberdeckt den Modus-Hinweis nicht mehr; obere Toolbar bleibt einzeilig und bricht nicht um.
+
 ## 3.0.0
 
 ### Breaking Changes

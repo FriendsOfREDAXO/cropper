@@ -23,20 +23,47 @@ $body = '';
 $title = '';
 $class = 'edit';
 
-$compactToolbarConfig = rex_config::get('cropper', 'compact_toolbar_in_stage', 0);
-$compactToolbarInStage = false;
-if (is_bool($compactToolbarConfig)) {
-    $compactToolbarInStage = $compactToolbarConfig;
-} elseif (is_int($compactToolbarConfig) || is_float($compactToolbarConfig)) {
-    $compactToolbarInStage = (int) $compactToolbarConfig === 1;
-} elseif (is_string($compactToolbarConfig)) {
-    $trimmedConfig = trim($compactToolbarConfig);
-    if ('' !== $trimmedConfig) {
-        $compactToolbarInStage = preg_match('/(^|\|)1(\||$)/', $trimmedConfig) === 1;
+$configEnabled = static function ($value): bool {
+    if (is_bool($value)) {
+        return $value;
     }
-} elseif (is_array($compactToolbarConfig)) {
-    $compactToolbarInStage = in_array(1, $compactToolbarConfig, true) || in_array('1', $compactToolbarConfig, true);
+
+    if (is_int($value) || is_float($value)) {
+        return (int) $value === 1;
+    }
+
+    if (is_string($value)) {
+        $trimmedValue = trim($value);
+        if ('' === $trimmedValue) {
+            return false;
+        }
+
+        if (preg_match('/(^|\|)1(\||$)/', $trimmedValue) === 1) {
+            return true;
+        }
+
+        return in_array(strtolower($trimmedValue), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    if (is_array($value)) {
+        return in_array(1, $value, true) || in_array('1', $value, true);
+    }
+
+    return false;
+};
+
+$toolbarMode = rex_config::get('cropper', 'toolbar_mode', null);
+if (!is_string($toolbarMode) || '' === trim($toolbarMode)) {
+    $compactEnabled = $configEnabled(rex_config::get('cropper', 'compact_toolbar_in_stage', 0));
+    $legacyLayoutEnabled = $configEnabled(rex_config::get('cropper', 'compact_toolbar_legacy_layout', 0));
+    $toolbarMode = 'legacy';
+    if ($compactEnabled) {
+        $toolbarMode = $legacyLayoutEnabled ? 'legacy' : 'compact';
+    }
 }
+
+$compactToolbarInStage = in_array($toolbarMode, ['compact', 'legacy'], true);
+$legacyCompactLayout = $toolbarMode === 'legacy';
 
 $backLink = '<a class="cropper_back_to_media" href="' . rex_url::backendPage(POOL_MEDIA, $urlParameter, false) . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
 
@@ -57,7 +84,7 @@ $toggleButtons = '
         <span class="fa fa-columns" aria-hidden="true"></span>
     </button>';
 
-if ($compactToolbarInStage) {
+if ($compactToolbarInStage && !$legacyCompactLayout) {
     $toggleButtons .= '
     <button
         type="button"

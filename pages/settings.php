@@ -16,9 +16,12 @@ $field = $form->addCheckboxField('hide_edit_in_list');
 $field->setLabel($addon->i18n('cropper_settings_show'));
 $field->addOption($addon->i18n('cropper_settings_show_edit_in_list'), 1);
 
-$field = $form->addCheckboxField('compact_toolbar_in_stage');
+$field = $form->addSelectField('toolbar_mode');
 $field->setLabel($addon->i18n('cropper_settings_toolbar_mode'));
-$field->addOption($addon->i18n('cropper_settings_toolbar_compact_hover'), 1);
+$select = $field->getSelect();
+$select->addOption($addon->i18n('cropper_settings_toolbar_mode_legacy'), 'legacy');
+$select->addOption($addon->i18n('cropper_settings_toolbar_mode_compact'), 'compact');
+$select->addOption($addon->i18n('cropper_settings_toolbar_mode_default'), 'default');
 
 $field = $form->addCheckboxField('show_info_sidebar_initially');
 $field->setLabel($addon->i18n('cropper_settings_sidebar_mode'));

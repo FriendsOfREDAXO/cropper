@@ -192,6 +192,149 @@ form.cropper-is-saving .cropper-save-overlay {
         border-radius: 999px;
     }
 
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-main-panel {
+        overflow: visible;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-toolbar-rail {
+        bottom: 14px;
+        display: block;
+        left: 0;
+        overflow: visible;
+        padding: 0;
+        pointer-events: none;
+        right: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles {
+        backdrop-filter: blur(2px);
+        background: rgba(20, 24, 30, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+        max-width: calc(100% - 24px);
+        padding: 6px 8px;
+        pointer-events: auto;
+        position: absolute;
+        width: fit-content;
+        z-index: 48;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons {
+        align-items: center;
+        display: inline-flex;
+        gap: 6px;
+        max-width: calc(100% - 24px);
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.35);
+        border-radius: 999px;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons {
+        bottom: 60px;
+        left: 50%;
+        margin: 0;
+        padding-top: 4px;
+        transform: translateX(-50%);
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles {
+        align-items: center;
+        display: inline-flex;
+        gap: 6px;
+        margin: 0;
+        max-width: calc(100% - 24px);
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 4px 6px;
+        right: 12px;
+        top: 6px;
+        white-space: nowrap;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.35);
+        border-radius: 999px;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-toolbar-close {
+        display: none !important;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-toolbar-label,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-preset-control {
+        display: none;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .cropper-toolbar-section,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .cropper-toolbar-section {
+        align-items: center;
+        display: inline-flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        margin: 0;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .btn-group,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group {
+        display: inline-flex;
+        gap: 6px;
+        flex-wrap: nowrap;
+        width: auto;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .cropper-toolbar-section + .cropper-toolbar-section {
+        margin-left: 0;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .cropper-ratio-group {
+        overflow-x: auto;
+        padding-bottom: 0;
+        white-space: nowrap;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .cropper-toolbar-section--compact {
+        margin-left: 4px;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .btn-group > .btn,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .btn-group > label.btn,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-settings > .btn {
+        border-radius: 8px;
+        min-height: 34px;
+        min-width: 34px;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-settings {
+        margin-left: 0;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-settings .dropdown-menu {
+        left: auto;
+        margin-top: 6px;
+        right: 0;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar.is-toolbar-collapsed .cropper-toolbar-rail {
+        display: none;
+    }
+
     #cropper-workspace .cropper-stage-card,
     #cropper-workspace .cropper-sidebar-panel,
     #cropper-workspace .docs-buttons,
