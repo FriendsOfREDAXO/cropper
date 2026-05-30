@@ -39,6 +39,21 @@
         } elseif (is_array($compactToolbarConfig)) {
             $compactToolbarInStage = in_array(1, $compactToolbarConfig, true) || in_array('1', $compactToolbarConfig, true);
         }
+
+        $showSidebarInitiallyConfig = rex_config::get('cropper', 'show_info_sidebar_initially', 0);
+        $showSidebarInitially = false;
+        if (is_bool($showSidebarInitiallyConfig)) {
+            $showSidebarInitially = $showSidebarInitiallyConfig;
+        } elseif (is_int($showSidebarInitiallyConfig) || is_float($showSidebarInitiallyConfig)) {
+            $showSidebarInitially = (int) $showSidebarInitiallyConfig === 1;
+        } elseif (is_string($showSidebarInitiallyConfig)) {
+            $trimmedConfig = trim($showSidebarInitiallyConfig);
+            if ('' !== $trimmedConfig) {
+                $showSidebarInitially = preg_match('/(^|\|)1(\||$)/', $trimmedConfig) === 1;
+            }
+        } elseif (is_array($showSidebarInitiallyConfig)) {
+            $showSidebarInitially = in_array(1, $showSidebarInitiallyConfig, true) || in_array('1', $showSidebarInitiallyConfig, true);
+        }
 ?>
 
 <div
@@ -46,49 +61,11 @@
     class="cropper-workspace<?= $compactToolbarInStage ? ' is-compact-toolbar' : '' ?>"
     data-media-width="<?= (int) $media->getWidth() ?>"
     data-media-height="<?= (int) $media->getHeight() ?>"
+    data-sidebar-initial-open="<?= $showSidebarInitially ? '1' : '0' ?>"
 >
     <div class="cropper-hero">
         <section class="cropper-main-panel">
             <div class="cropper-stage-card">
-                <div class="cropper-stage-header">
-                    <div>
-                        <span class="cropper-stage-kicker"><?= rex_i18n::msg('cropper_workspace_title') ?></span>
-                        <p class="cropper-stage-title"><?= $this->escape($media->getFileName()) ?></p>
-                    </div>
-                    <div class="cropper-stage-actions">
-                        <button
-                            type="button"
-                            id="cropper_sidebar_toggle"
-                            class="btn btn-default cropper-sidebar-toggle"
-                            aria-expanded="true"
-                            aria-controls="cropper-sidebar"
-                            data-expanded-label="<?= rex_i18n::msg('cropper_sidebar_collapse') ?>"
-                            data-collapsed-label="<?= rex_i18n::msg('cropper_sidebar_expand') ?>"
-                            data-toggle="tooltip"
-                            data-animation="false"
-                            data-original-title="<?= rex_i18n::msg('cropper_sidebar_collapse') ?>"
-                        >
-                            <span class="fa fa-columns" aria-hidden="true"></span>
-                        </button>
-                        <?php if ($compactToolbarInStage) : ?>
-                        <button
-                            type="button"
-                            id="cropper_toolbar_toggle"
-                            class="btn btn-default cropper-toolbar-toggle"
-                            aria-expanded="true"
-                            aria-controls="cropper-toolbar-buttons cropper-toolbar-toggles"
-                            data-expanded-label="<?= rex_i18n::msg('cropper_toolbar_collapse') ?>"
-                            data-collapsed-label="<?= rex_i18n::msg('cropper_toolbar_expand') ?>"
-                            data-toggle="tooltip"
-                            data-animation="false"
-                            data-original-title="<?= rex_i18n::msg('cropper_toolbar_collapse') ?>"
-                        >
-                            <span class="fa fa-sliders" aria-hidden="true"></span>
-                        </button>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
                 <div class="cropper_image_wrapper">
                     <div class="cropper-stage">
                         <img id="cropper_image" src="<?= $mediaUrl;?>?buster=<?= $mtime;?>" alt="">

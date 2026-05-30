@@ -20,6 +20,10 @@ $field = $form->addCheckboxField('compact_toolbar_in_stage');
 $field->setLabel($addon->i18n('cropper_settings_toolbar_mode'));
 $field->addOption($addon->i18n('cropper_settings_toolbar_compact_hover'), 1);
 
+$field = $form->addCheckboxField('show_info_sidebar_initially');
+$field->setLabel($addon->i18n('cropper_settings_sidebar_mode'));
+$field->addOption($addon->i18n('cropper_settings_sidebar_initial_open'), 1);
+
 // Ausgabe des Formulars
 $fragment = new rex_fragment();
 $fragment->setVar('class', 'edit', false);
