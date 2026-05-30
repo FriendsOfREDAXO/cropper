@@ -41,6 +41,22 @@
                         <span class="cropper-stage-kicker"><?= rex_i18n::msg('cropper_workspace_title') ?></span>
                         <p class="cropper-stage-title"><?= $this->escape($media->getFileName()) ?></p>
                     </div>
+                    <div class="cropper-stage-actions">
+                        <button
+                            type="button"
+                            id="cropper_sidebar_toggle"
+                            class="btn btn-default cropper-sidebar-toggle"
+                            aria-expanded="true"
+                            aria-controls="cropper-sidebar"
+                            data-expanded-label="<?= rex_i18n::msg('cropper_sidebar_collapse') ?>"
+                            data-collapsed-label="<?= rex_i18n::msg('cropper_sidebar_expand') ?>"
+                            data-toggle="tooltip"
+                            data-animation="false"
+                            data-original-title="<?= rex_i18n::msg('cropper_sidebar_collapse') ?>"
+                        >
+                            <span class="fa fa-columns" aria-hidden="true"></span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="cropper_image_wrapper">
@@ -171,7 +187,7 @@
             </div>
         </section>
 
-        <aside class="cropper-sidebar">
+        <aside id="cropper-sidebar" class="cropper-sidebar">
             <section class="cropper-sidebar-panel cropper-preview-panel">
                 <div class="cropper-sidebar-header">
                     <h4><?= rex_i18n::msg('cropper_preview_title') ?></h4>

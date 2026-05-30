@@ -53,6 +53,8 @@ cropper_mode_hint_move = Bild frei ziehen. Den Griff über der Auswahl ziehen, u
 cropper_mode_hint_crop = In der Auswahl ziehen verschiebt den Ausschnitt, die Eckpunkte verändern die Größe.
 cropper_action_move_selection = Auswahl verschieben
 cropper_selection_grab = Auswahl greifen
+cropper_sidebar_collapse = Info-Bereich ausblenden
+cropper_sidebar_expand = Info-Bereich einblenden
 
 yform_media_crop_description = "Ermöglicht das Hochladen und Zuschneiden von Medien."
 yform_media_crop_required = "Pflichtfeld aktivieren"

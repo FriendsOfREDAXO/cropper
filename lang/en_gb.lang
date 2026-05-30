@@ -52,6 +52,8 @@ cropper_mode_hint_move = Drag the image freely. Drag the handle above the select
 cropper_mode_hint_crop = Drag inside the selection to move it, and use the corner handles to resize it.
 cropper_action_move_selection = Move selection
 cropper_selection_grab = Grab selection
+cropper_sidebar_collapse = Hide info panel
+cropper_sidebar_expand = Show info panel
 
 yform_media_crop_description = "Enables uploading and cropping of media."
 yform_media_crop_required = "Activate required field"

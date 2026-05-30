@@ -87,6 +87,24 @@ form.cropper-is-saving .cropper-save-overlay {
         justify-content: space-between;
     }
 
+    #cropper-workspace .cropper-stage-actions {
+        align-items: center;
+        display: inline-flex;
+    }
+
+    #cropper-workspace .cropper-sidebar-toggle {
+        min-height: 40px;
+        min-width: 40px;
+    }
+
+    #cropper-workspace.is-sidebar-collapsed .cropper-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #cropper-workspace.is-sidebar-collapsed .cropper-sidebar {
+        display: none;
+    }
+
     #cropper-workspace .cropper-stage-kicker,
     #cropper-workspace .cropper-toolbar-label {
         color: var(--cropper-text-soft);

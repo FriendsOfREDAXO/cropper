@@ -176,8 +176,12 @@ class BackendCropper {
         this.stage = this.root.querySelector('.cropper-stage');
         this.selectionOverlay = this.root.querySelector('#cropper-selection-overlay');
         this.selectionGrabHandle = this.root.querySelector('#cropper-selection-grab');
+        this.sidebar = this.root.querySelector('#cropper-sidebar');
+        this.sidebarToggle = this.root.querySelector('#cropper_sidebar_toggle');
         this.modeBadge = this.root.querySelector('#cropper_mode_badge');
         this.modeHint = this.root.querySelector('#cropper_mode_hint');
+        this.sidebarStorageKey = 'cropper.sidebarCollapsed';
+        this.sidebarCollapsed = false;
         this.outputFields = {
             imageSize: this.root.querySelector('[data-cropper-output="image-size"]'),
             selectionSize: this.root.querySelector('[data-cropper-output="selection-size"]'),
@@ -226,6 +230,7 @@ class BackendCropper {
     }
 
     bindControls() {
+        this.initSidebarToggle();
         window.addEventListener('resize', this.handleWindowResize);
         this.cropperCanvas.addEventListener('action', this.handleCanvasAction);
         this.cropperCanvas.addEventListener('actionend', this.handleCanvasAction);
@@ -286,6 +291,58 @@ class BackendCropper {
         this.selectionGrabHandle?.addEventListener('pointerdown', (event) => {
             this.startSelectionGripDrag(event);
         });
+    }
+
+    initSidebarToggle() {
+        if (!(this.sidebar instanceof HTMLElement) || !(this.sidebarToggle instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        let collapsed = false;
+
+        try {
+            collapsed = window.localStorage.getItem(this.sidebarStorageKey) === '1';
+        } catch (error) {
+            collapsed = false;
+        }
+
+        this.setSidebarCollapsed(collapsed, false);
+
+        this.sidebarToggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.setSidebarCollapsed(!this.sidebarCollapsed, true);
+        });
+    }
+
+    setSidebarCollapsed(collapsed, persist) {
+        if (!(this.sidebarToggle instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        this.sidebarCollapsed = collapsed;
+        this.root.classList.toggle('is-sidebar-collapsed', collapsed);
+        this.sidebarToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+
+        const label = collapsed
+            ? (this.sidebarToggle.dataset.collapsedLabel || '')
+            : (this.sidebarToggle.dataset.expandedLabel || '');
+
+        this.sidebarToggle.setAttribute('title', label);
+        this.sidebarToggle.setAttribute('data-original-title', label);
+
+        if (typeof window !== 'undefined' && window.jQuery) {
+            window.jQuery(this.sidebarToggle).tooltip('fixTitle');
+        }
+
+        if (persist) {
+            try {
+                window.localStorage.setItem(this.sidebarStorageKey, collapsed ? '1' : '0');
+            } catch (error) {
+                // Ignore storage errors; the toggle still works for current session.
+            }
+        }
+
+        this.updateStageHeight();
     }
 
     activateAspectRatioInput(input) {
