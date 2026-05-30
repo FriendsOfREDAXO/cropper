@@ -12,3 +12,7 @@ if (!$addon->hasConfig()) {
 if (null === $addon->getConfig('compact_toolbar_in_stage')) {
     $addon->setConfig('compact_toolbar_in_stage', 0);
 }
+
+if (null === $addon->getConfig('show_info_sidebar_initially')) {
+    $addon->setConfig('show_info_sidebar_initially', 0);
+}

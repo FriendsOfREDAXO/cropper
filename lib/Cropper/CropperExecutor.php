@@ -24,8 +24,6 @@ use rex_user;
 use const PATHINFO_EXTENSION;
 use const PATHINFO_FILENAME;
 
-class CroppingException extends Exception {}
-
 class CropperExecutor
 {
     public const MSG_SUCCESSFUL_CREATED = 'cropper_successful_created';
@@ -197,7 +195,7 @@ class CropperExecutor
         // crop image
         if ($cropWidth > 0 && $cropHeight > 0) {
             $imageSize = @getimagesize($this->zebraImage->getTargetPath());
-            if (is_array($imageSize) && isset($imageSize[0], $imageSize[1])) {
+            if (is_array($imageSize)) {
                 $imageWidth = (int) $imageSize[0];
                 $imageHeight = (int) $imageSize[1];
 

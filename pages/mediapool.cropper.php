@@ -23,7 +23,62 @@ $body = '';
 $title = '';
 $class = 'edit';
 
-$back = '<a class="cropper_back_to_media" href="' . rex_url::backendPage(POOL_MEDIA, $urlParameter, false) . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
+$compactToolbarConfig = rex_config::get('cropper', 'compact_toolbar_in_stage', 0);
+$compactToolbarInStage = false;
+if (is_bool($compactToolbarConfig)) {
+    $compactToolbarInStage = $compactToolbarConfig;
+} elseif (is_int($compactToolbarConfig) || is_float($compactToolbarConfig)) {
+    $compactToolbarInStage = (int) $compactToolbarConfig === 1;
+} elseif (is_string($compactToolbarConfig)) {
+    $trimmedConfig = trim($compactToolbarConfig);
+    if ('' !== $trimmedConfig) {
+        $compactToolbarInStage = preg_match('/(^|\|)1(\||$)/', $trimmedConfig) === 1;
+    }
+} elseif (is_array($compactToolbarConfig)) {
+    $compactToolbarInStage = in_array(1, $compactToolbarConfig, true) || in_array('1', $compactToolbarConfig, true);
+}
+
+$backLink = '<a class="cropper_back_to_media" href="' . rex_url::backendPage(POOL_MEDIA, $urlParameter, false) . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
+
+$toggleButtons = '
+<div class="cropper-page-toggles">
+    <button
+        type="button"
+        id="cropper_sidebar_toggle"
+        class="btn btn-default cropper-sidebar-toggle"
+        aria-expanded="true"
+        aria-controls="cropper-sidebar"
+        data-expanded-label="' . rex_i18n::msg('cropper_sidebar_collapse') . '"
+        data-collapsed-label="' . rex_i18n::msg('cropper_sidebar_expand') . '"
+        data-toggle="tooltip"
+        data-animation="false"
+        data-original-title="' . rex_i18n::msg('cropper_sidebar_collapse') . '"
+    >
+        <span class="fa fa-columns" aria-hidden="true"></span>
+    </button>';
+
+if ($compactToolbarInStage) {
+    $toggleButtons .= '
+    <button
+        type="button"
+        id="cropper_toolbar_toggle"
+        class="btn btn-default cropper-toolbar-toggle"
+        aria-expanded="true"
+        aria-controls="cropper-toolbar-buttons cropper-toolbar-toggles"
+        data-expanded-label="' . rex_i18n::msg('cropper_toolbar_collapse') . '"
+        data-collapsed-label="' . rex_i18n::msg('cropper_toolbar_expand') . '"
+        data-toggle="tooltip"
+        data-animation="false"
+        data-original-title="' . rex_i18n::msg('cropper_toolbar_collapse') . '"
+    >
+        <span class="fa fa-sliders" aria-hidden="true"></span>
+    </button>';
+}
+
+$toggleButtons .= '
+</div>';
+
+$back = '<div class="cropper-page-options">' . $backLink . $toggleButtons . '</div>';
 
 if (!$user instanceof rex_user || !$user->hasPerm('cropper[]')) {
     rex_response::sendRedirect(rex_url::backendPage(POOL_MEDIA, $urlParameter, false));

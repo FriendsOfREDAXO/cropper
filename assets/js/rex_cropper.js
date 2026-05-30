@@ -177,8 +177,8 @@ class BackendCropper {
         this.selectionOverlay = this.root.querySelector('#cropper-selection-overlay');
         this.selectionGrabHandle = this.root.querySelector('#cropper-selection-grab');
         this.sidebar = this.root.querySelector('#cropper-sidebar');
-        this.sidebarToggle = this.root.querySelector('#cropper_sidebar_toggle');
-        this.toolbarToggle = this.root.querySelector('#cropper_toolbar_toggle');
+        this.sidebarToggle = this.root.querySelector('#cropper_sidebar_toggle') || document.querySelector('#cropper_sidebar_toggle');
+        this.toolbarToggle = this.root.querySelector('#cropper_toolbar_toggle') || document.querySelector('#cropper_toolbar_toggle');
         this.toolbarClose = this.root.querySelector('#cropper_toolbar_close');
         this.toolbarButtons = this.root.querySelector('#cropper-toolbar-buttons');
         this.toolbarToggles = this.root.querySelector('#cropper-toolbar-toggles');
@@ -221,7 +221,7 @@ class BackendCropper {
         }
 
         this.handleCanvasAction = this.syncHiddenFields.bind(this);
-        this.handleWheel = this.preventWheelZoom.bind(this);
+        this.handleStageWheel = this.forwardWheelToPageWhenZoomDisabled.bind(this);
         this.handleWindowResize = this.updateStageHeight.bind(this);
         this.handleSelectionGripMove = this.moveSelectionWithGrip.bind(this);
         this.handleSelectionGripEnd = this.stopSelectionGripDrag.bind(this);
@@ -245,7 +245,8 @@ class BackendCropper {
         window.addEventListener('resize', this.handleWindowResize);
         this.cropperCanvas.addEventListener('action', this.handleCanvasAction);
         this.cropperCanvas.addEventListener('actionend', this.handleCanvasAction);
-        this.cropperCanvas.addEventListener('wheel', this.handleWheel, { capture: true });
+        this.cropperCanvas.addEventListener('wheel', this.handleStageWheel, { capture: true, passive: false });
+        this.stage?.addEventListener('wheel', this.handleStageWheel, { capture: true, passive: false });
 
         this.root.querySelector('.docs-buttons')?.addEventListener('click', (event) => {
             const button = event.target.closest('[data-method]');
@@ -281,9 +282,16 @@ class BackendCropper {
             }
 
             if (input.type === 'checkbox' && input.name === 'zoomOnWheel') {
-                this.state.wheelZoomEnabled = input.checked;
+                this.applyWheelZoomState(input.checked);
             }
         });
+
+        const wheelZoomCheckbox = this.root.querySelector('input[name="zoomOnWheel"]');
+        if (wheelZoomCheckbox instanceof HTMLInputElement) {
+            this.applyWheelZoomState(wheelZoomCheckbox.checked);
+        } else {
+            this.applyWheelZoomState(false);
+        }
 
         this.root.querySelector('.cropper-ratio-group')?.addEventListener('click', (event) => {
             const label = event.target.closest('label.btn');
@@ -407,12 +415,14 @@ class BackendCropper {
             return;
         }
 
-        let collapsed = false;
+        const initialOpen = this.root.dataset.sidebarInitialOpen === '1';
+        let collapsed = !initialOpen;
 
         try {
-            collapsed = window.localStorage.getItem(this.sidebarStorageKey) === '1';
+            const storedValue = window.localStorage.getItem(this.sidebarStorageKey);
+            collapsed = storedValue === null ? !initialOpen : storedValue === '1';
         } catch (error) {
-            collapsed = false;
+            collapsed = !initialOpen;
         }
 
         this.setSidebarCollapsed(collapsed, false);
@@ -633,12 +643,62 @@ class BackendCropper {
         this.cropperSelection.movable = true;
         this.cropperSelection.resizable = true;
         this.cropperSelection.keyboard = true;
-        this.cropperSelection.zoomable = true;
+        this.cropperSelection.zoomable = this.state.wheelZoomEnabled;
         this.cropperSelection.aspectRatio = this.getSelectedAspectRatio();
         this.cropperSelection.initialAspectRatio = this.getSelectedAspectRatio();
         this.cropperSelection.hidden = false;
         this.cropperSelection.$reset();
         this.setDragMode('crop');
+    }
+
+    applyWheelZoomState(enabled) {
+        const normalized = enabled === true;
+        this.state.wheelZoomEnabled = normalized;
+
+        if (this.cropperSelection) {
+            this.cropperSelection.zoomable = normalized;
+        }
+
+        if (this.cropperCanvas && 'scaleStep' in this.cropperCanvas) {
+            this.cropperCanvas.scaleStep = normalized ? 0.1 : 0;
+        }
+    }
+
+    forwardWheelToPageWhenZoomDisabled(event) {
+        if (this.state.wheelZoomEnabled) {
+            return;
+        }
+
+        const target = event.target;
+        const inStage = target instanceof Node
+            && (
+                (this.cropperCanvas instanceof HTMLElement && this.cropperCanvas.contains(target))
+                || (this.stage instanceof HTMLElement && this.stage.contains(target))
+            );
+
+        if (!inStage) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        let deltaX = event.deltaX;
+        let deltaY = event.deltaY;
+
+        if (event.deltaMode === 1) {
+            deltaX *= 16;
+            deltaY *= 16;
+        } else if (event.deltaMode === 2) {
+            deltaX *= window.innerWidth;
+            deltaY *= window.innerHeight;
+        }
+
+        window.scrollBy({
+            left: deltaX,
+            top: deltaY,
+            behavior: 'auto',
+        });
     }
 
     ensureSelection() {
@@ -890,15 +950,6 @@ class BackendCropper {
         this.selectionOverlay.style.top = `${canvasOffsetTop + this.cropperSelection.y}px`;
         this.selectionOverlay.style.width = `${this.cropperSelection.width}px`;
         this.selectionOverlay.style.height = `${this.cropperSelection.height}px`;
-    }
-
-    preventWheelZoom(event) {
-        if (this.state.wheelZoomEnabled) {
-            return;
-        }
-
-        event.preventDefault();
-        event.stopImmediatePropagation();
     }
 
     applyAspectRatio(ratio) {
