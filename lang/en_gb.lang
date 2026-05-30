@@ -37,6 +37,7 @@ cropper_action_clear = Clear selection
 cropper_action_reset = Reset view
 cropper_action_zoom_in = Zoom in
 cropper_action_zoom_out = Zoom out
+cropper_action_fit = Fit image to stage
 cropper_action_rotate_left = Rotate left by 90 degrees
 cropper_action_rotate_right = Rotate right by 90 degrees
 cropper_action_flip_horizontal = Flip horizontally

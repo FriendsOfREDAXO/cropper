@@ -13,6 +13,9 @@
 - pnpm-basierter Buildprozess für Browser-Assets. Cropper.js wird aus `node_modules` nach `assets/vendor/cropper` gebaut.
 - Addon-lokale PHPStan/Rexstan-Konfiguration für reproduzierbare Analyse des Addons.
 - Adapter für Zebra_Image, damit Vendor-Code sauber von Addon-Code getrennt bleibt.
+- Optionaler Kompaktmodus fuer die Werkzeugleiste als rechte Overlay-Sidebar in der Buehne (inkl. Toggle-Button und integriertem Close-Button).
+- Neue direkte `Fit`-Aktion in der Werkzeugleiste (`fitImage`), um das Bild wieder auf die Buehne einzupassen.
+- Neue Einstellung `compact_toolbar_in_stage` inkl. Install-/Update-Defaults.
 
 ### Geändert
 
@@ -22,6 +25,8 @@
 - PR #52: YForm-Value `media_crop` hinzugefügt, inklusive Cropper-UI, Upload-/Delete-Handling, Required-Regeln, Preview-Konfiguration und begleitender Sprach-/README-Anpassungen.
 - Medienpool- und YForm-JavaScript auf die aktuelle Cropper.js-API umgestellt.
 - Bootstrapping und Asset-Ladepfade bereinigt, sodass Vendor- und Addon-Dateien klar getrennt sind.
+- Cropper-Workspace visuell und funktional ueberarbeitet: kompaktere Werkzeugsteuerung, bessere Buehnennutzung und zusaetzliche Sidebar-Toggles.
+- Tooltip-/Label-Texte und i18n-Keys fuer neue Actions und Sidebar-Steuerung erweitert.
 
 ### Behoben
 
@@ -29,6 +34,10 @@
 - Typ- und Null-Sicherheitsprobleme in CropperExecutor, Medienpool-Seite und YForm-Value behoben.
 - Zuschneiden behält jetzt die normalen REDAXO-Metadaten im Speichervorgang konsistent bei.
 - Beim Speichern wird die UI jetzt mit Ladehinweis blockiert, um Mehrfachklicks und parallele Verarbeitungen zu verhindern (Issue #56).
+- Robuste Auswertung von REDAXO-Checkbox-Konfigurationswerten (u.a. `|1|`) fuer Einstellungen wie `hide_edit_in_list` und `compact_toolbar_in_stage`.
+- Fehler "Value of type null is not callable" im `MEDIA_LIST_FUNCTIONS`-Hook behoben.
+- Re-Layout nach Sidebar-/Toolbar-Toggle stabilisiert, damit sich Buehne und Auswahl korrekt neu ausrichten und nicht "links haengen" bleiben.
+- Overlay-Toolbar auf scrollbare, begrenzte Darstellung innerhalb der Buehne angepasst.
 
 ### Zusammenfassung der gemergten PRs seit 2.0.3
 

@@ -124,6 +124,7 @@
 
             <div class="cropper-toolbar-rail" id="cropper-toolbar-rail">
                 <div id="cropper-toolbar-buttons" class="docs-buttons">
+                    <?php if ($compactToolbarInStage) : ?>
                     <button
                         type="button"
                         id="cropper_toolbar_close"
@@ -136,6 +137,7 @@
                     >
                         <span class="fa fa-times" aria-hidden="true"></span>
                     </button>
+                    <?php endif; ?>
                     <div class="cropper-toolbar-section">
                         <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_toolbar_mode') ?></span>
                         <div class="btn-group" role="group">
@@ -165,6 +167,9 @@
                             </button>
                             <button type="button" class="btn btn-primary" data-method="zoom" data-option="-0.1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_zoom_out') ?>" data-animation="false">
                                 <span class="fa fa-search-minus"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="fitImage" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_fit') ?>" data-animation="false">
+                                <span class="fa fa-compress"></span>
                             </button>
                             <button type="button" class="btn btn-primary" data-method="rotate" data-option="-90" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_rotate_left') ?>" data-animation="false">
                                 <span class="fa fa-rotate-left"></span>

@@ -1006,6 +1006,10 @@ class BackendCropper {
             case 'zoom':
                 this.cropperImage.$zoom(numericOption);
                 break;
+            case 'fitImage':
+                this.fitImageToCanvas();
+                this.ensureSelection();
+                break;
             case 'rotate':
                 this.ensureSelection();
                 this.state.rotation += numericOption;

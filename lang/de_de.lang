@@ -38,6 +38,7 @@ cropper_action_clear = Auswahl löschen
 cropper_action_reset = Ansicht zurücksetzen
 cropper_action_zoom_in = Hineinzoomen
 cropper_action_zoom_out = Herauszoomen
+cropper_action_fit = Bild einpassen
 cropper_action_rotate_left = 90 Grad nach links drehen
 cropper_action_rotate_right = 90 Grad nach rechts drehen
 cropper_action_flip_horizontal = Horizontal spiegeln
