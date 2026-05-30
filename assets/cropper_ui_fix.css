@@ -329,7 +329,7 @@ form.cropper-is-saving .cropper-save-overlay {
         margin: 0;
     }
 
-    @media (max-width: 1199px) {
+    @media (max-width: 1079px) {
         #cropper-workspace .cropper-hero {
             grid-template-columns: 1fr;
         }

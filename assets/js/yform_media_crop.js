@@ -35,13 +35,16 @@
     }
 
     function getSavingMessage() {
+        const i18n = (typeof window !== 'undefined' && window.rex && window.rex.cropperI18n)
+            ? window.rex.cropperI18n
+            : (typeof window !== 'undefined' ? window.cropperI18n : null);
+
         if (
-            typeof window !== 'undefined'
-            && window.cropperI18n
-            && typeof window.cropperI18n.savingMessage === 'string'
-            && window.cropperI18n.savingMessage !== ''
+            i18n
+            && typeof i18n.savingMessage === 'string'
+            && i18n.savingMessage !== ''
         ) {
-            return window.cropperI18n.savingMessage;
+            return i18n.savingMessage;
         }
 
         return 'Saving image...';
