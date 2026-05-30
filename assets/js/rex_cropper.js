@@ -178,10 +178,16 @@ class BackendCropper {
         this.selectionGrabHandle = this.root.querySelector('#cropper-selection-grab');
         this.sidebar = this.root.querySelector('#cropper-sidebar');
         this.sidebarToggle = this.root.querySelector('#cropper_sidebar_toggle');
+        this.toolbarToggle = this.root.querySelector('#cropper_toolbar_toggle');
+        this.toolbarClose = this.root.querySelector('#cropper_toolbar_close');
+        this.toolbarButtons = this.root.querySelector('#cropper-toolbar-buttons');
+        this.toolbarToggles = this.root.querySelector('#cropper-toolbar-toggles');
         this.modeBadge = this.root.querySelector('#cropper_mode_badge');
         this.modeHint = this.root.querySelector('#cropper_mode_hint');
         this.sidebarStorageKey = 'cropper.sidebarCollapsed';
+        this.toolbarStorageKey = 'cropper.toolbarCollapsed';
         this.sidebarCollapsed = false;
+        this.toolbarCollapsed = false;
         this.outputFields = {
             imageSize: this.root.querySelector('[data-cropper-output="image-size"]'),
             selectionSize: this.root.querySelector('[data-cropper-output="selection-size"]'),
@@ -235,6 +241,7 @@ class BackendCropper {
 
     bindControls() {
         this.initSidebarToggle();
+        this.initToolbarToggle();
         window.addEventListener('resize', this.handleWindowResize);
         this.cropperCanvas.addEventListener('action', this.handleCanvasAction);
         this.cropperCanvas.addEventListener('actionend', this.handleCanvasAction);
@@ -301,6 +308,69 @@ class BackendCropper {
         this.stage?.addEventListener('pointerdown', (event) => {
             this.startImageStageDrag(event);
         });
+    }
+
+    initToolbarToggle() {
+        if (!(this.toolbarToggle instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        if (!(this.toolbarButtons instanceof HTMLElement) || !(this.toolbarToggles instanceof HTMLElement)) {
+            return;
+        }
+
+        let collapsed = false;
+
+        try {
+            collapsed = window.localStorage.getItem(this.toolbarStorageKey) === '1';
+        } catch (error) {
+            collapsed = false;
+        }
+
+        this.setToolbarCollapsed(collapsed, false);
+
+        this.toolbarToggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.setToolbarCollapsed(!this.toolbarCollapsed, true);
+        });
+
+        if (this.toolbarClose instanceof HTMLButtonElement) {
+            this.toolbarClose.addEventListener('click', (event) => {
+                event.preventDefault();
+                this.setToolbarCollapsed(true, true);
+            });
+        }
+    }
+
+    setToolbarCollapsed(collapsed, persist) {
+        if (!(this.toolbarToggle instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        this.toolbarCollapsed = collapsed;
+        this.root.classList.toggle('is-toolbar-collapsed', collapsed);
+        this.toolbarToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+
+        const label = collapsed
+            ? (this.toolbarToggle.dataset.collapsedLabel || '')
+            : (this.toolbarToggle.dataset.expandedLabel || '');
+
+        this.toolbarToggle.setAttribute('title', label);
+        this.toolbarToggle.setAttribute('data-original-title', label);
+
+        if (typeof window !== 'undefined' && window.jQuery) {
+            window.jQuery(this.toolbarToggle).tooltip('fixTitle');
+        }
+
+        if (persist) {
+            try {
+                window.localStorage.setItem(this.toolbarStorageKey, collapsed ? '1' : '0');
+            } catch (error) {
+                // Ignore storage errors; the toggle still works for current session.
+            }
+        }
+
+        this.relayoutAfterPanelToggle();
     }
 
     scheduleInitialFit() {
@@ -381,7 +451,87 @@ class BackendCropper {
             }
         }
 
+        this.relayoutAfterPanelToggle();
+    }
+
+    captureSelectionSnapshot() {
+        if (!this.cropperSelection || !this.cropperCanvas) {
+            return null;
+        }
+
+        const canvasWidth = this.cropperCanvas.offsetWidth;
+        const canvasHeight = this.cropperCanvas.offsetHeight;
+
+        if (canvasWidth <= 0 || canvasHeight <= 0) {
+            return null;
+        }
+
+        const widthRatio = this.cropperSelection.width / canvasWidth;
+        const heightRatio = this.cropperSelection.height / canvasHeight;
+        const centerXRatio = (this.cropperSelection.x + (this.cropperSelection.width / 2)) / canvasWidth;
+        const centerYRatio = (this.cropperSelection.y + (this.cropperSelection.height / 2)) / canvasHeight;
+
+        return {
+            widthRatio,
+            heightRatio,
+            centerXRatio,
+            centerYRatio,
+            aspectRatio: this.cropperSelection.aspectRatio,
+        };
+    }
+
+    restoreSelectionSnapshot(snapshot) {
+        if (!snapshot || !this.cropperSelection || !this.cropperCanvas) {
+            return;
+        }
+
+        const canvasWidth = this.cropperCanvas.offsetWidth;
+        const canvasHeight = this.cropperCanvas.offsetHeight;
+
+        if (canvasWidth <= 0 || canvasHeight <= 0) {
+            return;
+        }
+
+        let width = Math.max(24, Math.min(canvasWidth, canvasWidth * snapshot.widthRatio));
+        let height = Math.max(24, Math.min(canvasHeight, canvasHeight * snapshot.heightRatio));
+
+        if (Number.isFinite(snapshot.aspectRatio) && snapshot.aspectRatio > 0) {
+            if (width / height > snapshot.aspectRatio) {
+                width = height * snapshot.aspectRatio;
+            } else {
+                height = width / snapshot.aspectRatio;
+            }
+        }
+
+        const centerX = clamp(snapshot.centerXRatio * canvasWidth, width / 2, canvasWidth - (width / 2));
+        const centerY = clamp(snapshot.centerYRatio * canvasHeight, height / 2, canvasHeight - (height / 2));
+        const x = centerX - (width / 2);
+        const y = centerY - (height / 2);
+
+        this.cropperSelection.$change(x, y, width, height, snapshot.aspectRatio, true);
+        this.clampSelectionToCanvas();
+    }
+
+    relayoutAfterPanelToggle() {
+        const snapshot = this.captureSelectionSnapshot();
+
         this.updateStageHeight();
+
+        window.requestAnimationFrame(() => {
+            this.updateStageHeight();
+            this.fitImageToCanvas();
+            this.ensureSelection();
+            this.restoreSelectionSnapshot(snapshot);
+            this.syncHiddenFields();
+        });
+
+        window.setTimeout(() => {
+            this.updateStageHeight();
+            this.fitImageToCanvas();
+            this.ensureSelection();
+            this.restoreSelectionSnapshot(snapshot);
+            this.syncHiddenFields();
+        }, 180);
     }
 
     activateAspectRatioInput(input) {
@@ -414,6 +564,7 @@ class BackendCropper {
             const stageHeight = Math.max(minStageHeight, exactStageHeight);
 
             this.root.style.setProperty('--cropper-stage-height', `${stageHeight}px`);
+            this.updateCompactToolbarRailBounds();
             this.updateSelectionOverlay();
             return;
         }
@@ -436,7 +587,41 @@ class BackendCropper {
         );
 
         this.root.style.setProperty('--cropper-stage-height', `${stageHeight}px`);
+        this.updateCompactToolbarRailBounds();
         this.updateSelectionOverlay();
+    }
+
+    updateCompactToolbarRailBounds() {
+        if (!(this.root instanceof HTMLElement)) {
+            return;
+        }
+
+        if (!this.root.classList.contains('is-compact-toolbar')) {
+            return;
+        }
+
+        const rail = this.root.querySelector('#cropper-toolbar-rail');
+        if (!(rail instanceof HTMLElement) || !(this.stage instanceof HTMLElement)) {
+            return;
+        }
+
+        const panel = this.root.querySelector('.cropper-main-panel');
+        if (!(panel instanceof HTMLElement)) {
+            return;
+        }
+
+        const panelRect = panel.getBoundingClientRect();
+        const stageRect = this.stage.getBoundingClientRect();
+
+        if (panelRect.height <= 0 || stageRect.height <= 0) {
+            return;
+        }
+
+        const top = Math.max(8, Math.round(stageRect.top - panelRect.top + 10));
+        const bottom = Math.max(8, Math.round(panelRect.bottom - stageRect.bottom + 10));
+
+        this.root.style.setProperty('--cropper-compact-rail-top', `${top}px`);
+        this.root.style.setProperty('--cropper-compact-rail-bottom', `${bottom}px`);
     }
 
     getSelectedAspectRatio() {

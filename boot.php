@@ -6,6 +6,41 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 $user = rex::getUser();
 $addon = $this;
+
+if (!function_exists('cropper_config_enabled')) {
+    /**
+     * @param mixed $value
+     */
+    function cropper_config_enabled($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (int) $value === 1;
+        }
+
+        if (is_string($value)) {
+            $trimmedValue = trim($value);
+            if ('' === $trimmedValue) {
+                return false;
+            }
+
+            if (preg_match('/(^|\|)1(\||$)/', $trimmedValue) === 1) {
+                return true;
+            }
+
+            return in_array(strtolower($trimmedValue), ['1', 'true', 'yes', 'on'], true);
+        }
+
+        if (is_array($value)) {
+            return in_array(1, $value, true) || in_array('1', $value, true);
+        }
+
+        return false;
+    }
+}
 $assetVersion = static function (string $assetPath) use ($addon): string {
     $fullPath = $addon->getPath('assets/' . $assetPath);
     $mtime = @filemtime($fullPath);
@@ -80,7 +115,7 @@ if (rex::isBackend() && $user instanceof rex_user && $user->hasPerm('cropper[]')
     rex_extension::register('MEDIA_LIST_FUNCTIONS', function (rex_extension_point $ep) {
         $subject = $ep->getSubject();
 
-        if ($this->getConfig('hide_edit_in_list') === null) {
+        if (!cropper_config_enabled($this->getConfig('hide_edit_in_list'))) {
             return $subject;
         }
 

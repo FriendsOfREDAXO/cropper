@@ -25,11 +25,25 @@
         $originalRatio = $media->getHeight() > 0
             ? (string) ($media->getWidth() / $media->getHeight())
             : 'NaN';
+        $compactToolbarConfig = rex_config::get('cropper', 'compact_toolbar_in_stage', 0);
+        $compactToolbarInStage = false;
+        if (is_bool($compactToolbarConfig)) {
+            $compactToolbarInStage = $compactToolbarConfig;
+        } elseif (is_int($compactToolbarConfig) || is_float($compactToolbarConfig)) {
+            $compactToolbarInStage = (int) $compactToolbarConfig === 1;
+        } elseif (is_string($compactToolbarConfig)) {
+            $trimmedConfig = trim($compactToolbarConfig);
+            if ('' !== $trimmedConfig) {
+                $compactToolbarInStage = preg_match('/(^|\|)1(\||$)/', $trimmedConfig) === 1;
+            }
+        } elseif (is_array($compactToolbarConfig)) {
+            $compactToolbarInStage = in_array(1, $compactToolbarConfig, true) || in_array('1', $compactToolbarConfig, true);
+        }
 ?>
 
 <div
     id="cropper-workspace"
-    class="cropper-workspace"
+    class="cropper-workspace<?= $compactToolbarInStage ? ' is-compact-toolbar' : '' ?>"
     data-media-width="<?= (int) $media->getWidth() ?>"
     data-media-height="<?= (int) $media->getHeight() ?>"
 >
@@ -56,6 +70,22 @@
                         >
                             <span class="fa fa-columns" aria-hidden="true"></span>
                         </button>
+                        <?php if ($compactToolbarInStage) : ?>
+                        <button
+                            type="button"
+                            id="cropper_toolbar_toggle"
+                            class="btn btn-default cropper-toolbar-toggle"
+                            aria-expanded="true"
+                            aria-controls="cropper-toolbar-buttons cropper-toolbar-toggles"
+                            data-expanded-label="<?= rex_i18n::msg('cropper_toolbar_collapse') ?>"
+                            data-collapsed-label="<?= rex_i18n::msg('cropper_toolbar_expand') ?>"
+                            data-toggle="tooltip"
+                            data-animation="false"
+                            data-original-title="<?= rex_i18n::msg('cropper_toolbar_collapse') ?>"
+                        >
+                            <span class="fa fa-sliders" aria-hidden="true"></span>
+                        </button>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -92,54 +122,67 @@
                 </div>
             </div>
 
-            <div class="docs-buttons">
-                <div class="cropper-toolbar-section">
-                    <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_toolbar_mode') ?></span>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="move" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_move') ?>" data-animation="false">
-                            <span class="fa fa-arrows"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary active" data-method="setDragMode" data-option="crop" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_select') ?>" data-animation="false">
-                            <span class="fa fa-crop"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" data-method="centerSelection" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_center') ?>" data-animation="false">
-                            <span class="fa fa-crosshairs"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" data-method="clear" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_clear') ?>" data-animation="false">
-                            <span class="fa fa-times"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" data-method="resetView" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_reset') ?>" data-animation="false">
-                            <span class="fa fa-refresh"></span>
-                        </button>
+            <div class="cropper-toolbar-rail" id="cropper-toolbar-rail">
+                <div id="cropper-toolbar-buttons" class="docs-buttons">
+                    <button
+                        type="button"
+                        id="cropper_toolbar_close"
+                        class="btn btn-default cropper-toolbar-close"
+                        aria-label="<?= rex_i18n::msg('cropper_toolbar_close') ?>"
+                        title="<?= rex_i18n::msg('cropper_toolbar_close') ?>"
+                        data-toggle="tooltip"
+                        data-animation="false"
+                        data-original-title="<?= rex_i18n::msg('cropper_toolbar_close') ?>"
+                    >
+                        <span class="fa fa-times" aria-hidden="true"></span>
+                    </button>
+                    <div class="cropper-toolbar-section">
+                        <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_toolbar_mode') ?></span>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="move" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_move') ?>" data-animation="false">
+                                <span class="fa fa-arrows"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary active" data-method="setDragMode" data-option="crop" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_select') ?>" data-animation="false">
+                                <span class="fa fa-crop"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="centerSelection" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_center') ?>" data-animation="false">
+                                <span class="fa fa-crosshairs"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="clear" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_clear') ?>" data-animation="false">
+                                <span class="fa fa-times"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="resetView" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_reset') ?>" data-animation="false">
+                                <span class="fa fa-refresh"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="cropper-toolbar-section">
+                        <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_preview_title') ?></span>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary" data-method="zoom" data-option="0.1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_zoom_in') ?>" data-animation="false">
+                                <span class="fa fa-search-plus"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="zoom" data-option="-0.1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_zoom_out') ?>" data-animation="false">
+                                <span class="fa fa-search-minus"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="rotate" data-option="-90" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_rotate_left') ?>" data-animation="false">
+                                <span class="fa fa-rotate-left"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="rotate" data-option="90" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_rotate_right') ?>" data-animation="false">
+                                <span class="fa fa-rotate-right"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="scaleX" data-option="-1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_flip_horizontal') ?>" data-animation="false">
+                                <span class="fa fa-arrows-h"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="scaleY" data-option="-1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_flip_vertical') ?>" data-animation="false">
+                                <span class="fa fa-arrows-v"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="cropper-toolbar-section">
-                    <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_preview_title') ?></span>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary" data-method="zoom" data-option="0.1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_zoom_in') ?>" data-animation="false">
-                            <span class="fa fa-search-plus"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" data-method="zoom" data-option="-0.1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_zoom_out') ?>" data-animation="false">
-                            <span class="fa fa-search-minus"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" data-method="rotate" data-option="-90" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_rotate_left') ?>" data-animation="false">
-                            <span class="fa fa-rotate-left"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" data-method="rotate" data-option="90" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_rotate_right') ?>" data-animation="false">
-                            <span class="fa fa-rotate-right"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" data-method="scaleX" data-option="-1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_flip_horizontal') ?>" data-animation="false">
-                            <span class="fa fa-arrows-h"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" data-method="scaleY" data-option="-1" data-toggle="tooltip" data-original-title="<?= rex_i18n::msg('cropper_action_flip_vertical') ?>" data-animation="false">
-                            <span class="fa fa-arrows-v"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="docs-toggles">
+                <div id="cropper-toolbar-toggles" class="docs-toggles">
                 <div class="cropper-toolbar-section">
                     <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_toolbar_aspect_ratio') ?></span>
                     <div class="btn-group cropper-ratio-group" data-toggle="buttons">
@@ -184,6 +227,7 @@
                         </ul>
                     </div>
                 </div>
+            </div>
             </div>
         </section>
 
