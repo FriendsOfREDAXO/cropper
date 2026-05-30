@@ -2,32 +2,80 @@
 
 /** @var rex_addon $this */
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-if (rex::isBackend() && is_object(rex::getUser())) {
+$user = rex::getUser();
+$addon = $this;
+
+if (!function_exists('cropper_config_enabled')) {
+    /**
+     * @param mixed $value
+     */
+    function cropper_config_enabled($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (int) $value === 1;
+        }
+
+        if (is_string($value)) {
+            $trimmedValue = trim($value);
+            if ('' === $trimmedValue) {
+                return false;
+            }
+
+            if (preg_match('/(^|\|)1(\||$)/', $trimmedValue) === 1) {
+                return true;
+            }
+
+            return in_array(strtolower($trimmedValue), ['1', 'true', 'yes', 'on'], true);
+        }
+
+        if (is_array($value)) {
+            return in_array(1, $value, true) || in_array('1', $value, true);
+        }
+
+        return false;
+    }
+}
+$assetVersion = static function (string $assetPath) use ($addon): string {
+    $fullPath = $addon->getPath('assets/' . $assetPath);
+    $mtime = @filemtime($fullPath);
+
+    if (false === $mtime) {
+        return '?v=' . rawurlencode((string) $addon->getVersion());
+    }
+
+    return '?v=' . rawurlencode((string) $mtime);
+};
+
+if (rex::isBackend() && $user instanceof rex_user) {
     rex_perm::register('cropper[]');
     rex_perm::register('cropper[overwrite]');
 }
 
-if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) {
+if (rex::isBackend() && $user instanceof rex_user && $user->hasPerm('cropper[]')) {
 
-    rex_view::addCssFile($this->getAssetsUrl('css/cropper.css'));
-    rex_view::addCssFile($this->getAssetsUrl('cropper_ui_fix.css'));
-    if (rex_be_controller::getCurrentPagePart(2) == 'cropper' OR rex_be_controller::getCurrentPagePart(1) == 'yform') {
-        rex_view::addJsFile($this->getAssetsUrl('js/cropper.min.js'));
-        rex_view::addJsFile($this->getAssetsUrl('js/jquery-cropper.min.js'));
-        rex_view::addJsFile($this->getAssetsUrl('js/rex_cropper.js'));
-        
+    rex_view::setJsProperty('cropperI18n', [
+        'savingMessage' => rex_i18n::msg('cropper_saving_message'),
+    ]);
+
+    rex_view::addCssFile($this->getAssetsUrl('vendor/cropper/cropper.css') . $assetVersion('vendor/cropper/cropper.css'));
+    rex_view::addCssFile($this->getAssetsUrl('cropper_ui_fix.css') . $assetVersion('cropper_ui_fix.css'));
+    if (rex_be_controller::getCurrentPagePart(2) == 'cropper' || rex_be_controller::getCurrentPagePart(1) == 'yform') {
+        rex_view::addJsFile($this->getAssetsUrl('vendor/cropper/cropper.min.js') . $assetVersion('vendor/cropper/cropper.min.js'));
+        rex_view::addJsFile($this->getAssetsUrl('js/rex_cropper.js') . $assetVersion('js/rex_cropper.js'));
     }
 
     if (rex_addon::exists('yform') && rex_addon::get('yform')->isAvailable()) {
-    // register yform template path
-    rex_yform::addTemplatePath($this->getPath('ytemplates'));
-    rex_view::addJsFile($this->getAssetsUrl('js/yform_media_crop.js'));
+        rex_yform::addTemplatePath($this->getPath('ytemplates'));
+        rex_view::addJsFile($this->getAssetsUrl('js/yform_media_crop.js') . $assetVersion('js/yform_media_crop.js'));
     }
-    
-    rex_extension::register( 'MEDIA_FORM_EDIT', function( rex_extension_point $ep ){
-      
+
+    rex_extension::register('MEDIA_FORM_EDIT', function (rex_extension_point $ep) {
 
         /** @var rex_sql $media */
         $media = $ep->getParam('media');
@@ -39,15 +87,15 @@ if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) 
             echo ($cropper_error) ? rex_view::error(rex_i18n::msg($msg)) : rex_view::success(rex_i18n::msg($msg));
         }
 
-        /** @var rex_media $rexMedia */
-        $rexMedia = rex_media::get($media->getValue('filename'));
+        $filename = (string) $media->getValue('filename');
+        $rexMedia = '' !== $filename ? rex_media::get($filename) : null;
 
-        if ($rexMedia instanceof rex_media && $rexMedia->isImage()) {
-            $linkParams = array(
+        if ($rexMedia?->isImage()) {
+            $linkParams = [
                 'rex_file_category' => rex_request::get('rex_file_category', 'integer', 0),
                 'file_id' => $ep->getParam('id'),
-                'media_name' => $media->getValue('filename'),
-            );
+                'media_name' => $filename,
+            ];
 
             if (rex_get('opener_input_field', 'string')) {
                 $linkParams['opener_input_field'] = rex_get('opener_input_field', 'string');
@@ -56,20 +104,18 @@ if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) 
             $link = rex_url::backendPage('mediapool/cropper', $linkParams, true);
 
             $fragment = new rex_fragment();
-            $fragment->setVar('elements', array(array(
-                'label' => '<label>'.rex_i18n::msg('cropper_media_edit_label').'</label>',
+            $fragment->setVar('elements', [[
+                'label' => '<label>' . rex_i18n::msg('cropper_media_edit_label') . '</label>',
                 'field' => '<a class="btn btn-primary" href="' . $link . '"><span>' . rex_i18n::msg('cropper_media_edit_link') . '</span> <i class="fa fa-crop"></i></a>',
-            )), false);
+            ]], false);
             return $fragment->parse('core/form/form.php');
         }
     });
 
-    rex_extension::register( 'MEDIA_LIST_FUNCTIONS', function( rex_extension_point $ep ){
-
-
+    rex_extension::register('MEDIA_LIST_FUNCTIONS', function (rex_extension_point $ep) {
         $subject = $ep->getSubject();
 
-        if ($this->getConfig('hide_edit_in_list') === null) {
+        if (!cropper_config_enabled($this->getConfig('hide_edit_in_list'))) {
             return $subject;
         }
 
@@ -84,15 +130,15 @@ if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) 
             echo ($cropper_error) ? rex_view::error(rex_i18n::msg($msg)) : rex_view::success(rex_i18n::msg($msg));
         }
 
-        /** @var rex_media $rexMedia */
-        $rexMedia = rex_media::get($media->getValue('name'));
+        $filename = (string) $media->getValue('name');
+        $rexMedia = '' !== $filename ? rex_media::get($filename) : null;
 
-        if ($rexMedia instanceof rex_media && $rexMedia->isImage()) {
-            $linkParams = array(
+        if ($rexMedia?->isImage()) {
+            $linkParams = [
                 'rex_file_category' => rex_request::get('rex_file_category', 'integer', 0),
                 'file_id' => $ep->getParam('id'),
-                'media_name' => $media->getValue('name'),
-            );
+                'media_name' => $filename,
+            ];
 
             if (rex_get('opener_input_field', 'string')) {
                 $linkParams['opener_input_field'] = rex_get('opener_input_field', 'string');
@@ -100,14 +146,8 @@ if (rex::isBackend() && rex::getUser() && rex::getUser()->hasPerm('cropper[]')) 
 
             $link = rex_url::backendPage('mediapool/cropper', $linkParams, true);
 
-            // a bit dirty, but it works...
             return '<a href="' . $link . '" class="cropper-media-edit-link"><span>' . rex_i18n::msg('cropper_media_edit_link') . '</span> <i class="fa fa-crop"></i></a>' .
                 $subject;
-
         }
-
     });
-
-
-
 }

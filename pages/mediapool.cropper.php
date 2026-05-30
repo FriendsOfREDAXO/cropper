@@ -12,9 +12,11 @@ use FriendsOfRedaxo\Cropper\Cropper\CroppingException;
 const POOL_MEDIA = 'mediapool/media';
 
 $csrf = rex_csrf_token::factory('mediapool_structure');
+$user = rex::getUser();
 
 $allowedExtensions = ['jpg' => ['jpg', 'jpeg'], 'png' => ['png'], 'gif' => ['gif']];
 $mediaName = rex_request::request('media_name', 'string', null);
+$isPreviewRequest = rex_request::request('cropper_preview', 'int', 0) === 1;
 $urlParameter = ['file_id' => rex_request::request('file_id', 'integer'), 'rex_file_category' => rex_request::request('rex_file_category', 'integer')];
 
 $body = '';
@@ -23,8 +25,31 @@ $class = 'edit';
 
 $back = '<a class="cropper_back_to_media" href="' . rex_url::backendPage(POOL_MEDIA, $urlParameter, false) . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
 
-if (!rex::getUser()->hasPerm('cropper[]')) {
+if (!$user instanceof rex_user || !$user->hasPerm('cropper[]')) {
     rex_response::sendRedirect(rex_url::backendPage(POOL_MEDIA, $urlParameter, false));
+}
+
+if ($isPreviewRequest) {
+    if (null === $mediaName) {
+        throw new rex_exception('Missing media name for cropper preview.');
+    }
+
+    $previewMedia = rex_media::get($mediaName);
+    if (!$previewMedia instanceof rex_media) {
+        throw new rex_exception('Preview media not found.');
+    }
+
+    $previewPath = rex_path::media($previewMedia->getFileName());
+    $previewContentType = rex_file::mimeType($previewPath) ?? 'application/octet-stream';
+
+    rex_response::cleanOutputBuffers();
+    rex_response::sendFile(
+        $previewPath,
+        $previewContentType,
+        'inline',
+        $previewMedia->getFileName(),
+    );
+    exit;
 }
 
 try {
@@ -37,8 +62,11 @@ try {
         $result = $cropperExecutor->crop();
 
         if ($result['ok']) {
-            /** @var rex_media $media */
-            $media = ($result['media'] instanceof rex_media) ? $result['media'] : null;
+            $media = $result['media'];
+            if (!$media instanceof rex_media) {
+                throw new CroppingException('EXCEPTION! NO MEDIA OBJ');
+            }
+
             $urlParameter['file_id'] = $media->getId();
             $urlParameter['cropper_msg'] = $result['msg'];
 
@@ -69,21 +97,20 @@ try {
     if (!$media = rex_media::get($mediaName)) {
         throw new CroppingException('EXCEPTION! NO MEDIA OBJ'); // TODO text!
     }
-    if ($media instanceof rex_media && rex_media::isImageType(rex_file::extension($mediaName))) {
-        $formElements = [];
+
+    if (rex_media::isImageType(rex_file::extension($mediaName))) {
         $panel = '';
         $options = [];
 
         $title = sprintf(rex_i18n::msg('cropper_media_crop_title'), pathinfo($media->getFileName(), PATHINFO_FILENAME));
 
-        $pngIn = ('png' == $media->getExtension() && rex::getUser()->isAdmin()) ? ' in' : '';
-        $jpgIn = (('jpg' == $media->getExtension() || 'jpeg' == $media->getExtension()) && rex::getUser()->isAdmin()) ? ' in' : '';
+        $pngIn = ('png' === $media->getExtension() && $user->isAdmin()) ? ' in' : '';
+        $jpgIn = (('jpg' === $media->getExtension() || 'jpeg' === $media->getExtension()) && $user->isAdmin()) ? ' in' : '';
 
         $jpgQuality = rex_request::request('jpg_quality', 'integer', 100);
         $pngCompression = rex_request::request('png_compression', 'integer', 9);
         $newFileExtension = rex_request::request('new_file_extension', 'string', null);
         $newFileName = rex_request::request('new_file_name', 'string', rex_escape(pathinfo($media->getFileName(), PATHINFO_FILENAME)));
-        $newMediaPoolCategory = rex_request::request('rex_file_category', 'integer', null);
 
         $allowed = (null === $newFileExtension) ? false : true;
 
@@ -114,10 +141,16 @@ try {
             throw new CroppingException('EXCEPTION! NOT ALLOWED FILE TYPE NOT SUPPORTED'); // TODO text!
         }
 
-        $mtime = @filemtime(rex_url::media($mediaName)) . uniqid();
+        $fileMtime = @filemtime(rex_path::media($mediaName));
+        $mtime = (false !== $fileMtime ? (string) $fileMtime : (string) time()) . uniqid('', true);
+
+        $previewUrl = rex_url::backendPage('mediapool/cropper', [
+            'media_name' => $mediaName,
+            'cropper_preview' => 1,
+        ], false);
 
         $fragment = new rex_fragment();
-        $fragment->setVar('mediaUrl', rex_url::media($mediaName));
+        $fragment->setVar('mediaUrl', $previewUrl);
         $fragment->setVar('media', $media);
         $fragment->setVar('mtime', $mtime);
         $panel = $fragment->parse('cropper_panel.php');
@@ -146,7 +179,7 @@ try {
             <label class="checkbox-inline checbox-switch switch-primary">
                 <input type="checkbox" name="create_new_image" id="create_new_image" checked />
             <span></span>' . rex_i18n::msg('cropper_img_save_info') . '</label>';
-        if (!rex::getUser()->hasPerm('cropper[overwrite]')) :
+        if (!$user->hasPerm('cropper[overwrite]')) :
             $checkbox = '<div class="nocheckbox"><input type="hidden" name="create_new_image" value="1" />' . rex_i18n::msg('cropper_img_save_info_nochoice') . '</div>';
         endif;
         $fragment = new rex_fragment();
@@ -177,8 +210,9 @@ try {
 
         // Medienpool-Kategorien zur Auswahl
         $rex_file_category = $media->getCategoryId();
-        $PERMALL = rex::getUser()->getComplexPerm('media')->hasCategoryPerm(0);
-        if (!$PERMALL && !rex::getUser()->getComplexPerm('media')->hasCategoryPerm($rex_file_category)) {
+        $mediaPerm = $user->getComplexPerm('media');
+        $permAll = $mediaPerm->hasCategoryPerm(0);
+        if (!$permAll && !$mediaPerm->hasCategoryPerm($rex_file_category)) {
             $rex_file_category = 0;
         }
         $cats_sel = new rex_media_category_select();

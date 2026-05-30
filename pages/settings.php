@@ -16,6 +16,10 @@ $field = $form->addCheckboxField('hide_edit_in_list');
 $field->setLabel($addon->i18n('cropper_settings_show'));
 $field->addOption($addon->i18n('cropper_settings_show_edit_in_list'), 1);
 
+$field = $form->addCheckboxField('compact_toolbar_in_stage');
+$field->setLabel($addon->i18n('cropper_settings_toolbar_mode'));
+$field->addOption($addon->i18n('cropper_settings_toolbar_compact_hover'), 1);
+
 // Ausgabe des Formulars
 $fragment = new rex_fragment();
 $fragment->setVar('class', 'edit', false);

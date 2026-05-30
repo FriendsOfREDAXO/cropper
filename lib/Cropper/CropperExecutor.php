@@ -12,18 +12,17 @@ namespace FriendsOfRedaxo\Cropper\Cropper;
 use Exception;
 use InvalidArgumentException;
 use rex;
+use rex_file;
 use rex_media;
 use rex_media_cache;
 use rex_media_manager;
 use rex_path;
 use rex_sql;
 use rex_sql_exception;
-use stefangabos\Zebra_Image\Zebra_Image;
+use rex_user;
 
 use const PATHINFO_EXTENSION;
 use const PATHINFO_FILENAME;
-
- // Import the Zebra_Image class
 
 class CroppingException extends Exception {}
 
@@ -34,7 +33,7 @@ class CropperExecutor
     public const MSG_FAILED_CREATED = 'cropper_failed_created';
     public const MSG_FAILED_UPDATED = 'cropper_failed_updated';
 
-    private Zebra_Image $zebraImage; // Use the imported class
+    private ZebraImageAdapter $zebraImage;
 
     private string $originalFilename;
 
@@ -42,136 +41,187 @@ class CropperExecutor
 
     private string $filename;
 
-    private string $category;
+    private int $category;
 
     private bool $update;
 
+    /** @var array<string, scalar|null> */
     private array $parameter;
 
     /**
+     * @param array<string, scalar|null> $parameter
      * @throws InvalidArgumentException
      */
     public function __construct(array $parameter = [])
     {
-        $this->zebraImage = new Zebra_Image(); // Instantiate using the imported class
-        $this->update = !isset($parameter['create_new_image']) || !$parameter['create_new_image'];
+        $this->zebraImage = new ZebraImageAdapter();
+        $this->update = !isset($parameter['create_new_image']) || !(bool) $parameter['create_new_image'];
         $this->parameter = $parameter;
 
-        $this->zebraImage->jpeg_quality = $parameter['jpg_quality'] ?? 90;
-        $this->zebraImage->png_compression = $parameter['png_compression'] ?? 9;
-        $this->originalFilename = $parameter['media_name'] ?? '';
+        $this->zebraImage->setJpegQuality((int) ($parameter['jpg_quality'] ?? 90));
+        $this->zebraImage->setPngCompression((int) ($parameter['png_compression'] ?? 9));
+        $this->originalFilename = (string) ($parameter['media_name'] ?? '');
 
-        if ($this->originalFilename) {
+        if ('' !== $this->originalFilename) {
             $this->tempFilename = pathinfo($this->originalFilename, PATHINFO_FILENAME) . '_cropper_' . md5($this->originalFilename . microtime()) . '.' . pathinfo($this->originalFilename, PATHINFO_EXTENSION);
+        } else {
+            $this->tempFilename = '';
         }
 
         if (isset($parameter['new_file_name'], $parameter['new_file_extension'])) {
-            $this->filename = rex_mediapool_filename($parameter['new_file_name'] . '.' . $parameter['new_file_extension'], true);
+            $this->filename = rex_mediapool_filename((string) $parameter['new_file_name'] . '.' . (string) $parameter['new_file_extension'], true);
+        } else {
+            $this->filename = '';
         }
 
-        $this->category = $parameter['rex_file_category'] ?? '';
-        $this->zebraImage->preserve_time = false;
+        $this->category = (int) ($parameter['rex_file_category'] ?? 0);
+        $this->zebraImage->setPreserveTime(false);
 
-        if (empty($this->filename)) {
+        if ('' === $this->filename) {
             $this->filename = rex_mediapool_filename($this->originalFilename, true);
         }
 
-        if (empty($this->originalFilename)) {
+        if ('' === $this->originalFilename) {
             throw new InvalidArgumentException("'media_name' parameter is required.");
         }
+    }
+
+    private function getCurrentUser(): rex_user
+    {
+        $user = rex::getUser();
+        if (!$user instanceof rex_user) {
+            throw new CroppingException('No backend user available.');
+        }
+
+        return $user;
+    }
+
+    private function getIntParameter(string $key, int $default = 0): int
+    {
+        return (int) ($this->parameter[$key] ?? $default);
     }
 
     /**
      * @throws CroppingException
      * @throws rex_sql_exception
      */
-    private function mediaWriteInitial(): ?rex_media
+    private function mediaWriteInitial(): rex_media
     {
-        if (!file_exists(rex_path::media($this->originalFilename))) {
-            throw new CroppingException('File ' . rex_path::media($this->originalFilename) . ' not exist');
+        $sourcePath = rex_path::media($this->originalFilename);
+
+        if (!is_file($sourcePath)) {
+            throw new CroppingException('File ' . $sourcePath . ' not exist');
         }
 
         if ($this->update) {
-            return rex_media::get($this->originalFilename);
+            $existingMedia = rex_media::get($this->originalFilename);
+            if ($existingMedia instanceof rex_media) {
+                return $existingMedia;
+            }
+
+            throw new CroppingException('Initial media file write failed');
         }
 
-        if (copy(rex_path::media($this->originalFilename), rex_path::media($this->tempFilename))) {
-            $FILE = [
+        if (rex_file::copy($sourcePath, rex_path::media($this->tempFilename))) {
+            $file = [
                 'name' => $this->tempFilename,
-                'size' => filesize(rex_path::media($this->originalFilename)),
-                'type' => mime_content_type(rex_path::media($this->originalFilename)),
+                'size' => filesize($sourcePath),
+                'type' => rex_file::mimeType($sourcePath),
             ];
 
             $original = rex_media::get($this->originalFilename);
             $title = $original instanceof rex_media ? $original->getTitle() : '';
+            $user = $this->getCurrentUser();
 
-            $return = rex_mediapool_saveMedia($FILE, $this->category, ['title' => $title], rex::getUser()->getValue('login'), false);
+            $return = rex_mediapool_saveMedia($file, $this->category, ['title' => $title], $user->getValue('login'), false);
 
-            if (1 == $return['ok']) {
+            if (isset($return['ok']) && 1 === (int) $return['ok']) {
                 $media = rex_media::get($this->tempFilename);
-                if ($media instanceof rex_media && rename(rex_path::media($this->tempFilename), rex_path::media($this->filename))) {
+                if ($media instanceof rex_media && rex_file::move(rex_path::media($this->tempFilename), rex_path::media($this->filename))) {
                     $sql = rex_sql::factory();
                     $sql->setTable(rex::getTablePrefix() . 'media');
                     $sql->setWhere(['id' => $media->getId()]);
                     $sql->setValue('originalname', $this->originalFilename);
                     $sql->setValue('filename', $this->filename);
-                    $sql->addGlobalUpdateFields(rex::getUser()->getValue('login'));
+                    $sql->addGlobalUpdateFields($user->getValue('login'));
                     $sql->update();
 
-                    if (rex_media::get($this->filename) instanceof rex_media) {
-                        return rex_media::get($this->filename); // Safe return
+                    $createdMedia = rex_media::get($this->filename);
+                    if ($createdMedia instanceof rex_media) {
+                        return $createdMedia;
                     }
                 }
             }
         }
 
-        throw new CroppingException('File ' . rex_path::media($this->originalFilename) . ' copy failed');
+        throw new CroppingException('File ' . $sourcePath . ' copy failed');
     }
 
     /**
+     * @return array{media: rex_media|null, error: list<int>, msg: string, ok: bool, update: bool}
      * @throws CroppingException
      */
     public function crop(): array
     {
         $media = $this->mediaWriteInitial();
 
-        if (!$media instanceof rex_media) {
-            throw new CroppingException('Initial media file write failed');
-        }
-
-        $this->zebraImage->source_path = rex_path::media($media->getFileName());
-        $this->zebraImage->target_path = rex_path::media($media->getFileName());
+        $this->zebraImage->setSourcePath(rex_path::media($media->getFileName()));
+        $this->zebraImage->setTargetPath(rex_path::media($media->getFileName()));
         $zebraErrors = [];
+        $scaleX = $this->getIntParameter('scaleX', 1);
+        $scaleY = $this->getIntParameter('scaleY', 1);
+        $rotate = $this->getIntParameter('rotate');
+        $cropX = $this->getIntParameter('x');
+        $cropY = $this->getIntParameter('y');
+        $cropWidth = $this->getIntParameter('width');
+        $cropHeight = $this->getIntParameter('height');
+        $canvasWidth = $this->getIntParameter('canvas_width');
+        $canvasHeight = $this->getIntParameter('canvas_height');
 
         // flip image
-        if (-1 == $this->parameter['scaleX'] && 1 == $this->parameter['scaleY']) {
-            $this->zebraImage->flip_horizontal();
-        } elseif (1 == $this->parameter['scaleX'] && -1 == $this->parameter['scaleY']) {
-            $this->zebraImage->flip_vertical();
-        } elseif (-1 == $this->parameter['scaleX'] && -1 == $this->parameter['scaleY']) {
-            $this->zebraImage->flip_both();
+        if (-1 === $scaleX && 1 === $scaleY) {
+            $this->zebraImage->flipHorizontal();
+        } elseif (1 === $scaleX && -1 === $scaleY) {
+            $this->zebraImage->flipVertical();
+        } elseif (-1 === $scaleX && -1 === $scaleY) {
+            $this->zebraImage->flipBoth();
         }
-        $zebraErrors[] = $this->zebraImage->error; // Capture errors *after* all flip operations
+        $zebraErrors[] = $this->zebraImage->getError();
 
         // rotate image
-        if (0 != $this->parameter['rotate']) {
-            $this->zebraImage->rotate($this->parameter['rotate']);
-            $zebraErrors[] = $this->zebraImage->error; // Capture errors
+        if (0 !== $rotate) {
+            $this->zebraImage->rotate($rotate);
+            $zebraErrors[] = $this->zebraImage->getError();
         }
 
         // crop image
-        if ($this->parameter['width'] > 0 && $this->parameter['height'] > 0) {
+        if ($cropWidth > 0 && $cropHeight > 0) {
+            $imageSize = @getimagesize($this->zebraImage->getTargetPath());
+            if (is_array($imageSize) && isset($imageSize[0], $imageSize[1])) {
+                $imageWidth = (int) $imageSize[0];
+                $imageHeight = (int) $imageSize[1];
+
+                if ($canvasWidth > 0 && $canvasHeight > 0) {
+                    $cropX = (int) round($cropX * ($imageWidth / $canvasWidth));
+                    $cropY = (int) round($cropY * ($imageHeight / $canvasHeight));
+                    $cropWidth = (int) round($cropWidth * ($imageWidth / $canvasWidth));
+                    $cropHeight = (int) round($cropHeight * ($imageHeight / $canvasHeight));
+                }
+
+                $cropX = max(0, min($cropX, $imageWidth));
+                $cropY = max(0, min($cropY, $imageHeight));
+                $cropWidth = max(0, min($cropWidth, $imageWidth - $cropX));
+                $cropHeight = max(0, min($cropHeight, $imageHeight - $cropY));
+            }
+
             $this->zebraImage->crop(
-                $this->parameter['x'],
-                $this->parameter['y'],
-                $this->parameter['x'] + $this->parameter['width'],
-                $this->parameter['y'] + $this->parameter['height'],
+                $cropX,
+                $cropY,
+                $cropX + $cropWidth,
+                $cropY + $cropHeight,
             );
-            $zebraErrors[] = $this->zebraImage->error; // Capture errors
+            $zebraErrors[] = $this->zebraImage->getError();
         }
-        // These two lines did nothing useful, and were not used anywhere
-        // $imgwidth=$this->parameter['width'];
-        // $imgheight=$this->parameter['height'];
 
         rex_media_cache::delete($media->getFileName());
         rex_media_manager::deleteCache(pathinfo($media->getFileName(), PATHINFO_FILENAME));
@@ -183,35 +233,41 @@ class CropperExecutor
         $FILEINFOS['filename'] = $media->getFileName();
         $FILEINFOS['filetype'] = $media->getType();
 
-        $result = rex_mediapool_updateMedia(['name' => 'none'], $FILEINFOS, rex::getUser()->getValue('login'));
+        $result = rex_mediapool_updateMedia(['name' => 'none'], $FILEINFOS, $this->getCurrentUser()->getValue('login'));
         $msgType = ($this->update) ? self::MSG_SUCCESSFUL_UPDATED : self::MSG_SUCCESSFUL_CREATED;
 
         if (isset($result['ok']) && 1 == $result['ok'] && isset($result['filename'])) {
-            $media = rex_media::get($result['filename']);
+            $media = is_string($result['filename']) ? rex_media::get($result['filename']) : null;
             $msg = $msgType;
             $ok = true;
 
-            $size = getimagesize($this->zebraImage->target_path);
+            $targetPath = $this->zebraImage->getTargetPath();
+            $size = getimagesize($targetPath);
             if (false !== $size) {
                 $sql = rex_sql::factory();
                 $sql->setTable(rex::getTable('media'));
-                $sql->setWhere(['filename' => $result['filename']]);
-                $sql->setValue('filesize', filesize($this->zebraImage->target_path));
+                $sql->setWhere(['filename' => (string) $result['filename']]);
+                $sql->setValue('filesize', filesize($targetPath));
                 $sql->setValue('width', $size[0]);
                 $sql->setValue('height', $size[1]);
                 $sql->update();
             }
-            // Handle the error - maybe log it
-            // rex_logger::logError(E_WARNING, 'Could not get image size for ' . $this->zebraImage->target_path);
-            // Optionally set width/height to 0 or some default
         } else {
+            $media = null;
             $msg = ($this->update) ? self::MSG_FAILED_UPDATED : self::MSG_FAILED_CREATED;
             $ok = false;
         }
 
+        $filteredErrors = [];
+        foreach ($zebraErrors as $error) {
+            if (0 !== $error) {
+                $filteredErrors[] = $error;
+            }
+        }
+
         return [
             'media' => $media,
-            'error' => array_filter($zebraErrors), // Filter out empty error codes
+            'error' => $filteredErrors,
             'msg' => $msg,
             'ok' => $ok,
             'update' => $this->update,

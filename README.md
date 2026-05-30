@@ -5,6 +5,8 @@ Bildbearbeitung für REDAXO.
 
 Stellt den Image-Cropper [Cropper.js](https://fengyuanchen.github.io/cropperjs/) im Medienpool zur Verfügung. Lizenz: [MIT](https://github.com/fengyuanchen/cropperjs/blob/master/LICENSE)
 
+Das AddOn nutzt für die Browser-Assets Cropper.js 2.x. Vendor-Dateien liegen getrennt von den AddOn-eigenen Skripten unter `assets/vendor/cropper`, eigene Logik unter `assets/js`.
+
 ![Screenshot](https://github.com/FriendsOfREDAXO/cropper/raw/assets/cropper_screenshot.png)
 
 ## Features
@@ -29,6 +31,15 @@ Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der 
 3. Rechte für Rollen anpassen
 4. Wenn gewünscht: eigene Vorgaben für Seitenverhältnisse in den Einstellungen hinterlegen
 
+## Frontend-Build
+
+Für Vendor-Updates von Cropper.js wird pnpm verwendet.
+
+1. Im AddOn-Ordner `pnpm install` ausführen.
+2. Danach `pnpm build` ausführen.
+
+Der Build schreibt die Vendor-Artefakte nach `assets/vendor/cropper`. `node_modules` gehört nicht ins Repository.
+
 ## Yform media_crop
 
 Das AddOn liefert ein Cropper Value media_crop mit. Es ist im Table-Manager und auch im Frontend verfügbar. 
@@ -47,7 +58,7 @@ Du hast einen Fehler gefunden oder ein nettes Feature parat? [Lege bitte ein Iss
 
 ## Changelog
 
-siehe [Release notes](https://github.com/FriendsOfREDAXO/cropper/releases)
+siehe [CHANGELOG.md](CHANGELOG.md) und [Release notes](https://github.com/FriendsOfREDAXO/cropper/releases)
 
 ## Lizenz
 

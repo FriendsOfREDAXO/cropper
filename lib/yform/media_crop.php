@@ -2,7 +2,7 @@
 
 class rex_yform_value_media_crop extends rex_yform_value_abstract
 {
-    public function enterObject()
+    public function enterObject(): void
     {
         $warnings = [];
         $old_value = $this->getValue();
@@ -46,76 +46,70 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
             $file_field = 'file_' . $this->getFieldId();
             if (isset($_FILES[$file_field]) && $_FILES[$file_field]['size'] > 0) {
                 $file = $_FILES[$file_field];
+                $fileName = (string) ($file['name'] ?? '');
+                $fileTmpName = (string) ($file['tmp_name'] ?? '');
+                $fileError = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
 
-                if ($file['error'] == 0) {
+                if (UPLOAD_ERR_OK === $fileError) {
                     try {
-                        // Upload the new file
                         $media_data = [
-                            'title' => $file['name'],
+                            'title' => $fileName,
                             'category_id' => $media_category_id,
                             'file' => [
-                                'name' => $file['name'],
-                                'tmp_name' => $file['tmp_name'],
-                                'type' => $file['type'],
-                                'size' => $file['size'],
-                                'error' => $file['error']
-                            ]
+                                'name' => $fileName,
+                                'tmp_name' => $fileTmpName,
+                                'error' => $fileError,
+                            ],
                         ];
 
-                        // Add to media pool
                         $result = rex_media_service::addMedia($media_data, true);
 
-                        if ($result['ok']) {
+                        if (isset($result['ok'], $result['filename']) && 1 === (int) $result['ok'] && is_string($result['filename'])) {
                             $filename = $result['filename'];
 
-                            // Update Media - Set category
                             if ($media_category_id > 0) {
                                 $update_data = [
                                     'category_id' => $media_category_id,
-                                    'title' => $file['name']
+                                    'title' => $fileName,
                                 ];
 
                                 rex_media_service::updateMedia($filename, $update_data);
                             }
 
-                            // Set new value
                             $this->setValue($filename);
 
-                            // Try to delete the old file
                             if ($old_value !== '' && $old_value !== $filename) {
                                 try {
                                     rex_media_service::deleteMedia($old_value);
                                 } catch (rex_exception $e) {
-                                    // Ignore file not found errors
                                     if (strpos($e->getMessage(), 'pool_file_not_found') === false) {
                                         $warnings[] = $e->getMessage();
                                     }
                                 }
                             }
                         } else {
-                            $warnings[] = implode(', ', $result['messages']);
+                            $warnings[] = isset($result['messages']) && is_array($result['messages'])
+                                ? implode(', ', array_map('strval', $result['messages']))
+                                : rex_i18n::msg('pool_file_upload_error');
                         }
                     } catch (rex_exception $e) {
                         $warnings[] = $e->getMessage();
                     }
                 } else {
-                    $warnings[] = rex_i18n::msg('yform_media_crop_error_on_upload') . ' ' . $file['error'];
+                    $warnings[] = rex_i18n::msg('yform_media_crop_error_on_upload') . ' ' . $fileError;
                 }
-            } else if ($required && empty($old_value)) {
-                // Required field validation
+            } elseif ($required && '' === $old_value) {
                 $warnings[] = rex_i18n::msg('yform_values_required_msg');
             }
         } else {
             $this->setValue($old_value);
         }
 
-        // Handle warnings
         if ($this->params['send'] && count($warnings) > 0) {
             $this->params['warning'][$this->getId()] = $this->params['error_class'];
             $this->params['warning_messages'][$this->getId()] = implode(', ', $warnings);
         }
 
-        // Save to value pool
         if ($this->params['send']) {
             $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
             if ($this->saveInDb()) {
@@ -123,12 +117,12 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
             }
         }
 
-        // Output
         if ($this->needsOutput()) {
             $this->params['form_output'][$this->getId()] = $this->parse(['value.media_crop.tpl.php']);
         }
     }
 
+    /** @return array<string, mixed> */
     public function getDefinitions(): array
     {
         return [
@@ -137,55 +131,55 @@ class rex_yform_value_media_crop extends rex_yform_value_abstract
             'values' => [
                 'name' => [
                     'type' => 'name',
-                    'label' => rex_i18n::msg('yform_values_defaults_name')
+                    'label' => rex_i18n::msg('yform_values_defaults_name'),
                 ],
                 'label' => [
                     'type' => 'text',
-                    'label' => rex_i18n::msg('yform_values_defaults_label')
+                    'label' => rex_i18n::msg('yform_values_defaults_label'),
                 ],
                 'required' => [
                     'type' => 'boolean',
-                    'label' => rex_i18n::msg('yform_media_crop_required')
+                    'label' => rex_i18n::msg('yform_media_crop_required'),
                 ],
                 'category' => [
                     'type' => 'text',
                     'label' => rex_i18n::msg('yform_media_crop_category'),
-                    'notice' => rex_i18n::msg('yform_media_crop_category_notice')
+                    'notice' => rex_i18n::msg('yform_media_crop_category_notice'),
                 ],
                 'crop_width' => [
                     'type' => 'integer',
                     'label' => rex_i18n::msg('yform_media_crop_width'),
                     'notice' => rex_i18n::msg('yform_media_crop_width_notice'),
                     'min' => 1,
-                    'default' => 800
+                    'default' => 800,
                 ],
                 'crop_height' => [
                     'type' => 'integer',
                     'label' => rex_i18n::msg('yform_media_crop_height'),
                     'notice' => rex_i18n::msg('yform_media_crop_height_notice'),
                     'min' => 1,
-                    'default' => 450
+                    'default' => 450,
                 ],
                 'preview_width' => [
                     'type' => 'text',
                     'label' => rex_i18n::msg('yform_media_crop_preview_width'),
-                    'notice' => rex_i18n::msg('yform_media_crop_preview_width_notice')
+                    'notice' => rex_i18n::msg('yform_media_crop_preview_width_notice'),
                 ],
                 'preview_height' => [
                     'type' => 'integer',
                     'label' => rex_i18n::msg('yform_media_crop_preview_height'),
                     'notice' => rex_i18n::msg('yform_media_crop_preview_height_notice'),
                     'min' => 300,
-                    'default' => 450
+                    'default' => 450,
                 ],
                 'preview_style' => [
                     'type' => 'text',
                     'label' => rex_i18n::msg('yform_media_crop_preview_style'),
-                    'notice' => rex_i18n::msg('yform_media_crop_preview_style_notice')
+                    'notice' => rex_i18n::msg('yform_media_crop_preview_style_notice'),
                 ],
                 'notice' => [
                     'type' => 'text',
-                    'label' => rex_i18n::msg('yform_values_defaults_notice')
+                    'label' => rex_i18n::msg('yform_values_defaults_notice'),
                 ],
             ],
             'description' => rex_i18n::msg('yform_media_crop_description'),

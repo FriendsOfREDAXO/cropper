@@ -4,114 +4,99 @@
  * @psalm-scope-this rex_yform_value_media_crop
  */
 
-$crop_width = $this->getElement('crop_width') ?: 1200;
-$crop_height = $this->getElement('crop_height') ?: 630;
-$required = $this->getElement('required');
-$notice = $this->getElement('notice');
+$cropWidth = (int) ($this->getElement('crop_width') ?: 1200);
+$cropHeight = (int) ($this->getElement('crop_height') ?: 630);
+$previewHeight = (int) ($this->getElement('preview_height') ?: 500);
+$previewWidth = $this->getElement('preview_width') ?: '100%';
+$previewStyle = $this->getElement('preview_style') ?: '';
+$required = (bool) $this->getElement('required');
+$notice = (string) $this->getElement('notice');
 
-// Get style options with defaults
-$preview_width = $this->getElement('preview_width') ?: '100%';
-$preview_height = $this->getElement('preview_height') ?: '500';
-$preview_style = $this->getElement('preview_style') ?: '';
-
-// Convert numeric width to pixels
-if (is_numeric($preview_width)) {
-    $preview_width = $preview_width . 'px';
+if (is_numeric($previewWidth)) {
+    $previewWidth .= 'px';
 }
 
-// Build style attributes
-$container_style = sprintf(
-    'width: %s; height: %spx; %s',
-    $preview_width,
-    $preview_height,
-    $preview_style
+$fieldId = $this->getFieldId();
+$fieldName = $this->getFieldName();
+$value = (string) $this->getValue();
+$stageStyle = sprintf(
+    'width: %s; min-height: %dpx; height: %dpx; overflow: hidden; position: relative; %s',
+    $previewWidth,
+    $previewHeight,
+    $previewHeight,
+    $previewStyle,
 );
-
-$field_id = $this->getFieldId();
-$field_name = $this->getFieldName();
-$value = $this->getValue();
 ?>
 
-<div class="<?= trim('form-group ' . $this->getHTMLClass() . ' ' . $this->getWarningClass()) ?>" 
-     id="<?= $this->getHTMLId() ?>"
-     data-crop-width="<?= $crop_width ?>"
-     data-crop-height="<?= $crop_height ?>"
-     data-preview-height="<?= $preview_height ?>">
-    
-    <label class="control-label" for="<?= $field_id ?>"><?= $this->getLabel() ?></label>
+<div
+    class="<?= trim('form-group cropper-media-crop ' . $this->getHTMLClass() . ' ' . $this->getWarningClass()) ?>"
+    id="<?= $this->getHTMLId() ?>"
+    data-crop-width="<?= $cropWidth ?>"
+    data-crop-height="<?= $cropHeight ?>"
+    data-preview-height="<?= $previewHeight ?>"
+    data-preview-width="<?= htmlspecialchars($previewWidth) ?>"
+>
+    <label class="control-label" for="<?= $fieldId ?>"><?= $this->getLabel() ?></label>
 
-    <!-- File Upload Field -->
-    <input type="file" 
-           class="form-control" 
-           id="<?= $field_id ?>" 
-           name="file_<?= $field_id ?>"
-           accept="image/*"
-           <?= $required ? 'required' : '' ?>>
+    <input
+        type="file"
+        class="form-control"
+        id="<?= $fieldId ?>"
+        name="file_<?= $fieldId ?>"
+        accept="image/*"
+        <?= $required ? 'required' : '' ?>
+    >
 
-    <?php if ($notice !== ''): ?>
+    <?php if ('' !== $notice): ?>
         <span class="help-block"><?= htmlspecialchars($notice) ?></span>
     <?php endif; ?>
 
-    <!-- Hidden field for current value -->
-    <input type="hidden" name="<?= $field_name ?>" value="<?= htmlspecialchars($value) ?>">
+    <input type="hidden" name="<?= $fieldName ?>" value="<?= htmlspecialchars($value) ?>">
 
-    <!-- Preview Section -->
-    <div id="preview-container-<?= $field_id ?>" style="margin-top: 15px;">
-        <?php if ($value): ?>
-            <!-- Current Image -->
-            <div class="current-image">
-                <?php
-                    $mediaUrl = rex_url::media($value);
-                    $previewUrl = rex_media_manager::getUrl('rex_media_medium', $value);
-                ?>
-                <img src="<?= $previewUrl ?>" alt="Current Image" style="max-width: 200px;">
-                <?php if (!$required): ?>
-                <div class="checkbox" style="margin-top: 10px;">
-                    <label>
-                        <input type="checkbox" name="<?= md5($this->getFieldName('delete')) ?>" value="1">
-                        <?= rex_i18n::msg('yform_media_crop_delete_image') ?>
-                    </label>
-                </div>
-                <?php endif; ?>
+    <?php if ('' !== $value): ?>
+        <?php $previewUrl = rex_media_manager::getUrl('rex_media_medium', $value); ?>
+        <div class="cropper-current-image" style="margin-top: 15px;">
+            <img src="<?= $previewUrl ?>" alt="" style="max-width: 240px; height: auto; display: block;">
+            <?php if (!$required): ?>
+                <label class="checkbox" style="margin-top: 10px; display: inline-flex; gap: 8px; align-items: center;">
+                    <input type="checkbox" name="<?= md5($this->getFieldName('delete')) ?>" value="1">
+                    <span><?= rex_i18n::msg('yform_media_crop_delete_image') ?></span>
+                </label>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="upload-preview" hidden style="margin-top: 15px; width: 100%;">
+        <div class="cropper-stage" style="<?= $stageStyle ?>">
+            <img id="upload-image-<?= $fieldId ?>" src="" alt="" style="display: block; max-width: 100%; height: auto;">
+        </div>
+
+        <div class="cropper-controls" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" data-action="zoom-in" title="Vergrößern">
+                    <span class="fa fa-search-plus"></span>
+                </button>
+                <button type="button" class="btn btn-default" data-action="zoom-out" title="Verkleinern">
+                    <span class="fa fa-search-minus"></span>
+                </button>
             </div>
-        <?php endif; ?>
 
-        <!-- Preview for new upload with correct dimensions -->
-        <div class="upload-preview" style="display: none;">
-            <div style="<?= $container_style ?>">
-                <img id="upload-image-<?= $field_id ?>" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" data-action="rotate-left" title="Nach links drehen">
+                    <span class="fa fa-rotate-left"></span>
+                </button>
+                <button type="button" class="btn btn-default" data-action="rotate-right" title="Nach rechts drehen">
+                    <span class="fa fa-rotate-right"></span>
+                </button>
             </div>
-            
-            <div class="cropper-controls" style="margin-top: 10px; text-align: center;">
-                <div class="btn-group" style="margin-right: 10px;">
-                    <button type="button" class="btn btn-default" data-action="zoom-in" title="Vergrößern">
-                        <span class="fa fa-search-plus"></span>
-                    </button>
-                    <button type="button" class="btn btn-default" data-action="zoom-out" title="Verkleinern">
-                        <span class="fa fa-search-minus"></span>
-                    </button>
-                </div>
-                
-                <div class="btn-group" style="margin-right: 10px;">
-                    <button type="button" class="btn btn-default" data-action="rotate-left" title="Nach links drehen">
-                        <span class="fa fa-rotate-left"></span>
-                    </button>
-                    <button type="button" class="btn btn-default" data-action="rotate-right" title="Nach rechts drehen">
-                        <span class="fa fa-rotate-right"></span>
-                    </button>
-                </div>
 
-                <div class="btn-group" style="margin-right: 10px;">
-                    <button type="button" class="btn btn-default" data-action="toggle-drag" title="Zwischen Verschieben und Zuschneiden wechseln">
-                        <span class="fa fa-arrows"></span>
-                    </button>
-                </div>
-
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default" data-action="reset" title="Zurücksetzen">
-                        <span class="fa fa-refresh"></span>
-                    </button>
-                </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" data-action="toggle-drag" title="Zwischen Verschieben und Zuschneiden wechseln">
+                    <span class="fa fa-arrows"></span>
+                </button>
+                <button type="button" class="btn btn-default" data-action="reset" title="Zurücksetzen">
+                    <span class="fa fa-refresh"></span>
+                </button>
             </div>
         </div>
     </div>

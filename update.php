@@ -9,5 +9,9 @@ if (!$addon->hasConfig()) {
 2:3');
 }
 
+if (null === $addon->getConfig('compact_toolbar_in_stage')) {
+    $addon->setConfig('compact_toolbar_in_stage', 0);
+}
+
 
 
