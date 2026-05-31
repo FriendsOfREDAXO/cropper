@@ -12,7 +12,6 @@ namespace FriendsOfRedaxo\Cropper\Cropper;
 use Exception;
 use InvalidArgumentException;
 use rex;
-use rex_config;
 use rex_file;
 use rex_media;
 use rex_media_cache;
@@ -57,12 +56,12 @@ class CropperExecutor
         $this->update = !isset($parameter['create_new_image']) || !(bool) $parameter['create_new_image'];
         $this->parameter = $parameter;
 
-        $defaultJpgQuality = (int) rex_config::get('cropper', 'default_jpg_quality', 100);
+        $defaultJpgQuality = (int) \rex_config::get('cropper', 'default_jpg_quality', 100);
         $defaultJpgQuality = max(0, min(100, $defaultJpgQuality));
         $jpgQuality = (int) ($parameter['jpg_quality'] ?? $defaultJpgQuality);
         $this->zebraImage->setJpegQuality(max(0, min(100, $jpgQuality)));
 
-        $defaultPngCompression = (int) rex_config::get('cropper', 'default_png_compression', 9);
+        $defaultPngCompression = (int) \rex_config::get('cropper', 'default_png_compression', 9);
         $defaultPngCompression = max(0, min(9, $defaultPngCompression));
         $pngCompression = (int) ($parameter['png_compression'] ?? $defaultPngCompression);
         $this->zebraImage->setPngCompression(max(0, min(9, $pngCompression)));
