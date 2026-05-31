@@ -182,6 +182,10 @@
                 this.cropperSelection.hidden = false;
                 this.cropperSelection.$reset();
                 this.cropperCanvas.$setAction('select');
+                const moveHandle = this.cropperSelection.shadowRoot?.querySelector('cropper-handle[action="move"]');
+                if (moveHandle instanceof HTMLElement) {
+                    moveHandle.style.background = 'none';
+                }
                 this.syncPreviewState();
             });
         }
@@ -204,11 +208,21 @@
                         case 'zoom-out':
                             this.cropperImage.$zoom(-0.1);
                             break;
+                        case 'fit-image':
+                            this.fitImageToCanvas();
+                            this.ensureSelection();
+                            break;
                         case 'rotate-left':
                             this.cropperImage.$rotate('-90deg');
                             break;
                         case 'rotate-right':
                             this.cropperImage.$rotate('90deg');
+                            break;
+                        case 'scale-x':
+                            this.cropperImage.$scale(-1, 1);
+                            break;
+                        case 'scale-y':
+                            this.cropperImage.$scale(1, -1);
                             break;
                         case 'toggle-drag':
                             this.dragMode = this.dragMode === 'crop' ? 'move' : 'crop';
@@ -217,20 +231,84 @@
                             this.cropperSelection.resizable = this.dragMode === 'crop';
                             this.cropperCanvas.$setAction(this.dragMode === 'crop' ? 'select' : 'move');
                             break;
+                        case 'center-selection':
+                            this.centerSelection();
+                            break;
+                        case 'clear':
+                            this.cropperSelection.$clear();
+                            this.cropperSelection.hidden = true;
+                            break;
                         case 'reset':
-                            this.cropperImage.$resetTransform();
-                            this.cropperSelection.aspectRatio = this.aspectRatio;
-                            this.cropperSelection.initialAspectRatio = this.aspectRatio;
-                            this.cropperSelection.hidden = false;
-                            this.cropperSelection.$reset();
-                            this.cropperCanvas.$setAction('select');
-                            this.dragMode = 'crop';
+                            this.resetView();
+                            break;
+                        case 'reset-view':
+                            this.resetView();
                             break;
                     }
 
                     this.syncPreviewState();
                 });
             });
+        }
+
+        ensureSelection() {
+            if (!this.cropperSelection || !this.cropperCanvas) {
+                return false;
+            }
+
+            this.cropperSelection.hidden = false;
+            this.cropperSelection.movable = true;
+            this.cropperSelection.resizable = true;
+            return true;
+        }
+
+        fitImageToCanvas() {
+            if (!this.cropperImage) {
+                return;
+            }
+
+            if (typeof this.cropperImage.$center === 'function') {
+                this.cropperImage.$center('contain');
+                return;
+            }
+
+            if (typeof this.cropperImage.$resetTransform === 'function') {
+                this.cropperImage.$resetTransform();
+            }
+        }
+
+        centerSelection() {
+            if (!this.ensureSelection()) {
+                return;
+            }
+
+            const canvasWidth = this.cropperCanvas.offsetWidth;
+            const canvasHeight = this.cropperCanvas.offsetHeight;
+
+            if (canvasWidth <= 0 || canvasHeight <= 0) {
+                return;
+            }
+
+            const x = (canvasWidth - this.cropperSelection.width) / 2;
+            const y = (canvasHeight - this.cropperSelection.height) / 2;
+            this.cropperSelection.$change(x, y, this.cropperSelection.width, this.cropperSelection.height, this.cropperSelection.aspectRatio, true);
+            this.syncPreviewState();
+        }
+
+        resetView() {
+            if (!this.cropperImage || !this.cropperSelection) {
+                return;
+            }
+
+            this.dragMode = 'crop';
+            this.cropperImage.$resetTransform();
+            this.fitImageToCanvas();
+            this.cropperSelection.aspectRatio = this.aspectRatio;
+            this.cropperSelection.initialAspectRatio = this.aspectRatio;
+            this.cropperSelection.hidden = false;
+            this.cropperSelection.$reset();
+            this.cropperCanvas.$setAction('select');
+            this.centerSelection();
         }
 
         initFormSubmit() {

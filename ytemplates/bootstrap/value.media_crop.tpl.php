@@ -79,6 +79,9 @@ $stageStyle = sprintf(
                 <button type="button" class="btn btn-default" data-action="zoom-out" title="Verkleinern">
                     <span class="fa fa-search-minus"></span>
                 </button>
+                <button type="button" class="btn btn-default" data-action="fit-image" title="Bild einpassen">
+                    <span class="fa fa-compress"></span>
+                </button>
             </div>
 
             <div class="btn-group" role="group">
@@ -88,13 +91,25 @@ $stageStyle = sprintf(
                 <button type="button" class="btn btn-default" data-action="rotate-right" title="Nach rechts drehen">
                     <span class="fa fa-rotate-right"></span>
                 </button>
+                <button type="button" class="btn btn-default" data-action="scale-x" title="Horizontal spiegeln">
+                    <span class="fa fa-arrows-h"></span>
+                </button>
+                <button type="button" class="btn btn-default" data-action="scale-y" title="Vertikal spiegeln">
+                    <span class="fa fa-arrows-v"></span>
+                </button>
             </div>
 
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-default" data-action="toggle-drag" title="Zwischen Verschieben und Zuschneiden wechseln">
                     <span class="fa fa-arrows"></span>
                 </button>
-                <button type="button" class="btn btn-default" data-action="reset" title="Zurücksetzen">
+                <button type="button" class="btn btn-default" data-action="center-selection" title="Auswahl zentrieren">
+                    <span class="fa fa-crosshairs"></span>
+                </button>
+                <button type="button" class="btn btn-default" data-action="clear" title="Auswahl löschen">
+                    <span class="fa fa-times"></span>
+                </button>
+                <button type="button" class="btn btn-default" data-action="reset-view" title="Ansicht zurücksetzen">
                     <span class="fa fa-refresh"></span>
                 </button>
             </div>

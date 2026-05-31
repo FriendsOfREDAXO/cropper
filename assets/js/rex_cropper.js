@@ -326,6 +326,7 @@ class BackendCropper {
 
             if (input.type === 'checkbox' && input.name === 'pinchOnTouch') {
                 this.applyPinchZoomState(input.checked);
+                return;
             }
         });
 
