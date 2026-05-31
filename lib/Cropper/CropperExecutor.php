@@ -56,8 +56,15 @@ class CropperExecutor
         $this->update = !isset($parameter['create_new_image']) || !(bool) $parameter['create_new_image'];
         $this->parameter = $parameter;
 
-        $this->zebraImage->setJpegQuality((int) ($parameter['jpg_quality'] ?? 90));
-        $this->zebraImage->setPngCompression((int) ($parameter['png_compression'] ?? 9));
+        $defaultJpgQuality = (int) rex_config::get('cropper', 'default_jpg_quality', 100);
+        $defaultJpgQuality = max(0, min(100, $defaultJpgQuality));
+        $jpgQuality = (int) ($parameter['jpg_quality'] ?? $defaultJpgQuality);
+        $this->zebraImage->setJpegQuality(max(0, min(100, $jpgQuality)));
+
+        $defaultPngCompression = (int) rex_config::get('cropper', 'default_png_compression', 9);
+        $defaultPngCompression = max(0, min(9, $defaultPngCompression));
+        $pngCompression = (int) ($parameter['png_compression'] ?? $defaultPngCompression);
+        $this->zebraImage->setPngCompression(max(0, min(9, $pngCompression)));
         $this->originalFilename = (string) ($parameter['media_name'] ?? '');
 
         if ('' !== $this->originalFilename) {

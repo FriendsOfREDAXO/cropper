@@ -23,7 +23,7 @@ $body = '';
 $title = '';
 $class = 'edit';
 
-$configEnabled = static function ($value): bool {
+$configEnabled = static function ($value) use (&$configEnabled): bool {
     if (is_bool($value)) {
         return $value;
     }
@@ -33,16 +33,21 @@ $configEnabled = static function ($value): bool {
     }
 
     if (is_string($value)) {
-        $trimmedValue = trim($value);
-        if ('' === $trimmedValue) {
-            return false;
-        }
-
-        if (preg_match('/(^|\|)1(\||$)/', $trimmedValue) === 1) {
+        $normalized = strtolower(trim($value));
+        if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
             return true;
         }
 
-        return in_array(strtolower($trimmedValue), ['1', 'true', 'yes', 'on'], true);
+        if (in_array($normalized, ['0', 'false', 'no', 'off', ''], true)) {
+            return false;
+        }
+
+        $unserialized = @unserialize($value, ['allowed_classes' => false]);
+        if (false !== $unserialized || 'b:0;' === $value) {
+            return $configEnabled($unserialized);
+        }
+
+        return str_contains($normalized, '"1"') || str_contains($normalized, "'1'");
     }
 
     if (is_array($value)) {
@@ -52,20 +57,7 @@ $configEnabled = static function ($value): bool {
     return false;
 };
 
-$toolbarMode = rex_config::get('cropper', 'toolbar_mode', null);
-if (!is_string($toolbarMode) || '' === trim($toolbarMode)) {
-    $compactEnabled = $configEnabled(rex_config::get('cropper', 'compact_toolbar_in_stage', 0));
-    $legacyLayoutEnabled = $configEnabled(rex_config::get('cropper', 'compact_toolbar_legacy_layout', 0));
-    $toolbarMode = 'legacy';
-    if ($compactEnabled) {
-        $toolbarMode = $legacyLayoutEnabled ? 'legacy' : 'compact';
-    }
-}
-
-$compactToolbarInStage = in_array($toolbarMode, ['compact', 'legacy'], true);
-$legacyCompactLayout = $toolbarMode === 'legacy';
-
-$backLink = '<a class="cropper_back_to_media" href="' . rex_url::backendPage(POOL_MEDIA, $urlParameter, false) . '">' . rex_i18n::msg('cropper_back_to_media') . '</a>';
+$backLink = '<a class="btn btn-default cropper-back-button" href="' . rex_url::backendPage(POOL_MEDIA, $urlParameter, false) . '"><span class="fa fa-arrow-left" aria-hidden="true"></span><span>' . rex_i18n::msg('cropper_back_to_media') . '</span></a>';
 
 $toggleButtons = '
 <div class="cropper-page-toggles">
@@ -83,24 +75,6 @@ $toggleButtons = '
     >
         <span class="fa fa-columns" aria-hidden="true"></span>
     </button>';
-
-if ($compactToolbarInStage && !$legacyCompactLayout) {
-    $toggleButtons .= '
-    <button
-        type="button"
-        id="cropper_toolbar_toggle"
-        class="btn btn-default cropper-toolbar-toggle"
-        aria-expanded="true"
-        aria-controls="cropper-toolbar-buttons cropper-toolbar-toggles"
-        data-expanded-label="' . rex_i18n::msg('cropper_toolbar_collapse') . '"
-        data-collapsed-label="' . rex_i18n::msg('cropper_toolbar_expand') . '"
-        data-toggle="tooltip"
-        data-animation="false"
-        data-original-title="' . rex_i18n::msg('cropper_toolbar_collapse') . '"
-    >
-        <span class="fa fa-sliders" aria-hidden="true"></span>
-    </button>';
-}
 
 $toggleButtons .= '
 </div>';
@@ -186,11 +160,20 @@ try {
 
         $title = sprintf(rex_i18n::msg('cropper_media_crop_title'), pathinfo($media->getFileName(), PATHINFO_FILENAME));
 
-        $pngIn = ('png' === $media->getExtension() && $user->isAdmin()) ? ' in' : '';
-        $jpgIn = (('jpg' === $media->getExtension() || 'jpeg' === $media->getExtension()) && $user->isAdmin()) ? ' in' : '';
+        $defaultJpgQuality = (int) rex_config::get('cropper', 'default_jpg_quality', 100);
+        $defaultJpgQuality = max(0, min(100, $defaultJpgQuality));
+        $showCompressionSettingsInMediapool = $configEnabled(rex_config::get('cropper', 'show_compression_settings_in_mediapool', 1));
 
-        $jpgQuality = rex_request::request('jpg_quality', 'integer', 100);
-        $pngCompression = rex_request::request('png_compression', 'integer', 9);
+        $defaultPngCompression = (int) rex_config::get('cropper', 'default_png_compression', 9);
+        $defaultPngCompression = max(0, min(9, $defaultPngCompression));
+
+        $pngIn = ('png' === $media->getExtension() && $user->isAdmin() && $showCompressionSettingsInMediapool) ? ' in' : '';
+        $jpgIn = (('jpg' === $media->getExtension() || 'jpeg' === $media->getExtension()) && $user->isAdmin() && $showCompressionSettingsInMediapool) ? ' in' : '';
+
+        $jpgQuality = rex_request::request('jpg_quality', 'integer', $defaultJpgQuality);
+        $jpgQuality = max(0, min(100, $jpgQuality));
+        $pngCompression = rex_request::request('png_compression', 'integer', $defaultPngCompression);
+        $pngCompression = max(0, min(9, $pngCompression));
         $newFileExtension = rex_request::request('new_file_extension', 'string', null);
         $newFileName = rex_request::request('new_file_name', 'string', rex_escape(pathinfo($media->getFileName(), PATHINFO_FILENAME)));
 
@@ -207,9 +190,9 @@ try {
                 $selected = 'selected="selected"';
                 if ('jpg' == $item) {
                     $pngIn = '';
-                    $jpgIn = ' in';
+                    $jpgIn = $showCompressionSettingsInMediapool ? ' in' : '';
                 } elseif ('png' == $item) {
-                    $pngIn = ' in';
+                    $pngIn = $showCompressionSettingsInMediapool ? ' in' : '';
                     $jpgIn = '';
                 } elseif ('gif' == $item) {
                     $pngIn = '';
@@ -318,27 +301,35 @@ try {
 
         $panel .= '<div id="new_file_name" class="collapse in">' . $fragment->parse('core/form/form.php') . $mediacat_select . '</div>';
 
-        // FORM ELEMENTS
-        // JPG QUALITY
-        $fragment = new rex_fragment();
-        $fragment->setVar('elements', [
-            [
-                'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_jpg_quality') . '</label>',
-                'field' => $jpgQualityElement,
-            ],
-        ], false);
-        $panel .= "<div class=\"collapse $jpgIn\">" . $fragment->parse('core/form/form.php') . '</div>';
+        if ($showCompressionSettingsInMediapool) {
+            // FORM ELEMENTS
+            // JPG QUALITY
+            $fragment = new rex_fragment();
+            $fragment->setVar('elements', [
+                [
+                    'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_jpg_quality') . '</label>',
+                    'field' => $jpgQualityElement,
+                ],
+            ], false);
+            $panel .= "<div class=\"collapse $jpgIn\">" . $fragment->parse('core/form/form.php') . '</div>';
+        } else {
+            $panel .= '<input type="hidden" name="jpg_quality" value="' . $defaultJpgQuality . '" />';
+        }
 
-        // FORM ELEMENTS
-        // PNG COMPRESSION
-        $fragment = new rex_fragment();
-        $fragment->setVar('elements', [
-            [
-                'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_png_compression') . '</label>',
-                'field' => $pngCompressionElement,
-            ],
-        ], false);
-        $panel .= "<div class=\"collapse $pngIn\">" . $fragment->parse('core/form/form.php') . '</div>';
+        if ($showCompressionSettingsInMediapool) {
+            // FORM ELEMENTS
+            // PNG COMPRESSION
+            $fragment = new rex_fragment();
+            $fragment->setVar('elements', [
+                [
+                    'label' => '<label for="rex-mediapool-title">' . rex_i18n::msg('cropper_png_compression') . '</label>',
+                    'field' => $pngCompressionElement,
+                ],
+            ], false);
+            $panel .= "<div class=\"collapse $pngIn\">" . $fragment->parse('core/form/form.php') . '</div>';
+        } else {
+            $panel .= '<input type="hidden" name="png_compression" value="' . $defaultPngCompression . '" />';
+        }
 
         // FORM FOOTER
         // BUTTONS

@@ -7,6 +7,7 @@
     --cropper-text-soft: #5c6b7a;
     --cropper-accent: #2f7dbd;
     --cropper-stage-height: 520px;
+    --cropper-stage-max-height: 70vh;
     --cropper-compact-rail-top: 108px;
     --cropper-compact-rail-bottom: 86px;
     --cropper-compact-rail-right: 34px;
@@ -34,6 +35,19 @@ form.cropper-is-saving .cropper-save-overlay {
         align-items: center;
         display: inline-flex;
         gap: 10px;
+    }
+
+    .cropper-page-options .cropper-back-button {
+        align-items: center;
+        border-radius: 10px;
+        display: inline-flex;
+        gap: 8px;
+        min-height: 36px;
+        padding: 0 12px;
+    }
+
+    .cropper-page-options .cropper-back-button .fa {
+        font-size: 14px;
     }
 
     .cropper-page-toggles {
@@ -83,117 +97,85 @@ form.cropper-is-saving .cropper-save-overlay {
         min-width: 0;
     }
 
-    #cropper-workspace.is-compact-toolbar .cropper-main-panel {
-        overflow: hidden;
-        position: relative;
-    }
-
-    #cropper-workspace.is-compact-toolbar .cropper-stage-card {
-        position: relative;
-    }
-
-    #cropper-workspace.is-compact-toolbar .cropper-toolbar-rail {
-        bottom: var(--cropper-compact-rail-bottom);
+    #cropper-workspace .cropper-toolbar-rail {
         display: grid;
         gap: 12px;
-        max-height: none;
+        margin-top: 16px;
         min-height: 0;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding: 8px;
-        position: absolute;
-        right: var(--cropper-compact-rail-right);
-        scrollbar-gutter: stable;
-        top: var(--cropper-compact-rail-top);
-        width: min(var(--cropper-compact-rail-width), calc(100% - (var(--cropper-compact-rail-right) * 2)));
-        z-index: 45;
     }
 
-    #cropper-workspace.is-compact-toolbar .cropper-toolbar-close {
+    #cropper-workspace .cropper-toolbar-toggle {
         align-items: center;
-        backdrop-filter: blur(6px);
-        background: color-mix(in srgb, var(--cropper-panel-alt) 80%, transparent 20%);
-        border: 1px solid color-mix(in srgb, var(--cropper-border) 78%, transparent 22%);
-        border-radius: 8px;
-        display: inline-flex !important;
-        height: 28px !important;
-        justify-content: center;
-        line-height: 1;
-        margin-left: auto;
-        max-width: 28px !important;
-        min-width: 28px !important;
-        padding: 0 !important;
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        width: 28px !important;
-        z-index: 3;
-    }
-
-    #cropper-workspace.is-compact-toolbar .docs-buttons {
-        position: relative;
-        padding-top: 44px;
-    }
-
-    #cropper-workspace.is-compact-toolbar .docs-buttons,
-    #cropper-workspace.is-compact-toolbar .docs-toggles {
-        backdrop-filter: blur(8px);
-        background: color-mix(in srgb, var(--cropper-panel) 80%, transparent 20%);
-        border-color: color-mix(in srgb, var(--cropper-border) 75%, transparent 25%);
-        margin-top: 0;
-        position: static;
-        width: 100%;
-    }
-
-    #cropper-workspace.is-compact-toolbar.is-toolbar-collapsed .cropper-toolbar-rail {
+        border-radius: 999px;
         display: none;
+        height: 36px;
+        justify-content: center;
+        margin-left: auto;
+        min-width: 36px;
+        padding: 0;
+        width: 36px;
     }
 
-    #cropper-workspace.is-compact-toolbar .cropper-preset-control {
+    #cropper-workspace .cropper-preset-control {
         min-width: 0;
         width: 100%;
     }
 
-    #cropper-workspace.is-compact-toolbar .cropper-preset-control .form-control {
+    #cropper-workspace .cropper-preset-control .form-control {
         min-height: 36px;
     }
 
-    #cropper-workspace.is-compact-toolbar .btn-group > .btn,
-    #cropper-workspace.is-compact-toolbar .btn-group > label.btn,
-    #cropper-workspace.is-compact-toolbar .cropper-settings > .btn {
+    #cropper-workspace .btn-group > .btn,
+    #cropper-workspace .btn-group > label.btn,
+    #cropper-workspace .cropper-settings > .btn {
         min-height: 36px;
         min-width: 36px;
     }
 
-    #cropper-workspace.is-compact-toolbar .docs-buttons .cropper-toolbar-section,
-    #cropper-workspace.is-compact-toolbar .docs-toggles .cropper-toolbar-section {
+    #cropper-workspace .docs-buttons .cropper-toolbar-section,
+    #cropper-workspace .docs-toggles .cropper-toolbar-section {
         gap: 10px;
     }
 
-    #cropper-workspace.is-compact-toolbar .docs-buttons .btn-group,
-    #cropper-workspace.is-compact-toolbar .docs-toggles .btn-group {
-        display: grid;
+    #cropper-workspace:not(.is-compact-toolbar) .docs-buttons .btn-group,
+    #cropper-workspace:not(.is-compact-toolbar) .docs-toggles .btn-group {
+        display: inline-flex;
+        flex-wrap: wrap;
         gap: 8px;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        width: 100%;
+        width: auto;
     }
 
-    #cropper-workspace.is-compact-toolbar .cropper-toolbar-rail::-webkit-scrollbar {
-        width: 8px;
+    #cropper-workspace:not(.is-compact-toolbar) .docs-buttons {
+        align-items: center;
+        column-gap: 22px;
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: 12px;
     }
 
-    #cropper-workspace.is-compact-toolbar .cropper-toolbar-rail::-webkit-scrollbar-thumb {
-        background: color-mix(in srgb, var(--cropper-border) 85%, transparent 15%);
-        border-radius: 999px;
+    #cropper-workspace:not(.is-compact-toolbar) .docs-buttons .cropper-toolbar-section {
+        align-items: center;
+        flex-wrap: wrap;
+        margin: 0;
     }
 
-    #cropper-workspace.is-compact-toolbar .cropper-toolbar-rail::-webkit-scrollbar-track {
-        background: color-mix(in srgb, var(--cropper-panel) 55%, transparent 45%);
-        border-radius: 999px;
+    #cropper-workspace:not(.is-compact-toolbar) .docs-buttons .cropper-toolbar-section + .cropper-toolbar-section {
+        border-left: 1px solid var(--cropper-border);
+        padding-left: 20px;
+    }
+
+    #cropper-workspace:not(.is-compact-toolbar) .docs-buttons .cropper-toolbar-label {
+        margin-bottom: 0;
+        margin-right: 2px;
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-main-panel {
         overflow: visible;
+        position: relative;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-stage-card {
+        position: relative;
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-toolbar-rail {
@@ -203,9 +185,11 @@ form.cropper-is-saving .cropper-save-overlay {
         overflow: visible;
         padding: 0;
         pointer-events: none;
+        position: absolute;
         right: 0;
         top: 0;
         width: 100%;
+        z-index: 120;
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons,
@@ -220,7 +204,7 @@ form.cropper-is-saving .cropper-save-overlay {
         pointer-events: auto;
         position: absolute;
         width: fit-content;
-        z-index: 48;
+        z-index: 130;
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons {
@@ -228,9 +212,10 @@ form.cropper-is-saving .cropper-save-overlay {
         display: inline-flex;
         gap: 6px;
         max-width: calc(100% - 24px);
-        overflow-x: auto;
-        overflow-y: hidden;
+        overflow: visible;
+        overflow-y: visible;
         white-space: nowrap;
+        z-index: 60;
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons::-webkit-scrollbar {
@@ -243,10 +228,10 @@ form.cropper-is-saving .cropper-save-overlay {
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons {
-        bottom: 60px;
+        bottom: 22px;
         left: 50%;
         margin: 0;
-        padding-top: 4px;
+        padding-top: 0;
         transform: translateX(-50%);
     }
 
@@ -257,11 +242,12 @@ form.cropper-is-saving .cropper-save-overlay {
         margin: 0;
         max-width: calc(100% - 24px);
         overflow-x: auto;
-        overflow-y: hidden;
+        overflow-y: visible;
         padding: 4px 6px;
         right: 12px;
         top: 6px;
         white-space: nowrap;
+        background: rgba(20, 24, 30, 0.58);
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles::-webkit-scrollbar {
@@ -321,17 +307,104 @@ form.cropper-is-saving .cropper-save-overlay {
         min-width: 34px;
     }
 
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group > .btn,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group > label.btn,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .cropper-settings > .btn {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none;
+        color: rgba(236, 244, 252, 0.95);
+        min-height: 30px;
+        min-width: 30px;
+        padding: 0 8px;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group > .btn:hover,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group > .btn:focus,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group > .btn:active,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group > label.btn:hover,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group > label.btn:focus,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-toggles .btn-group > label.btn:active {
+        background: rgba(255, 255, 255, 0.14) !important;
+        border-color: transparent !important;
+        color: #ffffff;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .btn-group > .btn,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .btn-group > label.btn,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .cropper-settings > .btn {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none;
+        color: rgba(236, 244, 252, 0.95);
+        min-height: 30px;
+        min-width: 30px;
+        padding: 0;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .btn-group > .btn:hover,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .btn-group > .btn:focus,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .btn-group > .btn:active,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .cropper-settings > .btn:hover,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .cropper-settings > .btn:focus,
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .cropper-settings > .btn:active {
+        background: rgba(255, 255, 255, 0.14) !important;
+        border-color: transparent !important;
+        color: #ffffff;
+    }
+
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-settings {
         margin-left: 0;
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-settings .dropdown-menu {
+        bottom: 100%;
         left: auto;
-        margin-top: 6px;
+        margin-bottom: 6px;
         right: 0;
+        top: auto;
+        z-index: 70;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-settings.open .dropdown-menu {
+        display: block;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-toolbar-toggle {
+        display: none !important;
     }
 
     #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar.is-toolbar-collapsed .cropper-toolbar-rail {
+        display: none;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-mode-bar {
+        align-items: center;
+        background: rgba(20, 24, 30, 0.62);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        display: inline-flex;
+        gap: 8px;
+        left: 12px;
+        max-width: calc(100% - 420px);
+        padding: 5px 10px;
+        pointer-events: none;
+        position: absolute;
+        top: 10px;
+        z-index: 125;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-mode-badge {
+        background: rgba(91, 177, 255, 0.2);
+        border-color: rgba(91, 177, 255, 0.55);
+        color: #e6f3ff;
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        margin: 0;
+        padding: 5px 10px;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .cropper-mode-hint {
         display: none;
     }
 
@@ -345,7 +418,7 @@ form.cropper-is-saving .cropper-save-overlay {
     }
 
     #cropper-workspace .cropper-stage-card {
-        overflow: hidden;
+        overflow: visible;
     }
 
     #cropper-workspace .docs-buttons,
@@ -383,6 +456,7 @@ form.cropper-is-saving .cropper-save-overlay {
             var(--cropper-bg);
         border: 1px solid var(--cropper-border);
         min-height: var(--cropper-stage-height);
+        max-height: var(--cropper-stage-max-height);
         overflow: hidden;
         padding: 14px;
         position: relative;
@@ -392,6 +466,7 @@ form.cropper-is-saving .cropper-save-overlay {
         background-color: transparent;
         height: var(--cropper-stage-height);
         min-height: var(--cropper-stage-height);
+        max-height: var(--cropper-stage-max-height);
         width: 100%;
     }
 
@@ -407,7 +482,7 @@ form.cropper-is-saving .cropper-save-overlay {
         border-top: 1px solid var(--cropper-border);
         display: flex;
         gap: 14px;
-        padding: 14px 20px 18px;
+        padding: 10px 20px 12px;
     }
 
     #cropper-workspace .cropper-mode-badge {
@@ -531,29 +606,38 @@ form.cropper-is-saving .cropper-save-overlay {
 
     #cropper-workspace .cropper-settings .dropdown-menu {
         border-radius: 10px;
-        margin-top: 8px;
-        min-width: 180px;
-        padding: 8px;
-        z-index: 1200;
-    }
-
-    #cropper-workspace .cropper-settings .dropdown-menu > li {
-        list-style: none;
-    }
-
-    #cropper-workspace .cropper-settings .dropdown-menu > li > label {
-        align-items: center;
-        cursor: pointer;
-        display: inline-flex;
-        gap: 8px;
-        margin: 0;
-        padding: 4px 2px;
-        width: 100%;
+        margin-top: 0;
+        min-width: 210px;
+        padding: 6px 0;
+        z-index: 90;
     }
 
     #cropper-workspace .cropper-settings .dropdown-menu .form-check-input {
-        margin: 0;
+        margin: 3px 0 0;
         position: static;
+    }
+
+    #cropper-workspace .cropper-settings.dropup .dropdown-menu,
+    #cropper-workspace .cropper-preset-dropdown.dropup .dropdown-menu {
+        bottom: 100%;
+        margin-bottom: 8px;
+        top: auto;
+    }
+
+    #cropper-workspace .cropper-settings .dropdown-menu > li > label {
+        align-items: flex-start;
+        cursor: pointer;
+        display: flex;
+        font-size: 15px;
+        font-weight: 600;
+        gap: 10px;
+        line-height: 1.35;
+        margin: 0;
+        padding: 8px 14px;
+    }
+
+    #cropper-workspace .cropper-settings .dropdown-menu > li > label:hover {
+        background: var(--cropper-panel-alt);
     }
 
     #cropper-workspace .cropper-sidebar {
@@ -569,7 +653,9 @@ form.cropper-is-saving .cropper-save-overlay {
     }
 
     #cropper-workspace .cropper-preview-frame {
-        align-items: center;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
         aspect-ratio: 4 / 3;
         background: var(--cropper-panel-alt);
         border: 1px dashed var(--cropper-border);
@@ -623,12 +709,25 @@ form.cropper-is-saving .cropper-save-overlay {
         margin: 0;
     }
 
+    #cropper-workspace .docs-buttons .btn-group > .btn[data-method="setDragMode"].active {
+        background: var(--cropper-accent);
+        border-color: color-mix(in srgb, var(--cropper-accent) 82%, #0f172a 18%);
+        color: #ffffff;
+    }
+
+    #cropper-workspace.is-compact-toolbar.is-legacy-compact-toolbar .docs-buttons .btn-group > .btn[data-method="setDragMode"].active {
+        background: var(--cropper-accent) !important;
+        border-color: color-mix(in srgb, var(--cropper-accent) 82%, #0f172a 18%) !important;
+        color: #ffffff !important;
+    }
+
     @media (max-width: 1079px) {
         #cropper-workspace {
-            --cropper-compact-rail-right: 22px;
+            --cropper-stage-height: 420px;
         }
 
         #cropper-workspace .cropper-hero {
+            position: relative;
             grid-template-columns: 1fr;
         }
 
@@ -636,32 +735,91 @@ form.cropper-is-saving .cropper-save-overlay {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        #cropper-workspace.is-compact-toolbar .docs-buttons,
-        #cropper-workspace.is-compact-toolbar .docs-toggles {
+        #cropper-workspace .cropper-main-panel {
+            display: grid;
+            gap: 14px;
+        }
+
+        #cropper-workspace .cropper-stage-card {
+            order: 1;
+        }
+
+        #cropper-workspace:not(.is-legacy-compact-toolbar) .cropper-toolbar-toggle {
+            display: inline-flex;
+        }
+
+        #cropper-workspace .cropper-mode-bar {
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        #cropper-workspace:not(.is-legacy-compact-toolbar) .cropper-toolbar-rail {
+            display: none;
+            margin-top: 0;
+        }
+
+        #cropper-workspace:not(.is-legacy-compact-toolbar).is-toolbar-collapsed .cropper-toolbar-rail {
+            display: none;
+        }
+
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .cropper-toolbar-rail {
+            background: color-mix(in srgb, var(--cropper-panel) 96%, #ffffff 4%);
+            border: 1px solid var(--cropper-border);
+            border-radius: 16px;
+            box-shadow: 0 18px 40px rgba(17, 24, 39, 0.18);
+            display: grid;
+            gap: 14px;
+            max-height: min(52vh, calc(100vh - 220px));
+            overflow: auto;
+            padding: 14px;
+            width: 100%;
+        }
+
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .docs-buttons,
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .docs-toggles {
             backdrop-filter: none;
             border-color: var(--cropper-border);
             position: static;
             width: auto;
         }
 
-        #cropper-workspace.is-compact-toolbar .cropper-toolbar-rail {
-            bottom: auto;
-            display: grid;
-            max-height: none;
-            overflow: visible;
-            padding: 0;
-            position: static;
-            right: auto;
-            top: auto;
-            width: auto;
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .docs-buttons .cropper-toolbar-section,
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .docs-toggles .cropper-toolbar-section {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        #cropper-workspace.is-compact-toolbar .cropper-toolbar-toggle {
-            display: none;
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .docs-buttons .btn-group {
+            display: inline-grid;
+            gap: 6px;
+            grid-template-columns: repeat(3, 34px);
+            justify-content: center;
+            width: max-content;
         }
 
-        #cropper-workspace.is-compact-toolbar.is-toolbar-collapsed .cropper-toolbar-rail {
-            display: grid;
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .docs-toggles .btn-group {
+            display: inline-grid;
+            gap: 6px;
+            grid-template-columns: repeat(3, minmax(78px, 1fr));
+            width: 100%;
+        }
+
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .btn-group > .btn,
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .btn-group > label.btn,
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .cropper-settings > .btn {
+            min-height: 34px;
+            min-width: 34px;
+        }
+
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .docs-buttons .btn-group > .btn,
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .docs-buttons .btn-group > label.btn {
+            min-width: 34px;
+            width: 34px;
+        }
+
+        #cropper-workspace:not(.is-legacy-compact-toolbar):not(.is-toolbar-collapsed) .cropper-settings .dropdown-menu {
+            min-width: 160px;
         }
     }
 

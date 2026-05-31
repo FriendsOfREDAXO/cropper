@@ -62,7 +62,7 @@ Du hast einen Fehler gefunden oder ein nettes Feature parat? [Lege bitte ein Iss
 
 siehe [CHANGELOG.md](CHANGELOG.md) und [Release notes](https://github.com/FriendsOfREDAXO/cropper/releases)
 
-## Hinweise zu 3.0.2
+## Hinweise zu 3.0.3
 
 - Fokus auf UX-Stabilisierung der Overlay-Toolbars im Legacy-Modus.
 - "Speichern als neue Datei" wurde intern robuster umgesetzt.

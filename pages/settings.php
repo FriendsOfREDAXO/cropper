@@ -20,12 +20,29 @@ $field = $form->addSelectField('toolbar_mode');
 $field->setLabel($addon->i18n('cropper_settings_toolbar_mode'));
 $select = $field->getSelect();
 $select->addOption($addon->i18n('cropper_settings_toolbar_mode_legacy'), 'legacy');
-$select->addOption($addon->i18n('cropper_settings_toolbar_mode_compact'), 'compact');
 $select->addOption($addon->i18n('cropper_settings_toolbar_mode_default'), 'default');
 
 $field = $form->addCheckboxField('show_info_sidebar_initially');
 $field->setLabel($addon->i18n('cropper_settings_sidebar_mode'));
 $field->addOption($addon->i18n('cropper_settings_sidebar_initial_open'), 1);
+
+$field = $form->addTextField('stage_max_height');
+$field->setLabel($addon->i18n('cropper_settings_stage_max_height'));
+$field->setNotice($addon->i18n('cropper_settings_stage_max_height_notice'));
+
+$field = $form->addTextField('default_jpg_quality');
+$field->setLabel($addon->i18n('cropper_settings_default_jpg_quality'));
+$field->setNotice($addon->i18n('cropper_settings_default_jpg_quality_notice'));
+
+$field = $form->addTextField('default_png_compression');
+$field->setLabel($addon->i18n('cropper_settings_default_png_compression'));
+$field->setNotice($addon->i18n('cropper_settings_default_png_compression_notice'));
+
+$field = $form->addSelectField('show_compression_settings_in_mediapool');
+$field->setLabel($addon->i18n('cropper_settings_compression_mediapool'));
+$select = $field->getSelect();
+$select->addOption($addon->i18n('cropper_settings_compression_mediapool_inactive'), '0');
+$select->addOption($addon->i18n('cropper_settings_compression_mediapool_active'), '1');
 
 // Ausgabe des Formulars
 $fragment = new rex_fragment();

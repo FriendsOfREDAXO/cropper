@@ -15,6 +15,18 @@ cropper_successful_updated = ¡El archivo fue actualizado exitosamente!
 cropper_successful_created = El archivo fue creado con éxito!
 cropper_settings_show_edit_in_list = Mostrar enlace de recorte en la lista de medios
 cropper_settings_show = Mostrar enlace de recorte
+cropper_settings_default_jpg_quality = Calidad JPEG predeterminada
+cropper_settings_default_jpg_quality_notice = Rango de 0 a 100. 100 = mejor calidad, 0 = calidad mas baja.
+cropper_settings_compression_mediapool = Ajustes de compresion en la mediateca
+cropper_settings_compression_mediapool_option = Mostrar compresion JPEG y PNG en el formulario de recorte
+cropper_settings_compression_mediapool_inactive = Inactivo
+cropper_settings_compression_mediapool_active = Activo
+cropper_settings_jpg_mediapool = Calidad JPEG en la mediateca
+cropper_settings_jpg_mediapool_option = Mostrar calidad JPEG en el formulario de recorte
+cropper_settings_default_png_compression = Compresion PNG predeterminada
+cropper_settings_default_png_compression_notice = Rango de 0 a 9. 0 = menor compresion (archivo mas grande), 9 = mayor compresion (archivo mas pequeno).
+cropper_settings_png_mediapool = Compresion PNG en la mediateca
+cropper_settings_png_mediapool_option = Mostrar compresion PNG en el formulario de recorte
 cropper_workspace_title = Espacio de trabajo
 cropper_workspace_hint = Más espacio, recorte más rápido: dibuje una selección, cambie su tamaño con los preajustes y compruebe el resultado en la vista previa en vivo.
 cropper_toolbar_mode = Herramientas

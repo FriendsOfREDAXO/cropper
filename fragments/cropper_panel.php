@@ -55,18 +55,13 @@
             return false;
         };
 
-        $toolbarMode = rex_config::get('cropper', 'toolbar_mode', null);
-        if (!is_string($toolbarMode) || '' === trim($toolbarMode)) {
-            $compactEnabled = $configEnabled(rex_config::get('cropper', 'compact_toolbar_in_stage', 0));
-            $legacyLayoutEnabled = $configEnabled(rex_config::get('cropper', 'compact_toolbar_legacy_layout', 0));
+        $toolbarModeConfig = rex_config::get('cropper', 'toolbar_mode', 'legacy');
+        $toolbarMode = is_string($toolbarModeConfig) ? trim($toolbarModeConfig) : 'legacy';
+        if (!in_array($toolbarMode, ['legacy', 'default'], true)) {
             $toolbarMode = 'legacy';
-            if ($compactEnabled) {
-                $toolbarMode = $legacyLayoutEnabled ? 'legacy' : 'compact';
-            }
         }
 
-        $compactToolbarInStage = in_array($toolbarMode, ['compact', 'legacy'], true);
-        $legacyCompactLayout = $toolbarMode === 'legacy';
+        $legacyOverlayToolbar = $toolbarMode === 'legacy' || $toolbarMode === 'compact';
 
         $showSidebarInitiallyConfig = rex_config::get('cropper', 'show_info_sidebar_initially', 0);
         $showSidebarInitially = false;
@@ -82,14 +77,24 @@
         } elseif (is_array($showSidebarInitiallyConfig)) {
             $showSidebarInitially = in_array(1, $showSidebarInitiallyConfig, true) || in_array('1', $showSidebarInitiallyConfig, true);
         }
+
+        $stageMaxHeightConfig = rex_config::get('cropper', 'stage_max_height', '70vh');
+        $stageMaxHeight = '70vh';
+        if (is_string($stageMaxHeightConfig)) {
+            $trimmedStageMaxHeight = trim($stageMaxHeightConfig);
+            if (preg_match('/^\d+(?:\.\d+)?(?:px|vh|vw|rem|em|%)$/i', $trimmedStageMaxHeight) === 1) {
+                $stageMaxHeight = $trimmedStageMaxHeight;
+            }
+        }
 ?>
 
 <div
     id="cropper-workspace"
-    class="cropper-workspace<?= $compactToolbarInStage ? ' is-compact-toolbar' : '' ?><?= ($compactToolbarInStage && $legacyCompactLayout) ? ' is-legacy-compact-toolbar' : '' ?>"
+    class="cropper-workspace<?= $legacyOverlayToolbar ? ' is-compact-toolbar is-legacy-compact-toolbar' : '' ?>"
     data-media-width="<?= (int) $media->getWidth() ?>"
     data-media-height="<?= (int) $media->getHeight() ?>"
     data-sidebar-initial-open="<?= $showSidebarInitially ? '1' : '0' ?>"
+    data-stage-max-height="<?= rex_escape($stageMaxHeight) ?>"
 >
     <div class="cropper-hero">
         <section class="cropper-main-panel">
@@ -111,36 +116,8 @@
                     </div>
                 </div>
 
-                <div class="cropper-mode-bar">
-                    <span
-                        id="cropper_mode_badge"
-                        class="cropper-mode-badge"
-                        data-move-label="<?= rex_i18n::msg('cropper_mode_state_move') ?>"
-                        data-crop-label="<?= rex_i18n::msg('cropper_mode_state_crop') ?>"
-                    ><?= rex_i18n::msg('cropper_mode_state_crop') ?></span>
-                    <p
-                        id="cropper_mode_hint"
-                        class="cropper-mode-hint"
-                        data-move-hint="<?= rex_i18n::msg('cropper_mode_hint_move') ?>"
-                        data-crop-hint="<?= rex_i18n::msg('cropper_mode_hint_crop') ?>"
-                    ><?= rex_i18n::msg('cropper_mode_hint_crop') ?></p>
-                </div>
                 <div class="cropper-toolbar-rail" id="cropper-toolbar-rail">
                 <div id="cropper-toolbar-buttons" class="docs-buttons">
-                    <?php if ($compactToolbarInStage && !$legacyCompactLayout) : ?>
-                    <button
-                        type="button"
-                        id="cropper_toolbar_close"
-                        class="btn btn-default cropper-toolbar-close"
-                        aria-label="<?= rex_i18n::msg('cropper_toolbar_close') ?>"
-                        title="<?= rex_i18n::msg('cropper_toolbar_close') ?>"
-                        data-toggle="tooltip"
-                        data-animation="false"
-                        data-original-title="<?= rex_i18n::msg('cropper_toolbar_close') ?>"
-                    >
-                        <span class="fa fa-times" aria-hidden="true"></span>
-                    </button>
-                    <?php endif; ?>
                     <div class="cropper-toolbar-section">
                         <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_toolbar_mode') ?></span>
                         <div class="btn-group" role="group">
@@ -187,6 +164,26 @@
                                 <span class="fa fa-arrows-v"></span>
                             </button>
                         </div>
+
+                        <div class="cropper-settings dropdown dropup">
+                            <button class="btn dropdown-toggle" type="button" id="cropper-settings" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-cogs" aria-hidden="true"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="cropper-settings">
+                                <li>
+                                    <label for="zoomOnWheel">
+                                        <input class="form-check-input" id="zoomOnWheel" type="checkbox" name="zoomOnWheel" data-form-type="other">
+                                        <?= rex_i18n::msg('cropper_wheel_zoom') ?>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label for="pinchOnTouch">
+                                        <input class="form-check-input" id="pinchOnTouch" type="checkbox" name="pinchOnTouch" data-form-type="other" checked="checked">
+                                        <?= rex_i18n::msg('cropper_pinch_zoom') ?>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -208,33 +205,38 @@
                             <input type="radio" class="sr-only" id="aspectRatio-free" name="aspectRatio" value="NaN" checked="checked"><?= rex_i18n::msg('cropper_ratio_free') ?>
                         </label>
                     </div>
-                </div>
 
-                <div class="cropper-toolbar-section cropper-toolbar-section--compact">
-                    <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_toolbar_presets') ?></span>
-                    <div class="cropper-preset-control">
-                        <select class="form-control" id="cropper_preset_select" name="selectionPreset">
-                            <option value=""><?= rex_i18n::msg('cropper_preset_select') ?></option>
-                            <option value="0.35"><?= rex_i18n::msg('cropper_preset_focus') ?></option>
-                            <option value="0.55"><?= rex_i18n::msg('cropper_preset_balanced') ?></option>
-                            <option value="0.78"><?= rex_i18n::msg('cropper_preset_fill') ?></option>
-                        </select>
-                    </div>
-
-                    <div class="cropper-settings dropdown">
-                        <button class="btn dropdown-toggle" type="button" id="cropper-settings" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-cogs" aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="cropper-settings">
-                            <li>
-                                <label for="zoomOnWheel">
-                                    <input class="form-check-input" id="zoomOnWheel" type="checkbox" name="zoomOnWheel" data-form-type="other">
-                                    <?= rex_i18n::msg('cropper_wheel_zoom') ?>
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
+            </div>
+            <div class="cropper-mode-bar">
+                <span
+                    id="cropper_mode_badge"
+                    class="cropper-mode-badge"
+                    data-move-label="<?= rex_i18n::msg('cropper_mode_state_move') ?>"
+                    data-crop-label="<?= rex_i18n::msg('cropper_mode_state_crop') ?>"
+                ><?= rex_i18n::msg('cropper_mode_state_crop') ?></span>
+                <p
+                    id="cropper_mode_hint"
+                    class="cropper-mode-hint"
+                    data-move-hint="<?= rex_i18n::msg('cropper_mode_hint_move') ?>"
+                    data-crop-hint="<?= rex_i18n::msg('cropper_mode_hint_crop') ?>"
+                ><?= rex_i18n::msg('cropper_mode_hint_crop') ?></p>
+                <?php if (!$legacyOverlayToolbar) : ?>
+                <button
+                    type="button"
+                    id="cropper_toolbar_toggle"
+                    class="btn btn-default cropper-toolbar-toggle"
+                    aria-expanded="true"
+                    aria-controls="cropper-toolbar-buttons cropper-toolbar-toggles"
+                    data-expanded-label="<?= rex_i18n::msg('cropper_toolbar_collapse') ?>"
+                    data-collapsed-label="<?= rex_i18n::msg('cropper_toolbar_expand') ?>"
+                    data-toggle="tooltip"
+                    data-animation="false"
+                    data-original-title="<?= rex_i18n::msg('cropper_toolbar_collapse') ?>"
+                >
+                    <span class="fa fa-ellipsis-v" aria-hidden="true"></span>
+                </button>
+                <?php endif; ?>
             </div>
             </div>
             </div>

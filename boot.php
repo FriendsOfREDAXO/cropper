@@ -41,6 +41,19 @@ if (!function_exists('cropper_config_enabled')) {
         return false;
     }
 }
+
+if (!function_exists('cropper_is_supported_media')) {
+    function cropper_is_supported_media(string $filename): bool
+    {
+        if ('' === $filename) {
+            return false;
+        }
+
+        $extension = strtolower(rex_file::extension($filename));
+        return in_array($extension, ['jpg', 'jpeg', 'png', 'gif'], true);
+    }
+}
+
 $assetVersion = static function (string $assetPath) use ($addon): string {
     $fullPath = $addon->getPath('assets/' . $assetPath);
     $mtime = @filemtime($fullPath);
@@ -90,7 +103,7 @@ if (rex::isBackend() && $user instanceof rex_user && $user->hasPerm('cropper[]')
         $filename = (string) $media->getValue('filename');
         $rexMedia = '' !== $filename ? rex_media::get($filename) : null;
 
-        if ($rexMedia?->isImage()) {
+        if ($rexMedia?->isImage() && cropper_is_supported_media($filename)) {
             $linkParams = [
                 'rex_file_category' => rex_request::get('rex_file_category', 'integer', 0),
                 'file_id' => $ep->getParam('id'),
@@ -133,7 +146,7 @@ if (rex::isBackend() && $user instanceof rex_user && $user->hasPerm('cropper[]')
         $filename = (string) $media->getValue('name');
         $rexMedia = '' !== $filename ? rex_media::get($filename) : null;
 
-        if ($rexMedia?->isImage()) {
+        if ($rexMedia?->isImage() && cropper_is_supported_media($filename)) {
             $linkParams = [
                 'rex_file_category' => rex_request::get('rex_file_category', 'integer', 0),
                 'file_id' => $ep->getParam('id'),

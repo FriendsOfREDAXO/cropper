@@ -15,6 +15,18 @@ cropper_successful_updated = Filen uppdaterades!
 cropper_successful_created = Filen skapades!
 cropper_settings_show_edit_in_list = Visa länken för beskärning i medielistan
 cropper_settings_show = Visa länken för beskärning
+cropper_settings_default_jpg_quality = Standardvarde for JPEG-kvalitet
+cropper_settings_default_jpg_quality_notice = Intervall 0 till 100. 100 = bast kvalitet, 0 = lagsta kvalitet.
+cropper_settings_compression_mediapool = Komprimeringsinstallningar i mediapool
+cropper_settings_compression_mediapool_option = Visa JPEG- och PNG-komprimering i beskarningsformularet
+cropper_settings_compression_mediapool_inactive = Inaktiv
+cropper_settings_compression_mediapool_active = Aktiv
+cropper_settings_jpg_mediapool = JPEG-kvalitet i mediapool
+cropper_settings_jpg_mediapool_option = Visa JPEG-kvalitet i beskarningsformularet
+cropper_settings_default_png_compression = Standardvarde for PNG-komprimering
+cropper_settings_default_png_compression_notice = Intervall 0 till 9. 0 = lagre komprimering (storre fil), 9 = hogre komprimering (mindre fil).
+cropper_settings_png_mediapool = PNG-komprimering i mediapool
+cropper_settings_png_mediapool_option = Visa PNG-komprimering i beskarningsformularet
 cropper_workspace_title = Arbetsyta
 cropper_workspace_hint = Mer utrymme, snabbare beskärning: rita en markering, ändra storlek med förinställningar och kontrollera resultatet i liveförhandsvisningen.
 cropper_toolbar_mode = Verktyg

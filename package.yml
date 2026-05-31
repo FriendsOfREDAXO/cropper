@@ -1,5 +1,5 @@
 package: cropper
-version: '3.0.2'
+version: '3.0.3'
 author: Friends Of REDAXO
 supportpage: https://github.com/FriendsOfREDAXO/cropper
 
@@ -21,3 +21,8 @@ requires:
     php:
         version: '>7.4'
         extensions: [gd]
+
+default_config:
+    default_jpg_quality: 100
+    default_png_compression: 9
+    show_compression_settings_in_mediapool: 1

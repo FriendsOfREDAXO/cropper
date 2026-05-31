@@ -162,12 +162,16 @@ class BackendCropper {
         this.root = imageElement.closest('#cropper-workspace') || containerElement;
         this.imageElement = imageElement;
         this.CropperConstructor = CropperConstructor;
+        if (this.root instanceof HTMLElement) {
+            this.root.style.setProperty('--cropper-stage-max-height', this.root.dataset.stageMaxHeight || '70vh');
+        }
         this.previewRenderFrame = null;
         this.state = {
             rotation: 0,
             scaleX: 1,
             scaleY: 1,
             wheelZoomEnabled: false,
+            pinchZoomEnabled: true,
             dragMode: 'move',
         };
 
@@ -221,14 +225,20 @@ class BackendCropper {
         }
 
         this.handleCanvasAction = this.syncHiddenFields.bind(this);
-        this.handleStageWheel = this.forwardWheelToPageWhenZoomDisabled.bind(this);
+        this.handleStageWheel = this.handleStageWheelAction.bind(this);
         this.handleWindowResize = this.updateStageHeight.bind(this);
         this.handleSelectionGripMove = this.moveSelectionWithGrip.bind(this);
         this.handleSelectionGripEnd = this.stopSelectionGripDrag.bind(this);
         this.handleImageDragMove = this.moveImageWithStageDrag.bind(this);
         this.handleImageDragEnd = this.stopImageStageDrag.bind(this);
+        this.handleTouchStart = this.startTouchPinchZoom.bind(this);
+        this.handleTouchMove = this.moveTouchPinchZoom.bind(this);
+        this.handleTouchEnd = this.endTouchPinchZoom.bind(this);
+        this.handleDocumentKeydown = this.handleDocumentKeydownAction.bind(this);
         this.selectionGripDrag = null;
         this.imageStageDrag = null;
+        this.moveModeSelectionSnapshot = null;
+        this.touchPinch = null;
 
         this.cropperImage.$ready(() => {
             this.updateStageHeight();
@@ -247,6 +257,18 @@ class BackendCropper {
         this.cropperCanvas.addEventListener('actionend', this.handleCanvasAction);
         this.cropperCanvas.addEventListener('wheel', this.handleStageWheel, { capture: true, passive: false });
         this.stage?.addEventListener('wheel', this.handleStageWheel, { capture: true, passive: false });
+        this.stage?.addEventListener('touchstart', this.handleTouchStart, { passive: false });
+        this.stage?.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+        this.stage?.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+        this.stage?.addEventListener('touchcancel', this.handleTouchEnd, { passive: false });
+        document.addEventListener('keydown', this.handleDocumentKeydown);
+
+        // Keep toolbar interactions independent from cropper pointer handlers.
+        [this.root.querySelector('.docs-buttons'), this.root.querySelector('.docs-toggles')].forEach((area) => {
+            area?.addEventListener('pointerdown', (event) => {
+                event.stopPropagation();
+            });
+        });
 
         this.root.querySelector('.docs-buttons')?.addEventListener('click', (event) => {
             const button = event.target.closest('[data-method]');
@@ -262,15 +284,6 @@ class BackendCropper {
         this.root.querySelector('.docs-toggles')?.addEventListener('change', (event) => {
             const input = event.target;
 
-            if (input instanceof HTMLSelectElement && input.name === 'selectionPreset') {
-                const presetValue = Number.parseFloat(input.value);
-                if (Number.isFinite(presetValue) && presetValue > 0) {
-                    this.setDragMode('crop');
-                    this.applySelectionCoverage(presetValue);
-                }
-                return;
-            }
-
             if (!(input instanceof HTMLInputElement)) {
                 return;
             }
@@ -283,6 +296,36 @@ class BackendCropper {
 
             if (input.type === 'checkbox' && input.name === 'zoomOnWheel') {
                 this.applyWheelZoomState(input.checked);
+                return;
+            }
+
+            if (input.type === 'checkbox' && input.name === 'pinchOnTouch') {
+                this.applyPinchZoomState(input.checked);
+            }
+        });
+
+        this.modeBadge?.addEventListener('click', () => {
+            if (this.state.dragMode === 'move') {
+                this.setDragMode('crop');
+                this.syncHiddenFields();
+            }
+        });
+
+        // The wheel-zoom toggle can be rendered in different toolbar blocks.
+        this.root.addEventListener('change', (event) => {
+            const input = event.target;
+
+            if (!(input instanceof HTMLInputElement)) {
+                return;
+            }
+
+            if (input.type === 'checkbox' && input.name === 'zoomOnWheel') {
+                this.applyWheelZoomState(input.checked);
+                return;
+            }
+
+            if (input.type === 'checkbox' && input.name === 'pinchOnTouch') {
+                this.applyPinchZoomState(input.checked);
             }
         });
 
@@ -291,6 +334,13 @@ class BackendCropper {
             this.applyWheelZoomState(wheelZoomCheckbox.checked);
         } else {
             this.applyWheelZoomState(false);
+        }
+
+        const pinchZoomCheckbox = this.root.querySelector('input[name="pinchOnTouch"]');
+        if (pinchZoomCheckbox instanceof HTMLInputElement) {
+            this.applyPinchZoomState(pinchZoomCheckbox.checked);
+        } else {
+            this.applyPinchZoomState(true);
         }
 
         this.root.querySelector('.cropper-ratio-group')?.addEventListener('click', (event) => {
@@ -314,8 +364,43 @@ class BackendCropper {
         });
 
         this.stage?.addEventListener('pointerdown', (event) => {
+            if (this.state.dragMode === 'move') {
+                const target = event.target;
+                const onSelectionGrab = target instanceof Element
+                    && target.closest('#cropper-selection-grab');
+
+                if (!onSelectionGrab) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+            }
+
             this.startImageStageDrag(event);
-        });
+        }, true);
+    }
+
+    handleDocumentKeydownAction(event) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+
+        if (this.state.dragMode !== 'move') {
+            return;
+        }
+
+        const target = event.target;
+        if (
+            target instanceof HTMLInputElement
+            || target instanceof HTMLSelectElement
+            || target instanceof HTMLTextAreaElement
+            || (target instanceof HTMLElement && target.isContentEditable)
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+        this.setDragMode('crop');
+        this.syncHiddenFields();
     }
 
     initToolbarToggle() {
@@ -328,11 +413,13 @@ class BackendCropper {
         }
 
         let collapsed = false;
+        const isSmallViewport = window.matchMedia('(max-width: 1079px)').matches;
 
         try {
-            collapsed = window.localStorage.getItem(this.toolbarStorageKey) === '1';
+            const storedValue = window.localStorage.getItem(this.toolbarStorageKey);
+            collapsed = storedValue === null ? isSmallViewport : storedValue === '1';
         } catch (error) {
-            collapsed = false;
+            collapsed = isSmallViewport;
         }
 
         this.setToolbarCollapsed(collapsed, false);
@@ -566,12 +653,14 @@ class BackendCropper {
         const mediaHeight = Number.parseFloat(this.root.dataset.mediaHeight || '0');
         const mediaRatio = mediaWidth > 0 && mediaHeight > 0 ? mediaWidth / mediaHeight : 1;
         const stageWidth = this.stage instanceof HTMLElement ? this.stage.clientWidth : 0;
+        const stageMaxHeight = this.resolveStageMaxHeightPx(viewportHeight, viewportWidth);
 
         // For landscape and square images, keep the stage in the original image ratio.
         if (mediaRatio >= 1 && stageWidth > 0) {
             const exactStageHeight = Math.round(stageWidth / mediaRatio);
             const minStageHeight = viewportWidth < 768 ? 220 : 260;
-            const stageHeight = Math.max(minStageHeight, exactStageHeight);
+            const maxStageHeight = Math.max(minStageHeight, stageMaxHeight);
+            const stageHeight = clamp(exactStageHeight, minStageHeight, maxStageHeight);
 
             this.root.style.setProperty('--cropper-stage-height', `${stageHeight}px`);
             this.updateCompactToolbarRailBounds();
@@ -593,12 +682,52 @@ class BackendCropper {
         const stageHeight = clamp(
             Math.round(viewportHeight * factor),
             viewportWidth < 768 ? 280 : 380,
-            760,
+            Math.max(viewportWidth < 768 ? 280 : 380, stageMaxHeight),
         );
 
         this.root.style.setProperty('--cropper-stage-height', `${stageHeight}px`);
         this.updateCompactToolbarRailBounds();
         this.updateSelectionOverlay();
+    }
+
+    resolveStageMaxHeightPx(viewportHeight, viewportWidth) {
+        if (!(this.root instanceof HTMLElement)) {
+            return Math.round(viewportHeight * 0.7);
+        }
+
+        const configuredValue = (this.root.dataset.stageMaxHeight || '70vh').trim().toLowerCase();
+        const match = configuredValue.match(/^(\d+(?:\.\d+)?)(px|vh|vw|rem|em|%)$/);
+
+        if (!match) {
+            return Math.round(viewportHeight * 0.7);
+        }
+
+        const value = Number.parseFloat(match[1]);
+        const unit = match[2];
+
+        if (!Number.isFinite(value) || value <= 0) {
+            return Math.round(viewportHeight * 0.7);
+        }
+
+        if (unit === 'px') {
+            return Math.round(value);
+        }
+
+        if (unit === 'vh' || unit === '%') {
+            return Math.round((viewportHeight * value) / 100);
+        }
+
+        if (unit === 'vw') {
+            return Math.round((viewportWidth * value) / 100);
+        }
+
+        const rootFontSize = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+
+        if (unit === 'rem' || unit === 'em') {
+            return Math.round(value * rootFontSize);
+        }
+
+        return Math.round(viewportHeight * 0.7);
     }
 
     updateCompactToolbarRailBounds() {
@@ -615,12 +744,19 @@ class BackendCropper {
             return;
         }
 
-        const panel = this.root.querySelector('.cropper-main-panel');
-        if (!(panel instanceof HTMLElement)) {
+        const railHost = rail.offsetParent instanceof HTMLElement
+            ? rail.offsetParent
+            : this.root.querySelector('.cropper-stage-card');
+
+        if (!(railHost instanceof HTMLElement)) {
             return;
         }
 
-        const panelRect = panel.getBoundingClientRect();
+        const modeBar = railHost.querySelector('.cropper-mode-bar');
+        const modeBarHeight = modeBar instanceof HTMLElement ? modeBar.offsetHeight : 0;
+        const sidebarOpen = !this.root.classList.contains('is-sidebar-collapsed');
+
+        const panelRect = railHost.getBoundingClientRect();
         const stageRect = this.stage.getBoundingClientRect();
 
         if (panelRect.height <= 0 || stageRect.height <= 0) {
@@ -628,7 +764,11 @@ class BackendCropper {
         }
 
         const top = Math.max(8, Math.round(stageRect.top - panelRect.top + 10));
-        const bottom = Math.max(8, Math.round(panelRect.bottom - stageRect.bottom + 10));
+        const geometricBottom = Math.max(8, Math.round(panelRect.bottom - stageRect.bottom + 10));
+        const preferredBottom = sidebarOpen
+            ? 14
+            : Math.max(8, Math.round((modeBarHeight * 0.65) + 8));
+        const bottom = Math.max(8, Math.min(geometricBottom, preferredBottom));
 
         this.root.style.setProperty('--cropper-compact-rail-top', `${top}px`);
         this.root.style.setProperty('--cropper-compact-rail-bottom', `${bottom}px`);
@@ -664,11 +804,87 @@ class BackendCropper {
         }
     }
 
-    forwardWheelToPageWhenZoomDisabled(event) {
-        if (this.state.wheelZoomEnabled) {
+    applyPinchZoomState(enabled) {
+        this.state.pinchZoomEnabled = enabled === true;
+
+        if (!this.state.pinchZoomEnabled) {
+            this.touchPinch = null;
+        }
+    }
+
+    getTouchDistance(touches) {
+        if (!touches || touches.length < 2) {
+            return 0;
+        }
+
+        const touchA = touches[0];
+        const touchB = touches[1];
+        return Math.hypot(touchB.clientX - touchA.clientX, touchB.clientY - touchA.clientY);
+    }
+
+    startTouchPinchZoom(event) {
+        if (!this.state.pinchZoomEnabled) {
             return;
         }
 
+        if (!event.touches || event.touches.length < 2) {
+            this.touchPinch = null;
+            return;
+        }
+
+        this.stopImageStageDrag();
+        this.stopSelectionGripDrag();
+
+        const initialDistance = this.getTouchDistance(event.touches);
+        if (!Number.isFinite(initialDistance) || initialDistance <= 0) {
+            this.touchPinch = null;
+            return;
+        }
+
+        this.touchPinch = { distance: initialDistance };
+        event.preventDefault();
+    }
+
+    moveTouchPinchZoom(event) {
+        if (!this.state.pinchZoomEnabled) {
+            return;
+        }
+
+        if (!event.touches || event.touches.length < 2) {
+            this.touchPinch = null;
+            return;
+        }
+
+        const currentDistance = this.getTouchDistance(event.touches);
+        if (!Number.isFinite(currentDistance) || currentDistance <= 0) {
+            return;
+        }
+
+        if (!this.touchPinch) {
+            this.touchPinch = { distance: currentDistance };
+            event.preventDefault();
+            return;
+        }
+
+        const distanceRatio = currentDistance / this.touchPinch.distance;
+        const zoomDelta = clamp((distanceRatio - 1) * 0.7, -0.2, 0.2);
+
+        if (Math.abs(zoomDelta) > 0.002) {
+            this.cropperImage.$zoom(zoomDelta);
+            this.syncHiddenFields();
+        }
+
+        this.touchPinch.distance = currentDistance;
+        event.preventDefault();
+    }
+
+    endTouchPinchZoom(event) {
+        if (!event.touches || event.touches.length < 2) {
+            this.touchPinch = null;
+        }
+    }
+
+    handleStageWheelAction(event) {
         const target = event.target;
         const inStage = target instanceof Node
             && (
@@ -677,6 +893,25 @@ class BackendCropper {
             );
 
         if (!inStage) {
+            return;
+        }
+
+        if (this.state.wheelZoomEnabled) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            const rawDelta = event.deltaY;
+            const normalizedDelta = Math.abs(rawDelta) < 0.0001 ? 0 : rawDelta;
+            if (normalizedDelta === 0) {
+                return;
+            }
+
+            const direction = normalizedDelta < 0 ? 1 : -1;
+            const intensity = clamp(Math.abs(normalizedDelta) / 280, 0.02, 0.18);
+            const zoomStep = direction * intensity;
+
+            this.cropperImage.$zoom(zoomStep);
+            this.syncHiddenFields();
             return;
         }
 
@@ -699,6 +934,11 @@ class BackendCropper {
             top: deltaY,
             behavior: 'auto',
         });
+    }
+
+    forwardWheelToPageWhenZoomDisabled(event) {
+        // BC shim: delegate to unified wheel handler.
+        this.handleStageWheelAction(event);
     }
 
     ensureSelection() {
@@ -786,6 +1026,14 @@ class BackendCropper {
         this.stopImageStageDrag();
         this.cropperSelection.movable = this.state.dragMode === 'crop';
         this.cropperSelection.resizable = this.state.dragMode === 'crop';
+
+        // Some Cropper interactions toggle selection visibility while moving the image.
+        // Force it back on in move mode when a valid selection exists.
+        if (this.state.dragMode === 'move' && this.cropperSelection.width > 0 && this.cropperSelection.height > 0) {
+            this.cropperSelection.hidden = false;
+            this.ensureSelection();
+        }
+
         this.cropperCanvas.$setAction(this.state.dragMode === 'crop' ? 'select' : 'none');
         this.root.classList.toggle('is-move-mode', this.state.dragMode === 'move');
         this.root.classList.toggle('is-crop-mode', this.state.dragMode === 'crop');
@@ -814,6 +1062,10 @@ class BackendCropper {
             return;
         }
 
+        if (event.pointerType === 'touch') {
+            return;
+        }
+
         if (!event.isPrimary || event.button !== 0) {
             return;
         }
@@ -824,6 +1076,8 @@ class BackendCropper {
         }
 
         event.preventDefault();
+        this.ensureSelection();
+        this.moveModeSelectionSnapshot = this.captureSelectionSnapshot();
         this.imageStageDrag = {
             pointerId: event.pointerId,
             clientX: event.clientX,
@@ -852,6 +1106,20 @@ class BackendCropper {
         }
 
         this.cropperImage.$move(deltaX, deltaY);
+
+        if (this.cropperSelection) {
+            const collapsedSelection = this.cropperSelection.hidden
+                || this.cropperSelection.width < 8
+                || this.cropperSelection.height < 8;
+
+            if (collapsedSelection) {
+                this.restoreSelectionSnapshot(this.moveModeSelectionSnapshot);
+                this.ensureSelection();
+            } else {
+                this.cropperSelection.hidden = false;
+            }
+        }
+
         this.imageStageDrag.clientX = event.clientX;
         this.imageStageDrag.clientY = event.clientY;
         this.syncHiddenFields();
@@ -867,6 +1135,7 @@ class BackendCropper {
         }
 
         this.imageStageDrag = null;
+        this.moveModeSelectionSnapshot = null;
         document.removeEventListener('pointermove', this.handleImageDragMove);
         document.removeEventListener('pointerup', this.handleImageDragEnd);
         document.removeEventListener('pointercancel', this.handleImageDragEnd);
@@ -931,9 +1200,9 @@ class BackendCropper {
             return;
         }
 
-        const hasSelection = !this.cropperSelection.hidden
-            && this.cropperSelection.width > 0
-            && this.cropperSelection.height > 0;
+        const hasSelection = this.cropperSelection.width > 0
+            && this.cropperSelection.height > 0
+            && (this.state.dragMode === 'move' || !this.cropperSelection.hidden);
 
         if (!hasSelection || this.state.dragMode !== 'move') {
             this.selectionOverlay.hidden = true;
@@ -1023,13 +1292,19 @@ class BackendCropper {
     }
 
     resetView() {
+        this.stopSelectionGripDrag();
+        this.stopImageStageDrag();
         this.state.rotation = 0;
         this.state.scaleX = 1;
         this.state.scaleY = 1;
         this.cropperImage.$resetTransform();
+        this.updateStageHeight();
+        this.fitImageToCanvas();
         this.cropperSelection.hidden = false;
         this.cropperSelection.$reset();
         this.applyAspectRatio(this.getSelectedAspectRatio());
+        this.ensureSelection();
+        this.centerSelection();
         this.setDragMode('crop');
         this.syncHiddenFields();
     }
@@ -1078,11 +1353,6 @@ class BackendCropper {
                 break;
             case 'centerSelection':
                 this.centerSelection();
-                return;
-            case 'selectionPreset':
-                if (Number.isFinite(numericOption) && numericOption > 0) {
-                    this.applySelectionCoverage(numericOption);
-                }
                 return;
             default:
                 return;
