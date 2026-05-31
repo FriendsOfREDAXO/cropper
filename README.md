@@ -10,21 +10,23 @@ Das AddOn nutzt für die Browser-Assets Cropper.js 2.x. Vendor-Dateien liegen ge
 ![Screenshot](https://github.com/FriendsOfREDAXO/cropper/raw/assets/cropper_screenshot.png)
 
 ## Features
-- Zuschneiden 
+- Zuschneiden
 - Drehen
 - Spiegeln
 - Speichern als neue Datei
 - Speichern in ausgewählte Kategorie
 - Überschreiben des Originals
 - Rechte für Benutzer
-- Einstellungsmöglichkeit für "Aspect Ratios"
-- Einstellung für Zoom-Modus: Touch, Mouse
-- Werkzeugleisten-Modus wählbar: Modern, Compact oder Legacy Compact
+- Einstellungsmöglichkeit für Seitenverhältnisse
+- Einstellung für Zoom-Modus: Touch, Maus
+- Werkzeugleisten-Modus wählbar: Legacy oder Default
 - Optionale Info-Sidebar (initial ein-/ausblendbar)
+- Zuschneiden-Link nur für unterstützte Formate (`jpg`, `jpeg`, `png`, `gif`)
+- Kompression konfigurierbar (JPEG-Qualität und PNG-Kompression) mit optionaler Anzeige im Zuschneiden-Formular
 
-## Beschreibung 
+## Beschreibung
 
-Cropper stellt eine einfache Bildbearbeitung im Medienpoool zur Verfügung. Der Aufruf der Bildbearbeitung erfolgt über den Button `Bild bearbeiten`in der Detailansicht des Bildes. Die bearbeiteten Bilder, werden per default als neue Datei gespeichert. Ein Überschreiben des Originals ist möglich. Nur Admins erhalten das Recht die Qualität der Bilder zu verringern.
+Cropper stellt eine einfache Bildbearbeitung im Medienpool zur Verfügung. Der Aufruf der Bildbearbeitung erfolgt über den Button `Bild zuschneiden` in der Detailansicht des Bildes beziehungsweise in der Medienliste. Der Zuschneiden-Link wird nur bei unterstützten Formaten angezeigt. Bearbeitete Bilder werden standardmäßig als neue Datei gespeichert. Ein Überschreiben des Originals ist möglich. Nur Admins erhalten das Recht, die Qualität von Bildern zu verringern.
 
 ## Installation
 
@@ -42,15 +44,15 @@ Für Vendor-Updates von Cropper.js wird pnpm verwendet.
 
 Der Build schreibt die Vendor-Artefakte nach `assets/vendor/cropper`. `node_modules` gehört nicht ins Repository.
 
-## Yform media_crop
+## YForm media_crop
 
-Das AddOn liefert ein Cropper Value media_crop mit. Es ist im Table-Manager und auch im Frontend verfügbar. 
+Das AddOn liefert ein Cropper-Value `media_crop` mit. Es ist im Table-Manager und auch im Frontend verfügbar.
 
-Pipe-Schreibwiese 
+Pipe-Schreibweise
 
 `media_crop|crops|Bild |0|1|800|600|`
 
-PHP Schreibweise 
+PHP-Schreibweise
 
 `$yform->setValueField('media_crop', ['crops','Zugeschnitten ','0','1','800','600']);`
 
@@ -64,9 +66,10 @@ siehe [CHANGELOG.md](CHANGELOG.md) und [Release notes](https://github.com/Friend
 
 ## Hinweise zu 3.0.3
 
-- Fokus auf UX-Stabilisierung der Overlay-Toolbars im Legacy-Modus.
-- "Speichern als neue Datei" wurde intern robuster umgesetzt.
-- Einstellungen fuer Toolbar-Modus wurden auf eine klarere Select-Auswahl umgestellt.
+- Wichtiger Hinweis für Updates aus 2.x: technische Breaking Changes durch Namespace-, Asset- und JS-Umstellung.
+- Werkzeugleisten-Modi auf den aktuellen Stand vereinheitlicht (`legacy`, `default`).
+- Kompressionseinstellungen mit Defaults JPEG `100` und PNG `9`, inklusive gemeinsamer Sichtbarkeitssteuerung im Zuschneiden-Formular.
+- Zuschneiden-Link in Medienliste und Detailansicht nur bei unterstützten Formaten (`jpg`, `jpeg`, `png`, `gif`).
 
 ## Lizenz
 
