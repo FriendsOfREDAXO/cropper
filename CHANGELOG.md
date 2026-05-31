@@ -2,7 +2,6 @@
 
 ## 3.0.3
 
-- Erste veroeffentlichte 3.x-Version: Es gibt keinen Release-Upgradepfad innerhalb von 3.0.0 bis 3.0.2.
 - Wichtiger Hinweis fuer Updates aus 2.x: Der Umstieg auf 3.x enthaelt technische Breaking Changes (Namespace, Asset-Struktur und JS-Basis).
 - Bestehende Projektintegrationen aus 2.x sollten vor dem Update auf alte Klassenreferenzen, alte Asset-Pfade und Cropper-1.x-/jQuery-bezogene Anbindungen geprueft werden.
 
