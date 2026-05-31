@@ -2,8 +2,13 @@
 
 ## 3.0.3
 
+<<<<<<< HEAD
 - Wichtiger Hinweis für Updates aus 2.x: Der Umstieg auf 3.x enthält technische Breaking Changes (Namespace, Asset-Struktur und JS-Basis).
 - Bestehende Projektintegrationen aus 2.x sollten vor dem Update auf alte Klassenreferenzen, alte Asset-Pfade und Cropper-1.x-/jQuery-bezogene Anbindungen geprüft werden.
+=======
+- Wichtiger Hinweis fuer Updates aus 2.x: Der Umstieg auf 3.x enthaelt technische Breaking Changes (Namespace, Asset-Struktur und JS-Basis).
+- Bestehende Projektintegrationen aus 2.x sollten vor dem Update auf alte Klassenreferenzen, alte Asset-Pfade und Cropper-1.x-/jQuery-bezogene Anbindungen geprueft werden.
+>>>>>>> 762c77b296b14b864d1684727a1c411afebd618e
 
 - Aktueller Stand basiert auf Cropper.js 2.x mit klar getrennter Asset-Struktur (`assets/vendor/cropper` für Vendor-Dateien, `assets/js` für Addon-Logik).
 - Die PHP-Klassen sind auf den Namespace `FriendsOfRedaxo\Cropper` (inkl. Unternamespace `FriendsOfRedaxo\Cropper\Cropper`) ausgerichtet.
