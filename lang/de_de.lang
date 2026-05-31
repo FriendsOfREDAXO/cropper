@@ -1,6 +1,12 @@
 cropper_settings_title = Cropper
 perm_general_cropper[settings] = Cropper: Settings
 cropper_settings_aspect_ratios = Seitenverhältnisse
+cropper_settings_original_ratio = Originalformat anzeigen
+cropper_settings_original_ratio_active = Aktiv
+cropper_settings_original_ratio_inactive = Inaktiv
+cropper_settings_free_ratio = Freies Seitenverhältnis anzeigen
+cropper_settings_free_ratio_active = Aktiv
+cropper_settings_free_ratio_inactive = Inaktiv
 cropper_settings = Einstellungen
 cropper_media_crop_title = Bild "%s" zuschneiden
 cropper_img_save_info = Resultat der Bearbeitung als neue Datei speichern

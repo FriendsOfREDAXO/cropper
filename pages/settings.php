@@ -12,6 +12,18 @@ $form = rex_config_form::factory('cropper');
 $field = $form->addTextAreaField('aspect_ratios', null,['class' => 'form-control']);
 $field->setLabel($addon->i18n('cropper_settings_aspect_ratios'));
 
+$field = $form->addSelectField('show_original_ratio');
+$field->setLabel($addon->i18n('cropper_settings_original_ratio'));
+$select = $field->getSelect();
+$select->addOption($addon->i18n('cropper_settings_original_ratio_inactive'), '0');
+$select->addOption($addon->i18n('cropper_settings_original_ratio_active'), '1');
+
+$field = $form->addSelectField('show_free_ratio');
+$field->setLabel($addon->i18n('cropper_settings_free_ratio'));
+$select = $field->getSelect();
+$select->addOption($addon->i18n('cropper_settings_free_ratio_inactive'), '0');
+$select->addOption($addon->i18n('cropper_settings_free_ratio_active'), '1');
+
 $field = $form->addCheckboxField('hide_edit_in_list');
 $field->setLabel($addon->i18n('cropper_settings_show'));
 $field->addOption($addon->i18n('cropper_settings_show_edit_in_list'), 1);

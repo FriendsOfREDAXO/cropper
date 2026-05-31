@@ -148,6 +148,41 @@ function readAspectRatio(value) {
     return Number.isFinite(ratio) ? ratio : undefined;
 }
 
+function readOriginalAspectRatio(root) {
+    if (!(root instanceof HTMLElement)) {
+        return undefined;
+    }
+
+    const configuredRatio = Number.parseFloat(root.dataset.originalRatio || '0');
+    if (configuredRatio > 0) {
+        return configuredRatio;
+    }
+
+    const mediaWidth = Number.parseFloat(root.dataset.mediaWidth || '0');
+    const mediaHeight = Number.parseFloat(root.dataset.mediaHeight || '0');
+
+    if (mediaWidth > 0 && mediaHeight > 0) {
+        return mediaWidth / mediaHeight;
+    }
+
+    return undefined;
+}
+
+function readNaturalAspectRatio(imageElement) {
+    if (!(imageElement instanceof HTMLImageElement)) {
+        return undefined;
+    }
+
+    const naturalWidth = Number.parseFloat(String(imageElement.naturalWidth || 0));
+    const naturalHeight = Number.parseFloat(String(imageElement.naturalHeight || 0));
+
+    if (naturalWidth > 0 && naturalHeight > 0) {
+        return naturalWidth / naturalHeight;
+    }
+
+    return undefined;
+}
+
 function roundValue(value) {
     return Number.isFinite(value) ? Math.round(value) : 0;
 }
@@ -239,6 +274,7 @@ class BackendCropper {
         this.imageStageDrag = null;
         this.moveModeSelectionSnapshot = null;
         this.touchPinch = null;
+        this.syncingAspectRatio = false;
 
         this.cropperImage.$ready(() => {
             this.updateStageHeight();
@@ -290,7 +326,7 @@ class BackendCropper {
 
             if (input.type === 'radio' && input.name === 'aspectRatio') {
                 this.setDragMode('crop');
-                this.applyAspectRatio(readAspectRatio(input.value));
+                this.applyAspectRatio(this.getAspectRatioFromInput(input));
                 return;
             }
 
@@ -640,7 +676,7 @@ class BackendCropper {
             }
         });
 
-        this.applyAspectRatio(readAspectRatio(input.value));
+        this.applyAspectRatio(this.getAspectRatioFromInput(input));
     }
 
     updateStageHeight() {
@@ -777,7 +813,87 @@ class BackendCropper {
 
     getSelectedAspectRatio() {
         const activeRatio = this.root.querySelector('input[name="aspectRatio"]:checked');
-        return activeRatio instanceof HTMLInputElement ? readAspectRatio(activeRatio.value) : undefined;
+        return activeRatio instanceof HTMLInputElement ? this.getAspectRatioFromInput(activeRatio) : undefined;
+    }
+
+    getAspectRatioFromInput(input) {
+        if (!(input instanceof HTMLInputElement)) {
+            return undefined;
+        }
+
+        if (input.dataset.aspectRatio === 'original') {
+            const ratioFromMediaMeta = readOriginalAspectRatio(this.root);
+            if (Number.isFinite(ratioFromMediaMeta) && ratioFromMediaMeta > 0) {
+                return ratioFromMediaMeta;
+            }
+
+            return readNaturalAspectRatio(this.imageElement);
+        }
+
+        return readAspectRatio(input.value);
+    }
+
+    syncSelectionAspectRatioToActiveRatio() {
+        if (!this.cropperSelection || !this.cropperCanvas) {
+            return;
+        }
+
+        if (this.syncingAspectRatio) {
+            return;
+        }
+
+        const targetRatio = this.getSelectedAspectRatio();
+        if (!Number.isFinite(targetRatio) || targetRatio <= 0) {
+            return;
+        }
+
+        const currentWidth = this.cropperSelection.width;
+        const currentHeight = this.cropperSelection.height;
+        if (!(currentWidth > 0) || !(currentHeight > 0)) {
+            return;
+        }
+
+        const currentRatio = currentWidth / currentHeight;
+        if (Math.abs(currentRatio - targetRatio) <= 0.01) {
+            return;
+        }
+
+        const canvasWidth = this.cropperCanvas.offsetWidth;
+        const canvasHeight = this.cropperCanvas.offsetHeight;
+        if (canvasWidth <= 0 || canvasHeight <= 0) {
+            return;
+        }
+
+        const centerX = this.cropperSelection.x + (currentWidth / 2);
+        const centerY = this.cropperSelection.y + (currentHeight / 2);
+
+        let nextWidth = currentWidth;
+        let nextHeight = currentHeight;
+
+        if (currentRatio > targetRatio) {
+            nextWidth = currentHeight * targetRatio;
+        } else {
+            nextHeight = currentWidth / targetRatio;
+        }
+
+        if (nextWidth > canvasWidth) {
+            nextWidth = canvasWidth;
+            nextHeight = nextWidth / targetRatio;
+        }
+
+        if (nextHeight > canvasHeight) {
+            nextHeight = canvasHeight;
+            nextWidth = nextHeight * targetRatio;
+        }
+
+        const nextX = clamp(centerX - (nextWidth / 2), 0, Math.max(0, canvasWidth - nextWidth));
+        const nextY = clamp(centerY - (nextHeight / 2), 0, Math.max(0, canvasHeight - nextHeight));
+
+        this.syncingAspectRatio = true;
+        this.cropperSelection.aspectRatio = targetRatio;
+        this.cropperSelection.initialAspectRatio = targetRatio;
+        this.cropperSelection.$change(nextX, nextY, nextWidth, nextHeight, targetRatio, true);
+        this.syncingAspectRatio = false;
     }
 
     configureSelection() {
@@ -1227,16 +1343,48 @@ class BackendCropper {
             return;
         }
 
+        const canvasWidth = this.cropperCanvas.offsetWidth;
+        const canvasHeight = this.cropperCanvas.offsetHeight;
+        const centerX = this.cropperSelection.x + (this.cropperSelection.width / 2);
+        const centerY = this.cropperSelection.y + (this.cropperSelection.height / 2);
+
+        let nextWidth = this.cropperSelection.width;
+        let nextHeight = this.cropperSelection.height;
+
+        if (Number.isFinite(ratio) && ratio > 0) {
+            const currentArea = Math.max(1, this.cropperSelection.width * this.cropperSelection.height);
+            nextWidth = Math.sqrt(currentArea * ratio);
+            nextHeight = nextWidth / ratio;
+
+            if (canvasWidth > 0 && nextWidth > canvasWidth) {
+                nextWidth = canvasWidth;
+                nextHeight = nextWidth / ratio;
+            }
+
+            if (canvasHeight > 0 && nextHeight > canvasHeight) {
+                nextHeight = canvasHeight;
+                nextWidth = nextHeight * ratio;
+            }
+        }
+
+        const nextX = canvasWidth > 0
+            ? clamp(centerX - (nextWidth / 2), 0, Math.max(0, canvasWidth - nextWidth))
+            : this.cropperSelection.x;
+        const nextY = canvasHeight > 0
+            ? clamp(centerY - (nextHeight / 2), 0, Math.max(0, canvasHeight - nextHeight))
+            : this.cropperSelection.y;
+
         this.cropperSelection.aspectRatio = ratio;
         this.cropperSelection.initialAspectRatio = ratio;
         this.cropperSelection.$change(
-            this.cropperSelection.x,
-            this.cropperSelection.y,
-            this.cropperSelection.width,
-            this.cropperSelection.height,
+            nextX,
+            nextY,
+            nextWidth,
+            nextHeight,
             ratio,
             true,
         );
+        this.centerSelection();
         this.syncHiddenFields();
     }
 
@@ -1453,6 +1601,8 @@ class BackendCropper {
         if (!this.cropperSelection) {
             return;
         }
+
+        this.syncSelectionAspectRatioToActiveRatio();
 
         this.clampSelectionToCanvas();
 

@@ -1,5 +1,11 @@
 cropper_settings_title = Cropper
 cropper_settings_aspect_ratios = Aspect Ratios
+cropper_settings_original_ratio = Show original format
+cropper_settings_original_ratio_active = Active
+cropper_settings_original_ratio_inactive = Inactive
+cropper_settings_free_ratio = Show free aspect ratio
+cropper_settings_free_ratio_active = Active
+cropper_settings_free_ratio_inactive = Inactive
 cropper_settings = Settings
 cropper_media_crop_title = Crop image "%s"
 cropper_img_save_info = Save resulting image as a new media file

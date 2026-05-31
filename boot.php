@@ -54,6 +54,36 @@ if (!function_exists('cropper_is_supported_media')) {
     }
 }
 
+if (null === $addon->getConfig('show_original_ratio')) {
+    $addon->setConfig('show_original_ratio', 1);
+}
+
+$addon->setConfig('show_original_ratio', cropper_config_enabled($addon->getConfig('show_original_ratio', 1)) ? 1 : 0);
+
+if (null === $addon->getConfig('show_free_ratio')) {
+    $addon->setConfig('show_free_ratio', 1);
+}
+
+$addon->setConfig('show_free_ratio', cropper_config_enabled($addon->getConfig('show_free_ratio', 1)) ? 1 : 0);
+
+$aspectRatioConfig = $addon->getConfig('aspect_ratios', '');
+$aspectRatioConfig = is_string($aspectRatioConfig) ? str_replace(',', '.', $aspectRatioConfig) : '';
+$aspectRatioLines = preg_split("/\R/", $aspectRatioConfig) ?: [];
+$hasConfiguredAspectRatios = false;
+
+foreach ($aspectRatioLines as $ratioLine) {
+    $parts = explode(':', $ratioLine);
+
+    if (count($parts) === 2 && is_numeric($parts[0]) && is_numeric($parts[1]) && (float) $parts[1] !== 0.0) {
+        $hasConfiguredAspectRatios = true;
+        break;
+    }
+}
+
+if (!cropper_config_enabled($addon->getConfig('show_original_ratio', 1)) && !$hasConfiguredAspectRatios) {
+    $addon->setConfig('show_original_ratio', 1);
+}
+
 $assetVersion = static function (string $assetPath) use ($addon): string {
     $fullPath = $addon->getPath('assets/' . $assetPath);
     $mtime = @filemtime($fullPath);

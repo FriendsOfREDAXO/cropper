@@ -66,6 +66,14 @@ if (null === $addon->getConfig('default_png_compression')) {
     $addon->setConfig('default_png_compression', 9);
 }
 
+if (null === $addon->getConfig('show_original_ratio')) {
+    $addon->setConfig('show_original_ratio', 1);
+}
+
+if (null === $addon->getConfig('show_free_ratio')) {
+    $addon->setConfig('show_free_ratio', 1);
+}
+
 if (null === $addon->getConfig('show_compression_settings_in_mediapool')) {
     $legacyShowJpg = $addon->getConfig('show_jpg_quality_in_mediapool', null);
     $legacyShowPng = $addon->getConfig('show_png_compression_in_mediapool', null);

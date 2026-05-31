@@ -2,6 +2,8 @@
         $mediaUrl = $this->mediaUrl;
         $media = $this->media;
         $mtime = $this->mtime;
+        $mediaPoolWidth = (int) $this->getVar('mediaPoolWidth', (int) $media->getWidth());
+        $mediaPoolHeight = (int) $this->getVar('mediaPoolHeight', (int) $media->getHeight());
         $aspectRatioConfig = rex_config::get('cropper', 'aspect_ratios');
         $aspectRatioConfig = is_string($aspectRatioConfig) ? str_replace(',', '.', $aspectRatioConfig) : '';
         $aspectRatios = preg_split("/\R/", $aspectRatioConfig) ?: [];
@@ -22,8 +24,8 @@
             ];
         }
 
-        $originalRatio = $media->getHeight() > 0
-            ? (string) ($media->getWidth() / $media->getHeight())
+        $originalRatio = $mediaPoolHeight > 0
+            ? (string) ($mediaPoolWidth / $mediaPoolHeight)
             : 'NaN';
 
         $configEnabled = static function ($value): bool {
@@ -78,6 +80,14 @@
             $showSidebarInitially = in_array(1, $showSidebarInitiallyConfig, true) || in_array('1', $showSidebarInitiallyConfig, true);
         }
 
+        $showOriginalRatio = $configEnabled(rex_config::get('cropper', 'show_original_ratio', 1));
+        $showFreeRatio = $configEnabled(rex_config::get('cropper', 'show_free_ratio', 1));
+        $hasConfiguredRatios = count($ratios) > 0;
+
+        if (!$showOriginalRatio && !$hasConfiguredRatios) {
+            $showOriginalRatio = true;
+        }
+
         $stageMaxHeightConfig = rex_config::get('cropper', 'stage_max_height', '70vh');
         $stageMaxHeight = '70vh';
         if (is_string($stageMaxHeightConfig)) {
@@ -91,8 +101,9 @@
 <div
     id="cropper-workspace"
     class="cropper-workspace<?= $legacyOverlayToolbar ? ' is-compact-toolbar is-legacy-compact-toolbar' : '' ?>"
-    data-media-width="<?= (int) $media->getWidth() ?>"
-    data-media-height="<?= (int) $media->getHeight() ?>"
+    data-media-width="<?= $mediaPoolWidth ?>"
+    data-media-height="<?= $mediaPoolHeight ?>"
+    data-original-ratio="<?= rex_escape($originalRatio) ?>"
     data-sidebar-initial-open="<?= $showSidebarInitially ? '1' : '0' ?>"
     data-stage-max-height="<?= rex_escape($stageMaxHeight) ?>"
 >
@@ -191,19 +202,26 @@
                 <div class="cropper-toolbar-section">
                     <span class="cropper-toolbar-label"><?= rex_i18n::msg('cropper_toolbar_aspect_ratio') ?></span>
                     <div class="btn-group cropper-ratio-group" data-toggle="buttons">
-                        <label class="btn btn-primary" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: <?= $media->getWidth() . ' / ' . $media->getHeight() ;?>">
-                            <input type="radio" class="sr-only" id="aspectRatio-1" name="aspectRatio" value="<?= $originalRatio ?>"><?= rex_i18n::msg('cropper_ratio_original') ?>
+                        <?php $originalSelected = $showOriginalRatio || !$hasConfiguredRatios; ?>
+                        <?php if ($showOriginalRatio || !$hasConfiguredRatios) : ?>
+                        <label class="btn btn-primary<?= $originalSelected ? ' active' : '' ?>" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: <?= $mediaPoolWidth . ' / ' . $mediaPoolHeight ;?>">
+                            <input type="radio" class="sr-only" id="aspectRatio-1" name="aspectRatio" value="<?= $originalRatio ?>" data-aspect-ratio="original"<?= $originalSelected ? ' checked="checked"' : '' ?>><?= rex_i18n::msg('cropper_ratio_original') ?>
                         </label>
+                        <?php endif; ?>
 
                         <?php foreach ($ratios AS $i => $ratio) :?>
-                        <label class="btn btn-primary" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: <?= $ratio['w']?> / <?= $ratio['h']?>">
-                            <input type="radio" class="sr-only" id="aspectRatio<?= $i;?>" name="aspectRatio" value="<?= $ratio['r'];?>"><?= $ratio['w']?>:<?= $ratio['h']?>
+                        <?php $ratioSelected = !$originalSelected && 0 === $i; ?>
+                        <label class="btn btn-primary<?= $ratioSelected ? ' active' : '' ?>" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: <?= $ratio['w']?> / <?= $ratio['h']?>">
+                            <input type="radio" class="sr-only" id="aspectRatio<?= $i;?>" name="aspectRatio" value="<?= $ratio['r'];?>"<?= $ratioSelected ? ' checked="checked"' : '' ?>><?= $ratio['w']?>:<?= $ratio['h']?>
                         </label>
                         <?php endforeach;?>
 
-                        <label class="btn btn-primary active free" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: NaN">
-                            <input type="radio" class="sr-only" id="aspectRatio-free" name="aspectRatio" value="NaN" checked="checked"><?= rex_i18n::msg('cropper_ratio_free') ?>
+                        <?php if ($showFreeRatio) : ?>
+                        <?php $freeSelected = !$originalSelected && !$hasConfiguredRatios; ?>
+                        <label class="btn btn-primary<?= $freeSelected ? ' active free' : ' free' ?>" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: NaN">
+                            <input type="radio" class="sr-only" id="aspectRatio-free" name="aspectRatio" value="NaN"<?= $freeSelected ? ' checked="checked"' : '' ?>><?= rex_i18n::msg('cropper_ratio_free') ?>
                         </label>
+                        <?php endif; ?>
                     </div>
 
                 </div>
@@ -260,7 +278,7 @@
                 <dl class="cropper-meta-list">
                     <div>
                         <dt><?= rex_i18n::msg('cropper_info_image') ?></dt>
-                        <dd data-cropper-output="image-size"><?= (int) $media->getWidth() ?> x <?= (int) $media->getHeight() ?> px</dd>
+                        <dd data-cropper-output="image-size"><?= $mediaPoolWidth ?> x <?= $mediaPoolHeight ?> px</dd>
                     </div>
                     <div>
                         <dt><?= rex_i18n::msg('cropper_info_selection') ?></dt>

@@ -154,6 +154,25 @@ try {
         throw new CroppingException('EXCEPTION! NO MEDIA OBJ'); // TODO text!
     }
 
+    $mediaPoolWidth = (int) $media->getWidth();
+    $mediaPoolHeight = (int) $media->getHeight();
+
+    $mediaSql = rex_sql::factory();
+    $mediaSql->setQuery(
+        'SELECT width, height FROM ' . rex::getTable('media') . ' WHERE filename = ? LIMIT 1',
+        [$media->getFileName()],
+    );
+
+    if ($mediaSql->getRows() > 0) {
+        $dbWidth = (int) $mediaSql->getValue('width');
+        $dbHeight = (int) $mediaSql->getValue('height');
+
+        if ($dbWidth > 0 && $dbHeight > 0) {
+            $mediaPoolWidth = $dbWidth;
+            $mediaPoolHeight = $dbHeight;
+        }
+    }
+
     if (rex_media::isImageType(rex_file::extension($mediaName))) {
         $panel = '';
         $options = [];
@@ -217,6 +236,8 @@ try {
         $fragment = new rex_fragment();
         $fragment->setVar('mediaUrl', $previewUrl);
         $fragment->setVar('media', $media);
+        $fragment->setVar('mediaPoolWidth', $mediaPoolWidth);
+        $fragment->setVar('mediaPoolHeight', $mediaPoolHeight);
         $fragment->setVar('mtime', $mtime);
         $panel = $fragment->parse('cropper_panel.php');
 
