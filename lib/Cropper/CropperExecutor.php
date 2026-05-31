@@ -12,6 +12,7 @@ namespace FriendsOfRedaxo\Cropper\Cropper;
 use Exception;
 use InvalidArgumentException;
 use rex;
+use rex_config;
 use rex_file;
 use rex_media;
 use rex_media_cache;
