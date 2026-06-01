@@ -267,7 +267,7 @@ class BackendCropper {
             return;
         }
 
-        this.handleCanvasAction = this.syncHiddenFields.bind(this);
+        this.handleCanvasAction = this.handleCanvasActionEvent.bind(this);
         this.handleStageWheel = this.handleStageWheelAction.bind(this);
         this.handleWindowResize = this.handleWindowResizeAction.bind(this);
         this.handleSelectionGripMove = this.moveSelectionWithGrip.bind(this);
@@ -288,6 +288,7 @@ class BackendCropper {
         this.stageResizeObserver = null;
         this.modeToastTimer = null;
         this.modeToastInitialized = false;
+        this.isCanvasActionActive = false;
 
         this.cropperImage.$ready(() => {
             this.updateStageHeight();
@@ -298,12 +299,32 @@ class BackendCropper {
         });
     }
 
+    handleCanvasActionEvent(event) {
+        if (event.type === 'action') {
+            // Mark active so geometry-mutating helpers (clamp, resize observer,
+            // window-resize restore) stay out of the way during the drag.
+            this.isCanvasActionActive = true;
+            return;
+        }
+
+        // actionend: safe to write hidden fields, refresh preview, re-enable helpers.
+        this.isCanvasActionActive = false;
+        this.syncHiddenFields(false);
+    }
+
     bindControls() {
         this.initSidebarToggle();
         this.initToolbarToggle();
+        this.installCustomAspectResize();
         window.addEventListener('resize', this.handleWindowResize);
         this.cropperCanvas.addEventListener('action', this.handleCanvasAction);
         this.cropperCanvas.addEventListener('actionend', this.handleCanvasAction);
+        // Cropper.js dispatches 'change' on the selection for every geometry
+        // mutation — including keyboard arrow-key nudges, which never trigger
+        // action/actionend. Keep hidden fields, inspector and preview in sync.
+        this.cropperSelection.addEventListener('change', () => {
+            this.syncHiddenFields(false);
+        });
         this.cropperCanvas.addEventListener('wheel', this.handleStageWheel, { capture: true, passive: false });
         this.stage?.addEventListener('wheel', this.handleStageWheel, { capture: true, passive: false });
         this.stage?.addEventListener('touchstart', this.handleTouchStart, { passive: false });
@@ -427,6 +448,164 @@ class BackendCropper {
 
             this.startImageStageDrag(event);
         }, true);
+    }
+
+    installCustomAspectResize() {
+        // Drift fix: when aspectRatio is fixed, the vendor's pointer handler
+        // recomputes width/height on every pointermove from the rounded current
+        // selection. With aspect cover + integer rounding this accumulates a drift
+        // on the opposite edge/corner. We take over entirely while a *-resize
+        // handle is dragged with a fixed ratio: anchor the opposite edge/corner
+        // of the START selection and recompute geometry from that anchor every
+        // move. No accumulation, no drift.
+        const handleSpecs = {
+            'n-resize':  { axis: 'v', ax: 0.5, ay: 1 },
+            's-resize':  { axis: 'v', ax: 0.5, ay: 0 },
+            'w-resize':  { axis: 'h', ax: 1,   ay: 0.5 },
+            'e-resize':  { axis: 'h', ax: 0,   ay: 0.5 },
+            'nw-resize': { axis: 'c', ax: 1,   ay: 1 },
+            'ne-resize': { axis: 'c', ax: 0,   ay: 1 },
+            'sw-resize': { axis: 'c', ax: 1,   ay: 0 },
+            'se-resize': { axis: 'c', ax: 0,   ay: 0 },
+        };
+
+        let drag = null;
+        const MIN_SIZE = 8;
+
+        const computeGeometry = (mx, my) => {
+            const ratio = drag.ratio;
+            const spec = drag.spec;
+            let newW;
+            let newH;
+
+            if (spec.axis === 'h') {
+                const dx = spec.ax === 1 ? (drag.anchorX - mx) : (mx - drag.anchorX);
+                newW = Math.max(MIN_SIZE, dx);
+                newH = newW / ratio;
+            } else if (spec.axis === 'v') {
+                const dy = spec.ay === 1 ? (drag.anchorY - my) : (my - drag.anchorY);
+                newH = Math.max(MIN_SIZE, dy);
+                newW = newH * ratio;
+            } else {
+                const dx = Math.abs(mx - drag.anchorX);
+                const dy = Math.abs(my - drag.anchorY);
+                if (dy === 0 || dx / Math.max(dy, 1) > ratio) {
+                    newW = Math.max(MIN_SIZE, dx);
+                    newH = newW / ratio;
+                } else {
+                    newH = Math.max(MIN_SIZE, dy);
+                    newW = newH * ratio;
+                }
+            }
+
+            let newX = drag.anchorX - spec.ax * newW;
+            let newY = drag.anchorY - spec.ay * newH;
+
+            // Clamp to canvas: shrink while keeping ratio + anchor.
+            if (newX < 0) {
+                newW += newX;
+                newH = newW / ratio;
+                newX = 0;
+                newY = drag.anchorY - spec.ay * newH;
+            }
+            if (newY < 0) {
+                newH += newY;
+                newW = newH * ratio;
+                newY = 0;
+                newX = drag.anchorX - spec.ax * newW;
+            }
+            if (newX + newW > drag.canvasW) {
+                newW = drag.canvasW - newX;
+                newH = newW / ratio;
+                newY = drag.anchorY - spec.ay * newH;
+            }
+            if (newY + newH > drag.canvasH) {
+                newH = drag.canvasH - newY;
+                newW = newH * ratio;
+                newX = drag.anchorX - spec.ax * newW;
+            }
+
+            if (newW < MIN_SIZE || newH < MIN_SIZE) {
+                return null;
+            }
+            return { x: newX, y: newY, w: newW, h: newH };
+        };
+
+        const onMove = (event) => {
+            if (!drag || event.pointerId !== drag.pointerId) {
+                return;
+            }
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            const mx = event.clientX - drag.canvasRect.left;
+            const my = event.clientY - drag.canvasRect.top;
+            const g = computeGeometry(mx, my);
+            if (!g) {
+                return;
+            }
+            this.cropperSelection.$change(g.x, g.y, g.w, g.h, drag.ratio, true);
+        };
+
+        const onUp = (event) => {
+            if (!drag || event.pointerId !== drag.pointerId) {
+                return;
+            }
+            event.stopImmediatePropagation();
+            drag = null;
+            this.isCanvasActionActive = false;
+            window.removeEventListener('pointermove', onMove, true);
+            window.removeEventListener('pointerup', onUp, true);
+            window.removeEventListener('pointercancel', onUp, true);
+            this.syncHiddenFields(false);
+        };
+
+        const onDown = (event) => {
+            if (!event.isPrimary || event.button !== 0) {
+                return;
+            }
+            const target = event.target;
+            if (!(target instanceof Element) || typeof target.getAttribute !== 'function') {
+                return;
+            }
+            const action = target.getAttribute('action');
+            const spec = action && handleSpecs[action];
+            if (!spec) {
+                return;
+            }
+            const ratio = this.cropperSelection.aspectRatio;
+            if (!Number.isFinite(ratio) || ratio <= 0) {
+                // No fixed ratio → let the vendor handle it (free resize has no drift).
+                return;
+            }
+
+            event.stopImmediatePropagation();
+            event.preventDefault();
+
+            const canvasRect = this.cropperCanvas.getBoundingClientRect();
+            drag = {
+                pointerId: event.pointerId,
+                spec,
+                action,
+                ratio,
+                startX: this.cropperSelection.x,
+                startY: this.cropperSelection.y,
+                startW: this.cropperSelection.width,
+                startH: this.cropperSelection.height,
+                canvasRect,
+                canvasW: this.cropperCanvas.offsetWidth,
+                canvasH: this.cropperCanvas.offsetHeight,
+            };
+            drag.anchorX = drag.startX + spec.ax * drag.startW;
+            drag.anchorY = drag.startY + spec.ay * drag.startH;
+
+            this.isCanvasActionActive = true;
+
+            window.addEventListener('pointermove', onMove, true);
+            window.addEventListener('pointerup', onUp, true);
+            window.addEventListener('pointercancel', onUp, true);
+        };
+
+        this.cropperCanvas.addEventListener('pointerdown', onDown, true);
     }
 
     handleDocumentKeydownAction(event) {
@@ -744,6 +923,11 @@ class BackendCropper {
     }
 
     handleWindowResizeAction() {
+        // Never reshape the selection while the user is interacting with it.
+        if (this.isCanvasActionActive || this.selectionGripDrag || this.imageStageDrag) {
+            return;
+        }
+
         if (!this.resizeSnapshot) {
             this.resizeSnapshot = this.captureSelectionSnapshot();
         }
@@ -1162,6 +1346,11 @@ class BackendCropper {
             return;
         }
 
+        // Do not write geometry back while an active drag/resize is running.
+        if (this.selectionGripDrag || this.imageStageDrag || this.isCanvasActionActive) {
+            return;
+        }
+
         const canvasWidth = this.cropperCanvas.offsetWidth;
         const canvasHeight = this.cropperCanvas.offsetHeight;
 
@@ -1470,7 +1659,6 @@ class BackendCropper {
             ratio,
             true,
         );
-        this.centerSelection();
         this.syncHiddenFields();
     }
 
@@ -1708,12 +1896,14 @@ class BackendCropper {
         }
     }
 
-    syncHiddenFields() {
+    syncHiddenFields(clampSelection = true) {
         if (!this.cropperSelection) {
             return;
         }
 
-        this.clampSelectionToCanvas();
+        if (clampSelection) {
+            this.clampSelectionToCanvas();
+        }
 
         const hasSelection = !this.cropperSelection.hidden
             && this.cropperSelection.width > 0
