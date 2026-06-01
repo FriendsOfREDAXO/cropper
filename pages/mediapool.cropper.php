@@ -73,7 +73,7 @@ $toggleButtons = '
         data-animation="false"
         data-original-title="' . rex_i18n::msg('cropper_sidebar_collapse') . '"
     >
-        <span class="fa fa-columns" aria-hidden="true"></span>
+        <span class="fa fa-info-circle" aria-hidden="true"></span>
     </button>';
 
 $toggleButtons .= '

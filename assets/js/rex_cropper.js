@@ -261,7 +261,7 @@ class BackendCropper {
 
         this.handleCanvasAction = this.syncHiddenFields.bind(this);
         this.handleStageWheel = this.handleStageWheelAction.bind(this);
-        this.handleWindowResize = this.updateStageHeight.bind(this);
+        this.handleWindowResize = this.handleWindowResizeAction.bind(this);
         this.handleSelectionGripMove = this.moveSelectionWithGrip.bind(this);
         this.handleSelectionGripEnd = this.stopSelectionGripDrag.bind(this);
         this.handleImageDragMove = this.moveImageWithStageDrag.bind(this);
@@ -274,7 +274,12 @@ class BackendCropper {
         this.imageStageDrag = null;
         this.moveModeSelectionSnapshot = null;
         this.touchPinch = null;
-        this.syncingAspectRatio = false;
+        this.resizeSnapshot = null;
+        this.resizeSyncTimer = null;
+        this.resizeRafId = null;
+        this.stageResizeObserver = null;
+        this.modeToastTimer = null;
+        this.modeToastInitialized = false;
 
         this.cropperImage.$ready(() => {
             this.updateStageHeight();
@@ -298,6 +303,13 @@ class BackendCropper {
         this.stage?.addEventListener('touchend', this.handleTouchEnd, { passive: false });
         this.stage?.addEventListener('touchcancel', this.handleTouchEnd, { passive: false });
         document.addEventListener('keydown', this.handleDocumentKeydown);
+
+        if (typeof window.ResizeObserver === 'function' && this.stage instanceof HTMLElement) {
+            this.stageResizeObserver = new window.ResizeObserver(() => {
+                this.handleWindowResizeAction();
+            });
+            this.stageResizeObserver.observe(this.stage);
+        }
 
         // Keep toolbar interactions independent from cropper pointer handlers.
         [this.root.querySelector('.docs-buttons'), this.root.querySelector('.docs-toggles')].forEach((area) => {
@@ -337,13 +349,6 @@ class BackendCropper {
 
             if (input.type === 'checkbox' && input.name === 'pinchOnTouch') {
                 this.applyPinchZoomState(input.checked);
-            }
-        });
-
-        this.modeBadge?.addEventListener('click', () => {
-            if (this.state.dragMode === 'move') {
-                this.setDragMode('crop');
-                this.syncHiddenFields();
             }
         });
 
@@ -605,12 +610,57 @@ class BackendCropper {
         const centerXRatio = (this.cropperSelection.x + (this.cropperSelection.width / 2)) / canvasWidth;
         const centerYRatio = (this.cropperSelection.y + (this.cropperSelection.height / 2)) / canvasHeight;
 
+        const imageBox = this.getVisibleImageBoxInCanvas();
+        const hasImageBox = imageBox && imageBox.width > 0 && imageBox.height > 0;
+
+        let imageWidthRatio = widthRatio;
+        let imageHeightRatio = heightRatio;
+        let imageCenterXRatio = centerXRatio;
+        let imageCenterYRatio = centerYRatio;
+
+        if (hasImageBox) {
+            imageWidthRatio = this.cropperSelection.width / imageBox.width;
+            imageHeightRatio = this.cropperSelection.height / imageBox.height;
+            imageCenterXRatio = ((this.cropperSelection.x + (this.cropperSelection.width / 2)) - imageBox.x) / imageBox.width;
+            imageCenterYRatio = ((this.cropperSelection.y + (this.cropperSelection.height / 2)) - imageBox.y) / imageBox.height;
+        }
+
         return {
             widthRatio,
             heightRatio,
             centerXRatio,
             centerYRatio,
+            imageWidthRatio,
+            imageHeightRatio,
+            imageCenterXRatio,
+            imageCenterYRatio,
+            hasImageBox,
             aspectRatio: this.cropperSelection.aspectRatio,
+        };
+    }
+
+    getVisibleImageBoxInCanvas() {
+        if (!this.cropperImage || !this.cropperCanvas) {
+            return null;
+        }
+
+        const canvasRect = this.cropperCanvas.getBoundingClientRect();
+        const imageRect = this.cropperImage.getBoundingClientRect();
+
+        if (canvasRect.width <= 0 || canvasRect.height <= 0 || imageRect.width <= 0 || imageRect.height <= 0) {
+            return null;
+        }
+
+        const x = imageRect.left - canvasRect.left;
+        const y = imageRect.top - canvasRect.top;
+        const width = imageRect.width;
+        const height = imageRect.height;
+
+        return {
+            x,
+            y,
+            width,
+            height,
         };
     }
 
@@ -626,8 +676,25 @@ class BackendCropper {
             return;
         }
 
-        let width = Math.max(24, Math.min(canvasWidth, canvasWidth * snapshot.widthRatio));
-        let height = Math.max(24, Math.min(canvasHeight, canvasHeight * snapshot.heightRatio));
+        const imageBox = this.getVisibleImageBoxInCanvas();
+        const useImageBox = snapshot.hasImageBox === true && imageBox && imageBox.width > 0 && imageBox.height > 0;
+
+        let width;
+        let height;
+        let centerX;
+        let centerY;
+
+        if (useImageBox) {
+            width = Math.max(24, Math.min(canvasWidth, imageBox.width * snapshot.imageWidthRatio));
+            height = Math.max(24, Math.min(canvasHeight, imageBox.height * snapshot.imageHeightRatio));
+            centerX = imageBox.x + (snapshot.imageCenterXRatio * imageBox.width);
+            centerY = imageBox.y + (snapshot.imageCenterYRatio * imageBox.height);
+        } else {
+            width = Math.max(24, Math.min(canvasWidth, canvasWidth * snapshot.widthRatio));
+            height = Math.max(24, Math.min(canvasHeight, canvasHeight * snapshot.heightRatio));
+            centerX = snapshot.centerXRatio * canvasWidth;
+            centerY = snapshot.centerYRatio * canvasHeight;
+        }
 
         if (Number.isFinite(snapshot.aspectRatio) && snapshot.aspectRatio > 0) {
             if (width / height > snapshot.aspectRatio) {
@@ -637,8 +704,8 @@ class BackendCropper {
             }
         }
 
-        const centerX = clamp(snapshot.centerXRatio * canvasWidth, width / 2, canvasWidth - (width / 2));
-        const centerY = clamp(snapshot.centerYRatio * canvasHeight, height / 2, canvasHeight - (height / 2));
+        centerX = clamp(centerX, width / 2, canvasWidth - (width / 2));
+        centerY = clamp(centerY, height / 2, canvasHeight - (height / 2));
         const x = centerX - (width / 2);
         const y = centerY - (height / 2);
 
@@ -666,6 +733,48 @@ class BackendCropper {
             this.restoreSelectionSnapshot(snapshot);
             this.syncHiddenFields();
         }, 180);
+    }
+
+    handleWindowResizeAction() {
+        if (!this.resizeSnapshot) {
+            this.resizeSnapshot = this.captureSelectionSnapshot();
+        }
+
+        this.updateStageHeight();
+
+        if (this.resizeRafId !== null) {
+            window.cancelAnimationFrame(this.resizeRafId);
+            this.resizeRafId = null;
+        }
+
+        if (this.resizeSyncTimer !== null) {
+            window.clearTimeout(this.resizeSyncTimer);
+        }
+
+        this.resizeRafId = window.requestAnimationFrame(() => {
+            this.resizeRafId = null;
+            this.updateStageHeight();
+            this.fitImageToCanvas();
+
+            if (this.resizeSnapshot) {
+                this.ensureSelection();
+                this.restoreSelectionSnapshot(this.resizeSnapshot);
+            }
+
+            this.syncHiddenFields();
+        });
+
+        this.resizeSyncTimer = window.setTimeout(() => {
+            const snapshot = this.resizeSnapshot;
+            this.resizeSnapshot = null;
+            this.resizeSyncTimer = null;
+
+            this.updateStageHeight();
+            this.fitImageToCanvas();
+            this.ensureSelection();
+            this.restoreSelectionSnapshot(snapshot);
+            this.syncHiddenFields();
+        }, 220);
     }
 
     activateAspectRatioInput(input) {
@@ -831,69 +940,6 @@ class BackendCropper {
         }
 
         return readAspectRatio(input.value);
-    }
-
-    syncSelectionAspectRatioToActiveRatio() {
-        if (!this.cropperSelection || !this.cropperCanvas) {
-            return;
-        }
-
-        if (this.syncingAspectRatio) {
-            return;
-        }
-
-        const targetRatio = this.getSelectedAspectRatio();
-        if (!Number.isFinite(targetRatio) || targetRatio <= 0) {
-            return;
-        }
-
-        const currentWidth = this.cropperSelection.width;
-        const currentHeight = this.cropperSelection.height;
-        if (!(currentWidth > 0) || !(currentHeight > 0)) {
-            return;
-        }
-
-        const currentRatio = currentWidth / currentHeight;
-        if (Math.abs(currentRatio - targetRatio) <= 0.01) {
-            return;
-        }
-
-        const canvasWidth = this.cropperCanvas.offsetWidth;
-        const canvasHeight = this.cropperCanvas.offsetHeight;
-        if (canvasWidth <= 0 || canvasHeight <= 0) {
-            return;
-        }
-
-        const centerX = this.cropperSelection.x + (currentWidth / 2);
-        const centerY = this.cropperSelection.y + (currentHeight / 2);
-
-        let nextWidth = currentWidth;
-        let nextHeight = currentHeight;
-
-        if (currentRatio > targetRatio) {
-            nextWidth = currentHeight * targetRatio;
-        } else {
-            nextHeight = currentWidth / targetRatio;
-        }
-
-        if (nextWidth > canvasWidth) {
-            nextWidth = canvasWidth;
-            nextHeight = nextWidth / targetRatio;
-        }
-
-        if (nextHeight > canvasHeight) {
-            nextHeight = canvasHeight;
-            nextWidth = nextHeight * targetRatio;
-        }
-
-        const nextX = clamp(centerX - (nextWidth / 2), 0, Math.max(0, canvasWidth - nextWidth));
-        const nextY = clamp(centerY - (nextHeight / 2), 0, Math.max(0, canvasHeight - nextHeight));
-
-        this.syncingAspectRatio = true;
-        this.cropperSelection.aspectRatio = targetRatio;
-        this.cropperSelection.initialAspectRatio = targetRatio;
-        this.cropperSelection.$change(nextX, nextY, nextWidth, nextHeight, targetRatio, true);
-        this.syncingAspectRatio = false;
     }
 
     configureSelection() {
@@ -1171,7 +1217,39 @@ class BackendCropper {
             button.classList.toggle('active', button.dataset.option === this.state.dragMode);
         });
 
+        if (this.modeToastInitialized) {
+            this.flashModeToast();
+        } else {
+            this.modeToastInitialized = true;
+        }
+
         this.updateSelectionOverlay();
+    }
+
+    flashModeToast() {
+        if (!(this.modeBadge instanceof HTMLElement)) {
+            return;
+        }
+
+        const modeBar = this.modeBadge.closest('.cropper-mode-bar');
+        if (!(modeBar instanceof HTMLElement)) {
+            return;
+        }
+
+        modeBar.classList.remove('is-visible');
+
+        if (this.modeToastTimer !== null) {
+            window.clearTimeout(this.modeToastTimer);
+            this.modeToastTimer = null;
+        }
+
+        window.requestAnimationFrame(() => {
+            modeBar.classList.add('is-visible');
+            this.modeToastTimer = window.setTimeout(() => {
+                modeBar.classList.remove('is-visible');
+                this.modeToastTimer = null;
+            }, 900);
+        });
     }
 
     startImageStageDrag(event) {
@@ -1544,7 +1622,13 @@ class BackendCropper {
         }
 
         try {
-            const previewWidth = clamp(roundValue(this.cropperSelection.width), 160, 320);
+            const previewFrame = this.previewImage.closest('.cropper-preview-frame');
+            const frameWidth = previewFrame instanceof HTMLElement
+                ? Math.max(0, previewFrame.clientWidth - 16)
+                : 0;
+            const deviceScale = Math.max(1, window.devicePixelRatio || 1);
+            const targetWidth = Math.max(roundValue(this.cropperSelection.width), roundValue(frameWidth * deviceScale));
+            const previewWidth = clamp(targetWidth, 180, 1400);
             const previewCanvas = await this.cropperSelection.$toCanvas({ width: previewWidth });
 
             if (!(previewCanvas instanceof HTMLCanvasElement)) {
@@ -1581,7 +1665,26 @@ class BackendCropper {
         }
 
         if (this.outputFields.selectionSize) {
-            this.outputFields.selectionSize.textContent = `${selectionWidth} x ${selectionHeight} px`;
+            let outputWidth = selectionWidth;
+            let outputHeight = selectionHeight;
+
+            if (hasSelection) {
+                const imageBox = this.getVisibleImageBoxInCanvas();
+                if (
+                    imageBox
+                    && imageBox.width > 0
+                    && imageBox.height > 0
+                    && imageWidth > 0
+                    && imageHeight > 0
+                ) {
+                    const scaleX = imageWidth / imageBox.width;
+                    const scaleY = imageHeight / imageBox.height;
+                    outputWidth = roundValue(this.cropperSelection.width * scaleX);
+                    outputHeight = roundValue(this.cropperSelection.height * scaleY);
+                }
+            }
+
+            this.outputFields.selectionSize.textContent = `${selectionWidth} x ${selectionHeight} px (Ansicht) | ${outputWidth} x ${outputHeight} px (Output)`;
         }
 
         if (this.outputFields.selectionPosition) {
@@ -1601,8 +1704,6 @@ class BackendCropper {
         if (!this.cropperSelection) {
             return;
         }
-
-        this.syncSelectionAspectRatioToActiveRatio();
 
         this.clampSelectionToCanvas();
 
