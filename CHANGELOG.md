@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.5
+
+- UI-Fixes im Medienpool-Cropper: Werkzeug- und Verhältnisleisten kompakter gestaltet und visuell vereinheitlicht.
+- Aktiver Zustand in den Verhältnis-Buttons klar auf Blau vereinheitlicht.
+- Sidebar-Toggle als Info-Button geschärft (Icon und Wording konsistent auf Info-Bereich).
+- Vorschau-Skalierung verbessert: verfügbare Fläche wird besser genutzt.
+- Zuschnittdaten erweitert: Auswahl zeigt jetzt Ansichtspixel und berechnete Output-Pixel.
+- Responsive-Verhalten verbessert: stabilere Auswahl-/Positionswiederherstellung bei Resize und Layout-Änderungen.
+
 ## 3.0.3
 
 - Wichtiger Hinweis für Updates aus 2.x: Der Umstieg auf 3.x enthält technische Breaking Changes (Namespace, Asset-Struktur und JS-Basis).
