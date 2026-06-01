@@ -160,6 +160,9 @@
             this.cropperImage = this.cropper.getCropperImage();
             this.cropperCanvas = this.cropper.getCropperCanvas();
             this.cropperSelection = this.cropper.getCropperSelection();
+            if (this.cropperSelection) {
+                this.cropperSelection.precise = true;
+            }
 
             if (!this.cropperImage || !this.cropperCanvas || !this.cropperSelection) {
                 return;

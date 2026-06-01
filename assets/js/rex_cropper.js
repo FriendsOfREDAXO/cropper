@@ -262,6 +262,9 @@ class BackendCropper {
         this.cropperImage = this.cropper.getCropperImage();
         this.cropperCanvas = this.cropper.getCropperCanvas();
         this.cropperSelection = this.cropper.getCropperSelection();
+        if (this.cropperSelection) {
+            this.cropperSelection.precise = true;
+        }
 
         if (!this.cropperImage || !this.cropperCanvas || !this.cropperSelection) {
             return;
@@ -478,51 +481,85 @@ class BackendCropper {
             let newW;
             let newH;
 
-            if (spec.axis === 'h') {
-                const dx = spec.ax === 1 ? (drag.anchorX - mx) : (mx - drag.anchorX);
-                newW = Math.max(MIN_SIZE, dx);
-                newH = newW / ratio;
-            } else if (spec.axis === 'v') {
-                const dy = spec.ay === 1 ? (drag.anchorY - my) : (my - drag.anchorY);
-                newH = Math.max(MIN_SIZE, dy);
-                newW = newH * ratio;
-            } else {
-                const dx = Math.abs(mx - drag.anchorX);
-                const dy = Math.abs(my - drag.anchorY);
-                if (dy === 0 || dx / Math.max(dy, 1) > ratio) {
+            if (Number.isFinite(ratio) && ratio > 0) {
+                if (spec.axis === 'h') {
+                    const dx = spec.ax === 1 ? (drag.anchorX - mx) : (mx - drag.anchorX);
                     newW = Math.max(MIN_SIZE, dx);
                     newH = newW / ratio;
-                } else {
+                } else if (spec.axis === 'v') {
+                    const dy = spec.ay === 1 ? (drag.anchorY - my) : (my - drag.anchorY);
                     newH = Math.max(MIN_SIZE, dy);
                     newW = newH * ratio;
+                } else {
+                    const dx = Math.abs(mx - drag.anchorX);
+                    const dy = Math.abs(my - drag.anchorY);
+                    if (dy === 0 || dx / Math.max(dy, 1) > ratio) {
+                        newW = Math.max(MIN_SIZE, dx);
+                        newH = newW / ratio;
+                    } else {
+                        newH = Math.max(MIN_SIZE, dy);
+                        newW = newH * ratio;
+                    }
+                }
+            } else {
+                if (spec.axis === 'h') {
+                    const dx = spec.ax === 1 ? (drag.anchorX - mx) : (mx - drag.anchorX);
+                    newW = Math.max(MIN_SIZE, dx);
+                    newH = drag.startH;
+                } else if (spec.axis === 'v') {
+                    const dy = spec.ay === 1 ? (drag.anchorY - my) : (my - drag.anchorY);
+                    newH = Math.max(MIN_SIZE, dy);
+                    newW = drag.startW;
+                } else {
+                    const dx = spec.ax === 1 ? (drag.anchorX - mx) : (mx - drag.anchorX);
+                    const dy = spec.ay === 1 ? (drag.anchorY - my) : (my - drag.anchorY);
+                    newW = Math.max(MIN_SIZE, dx);
+                    newH = Math.max(MIN_SIZE, dy);
                 }
             }
 
             let newX = drag.anchorX - spec.ax * newW;
             let newY = drag.anchorY - spec.ay * newH;
 
-            // Clamp to canvas: shrink while keeping ratio + anchor.
-            if (newX < 0) {
-                newW += newX;
-                newH = newW / ratio;
-                newX = 0;
-                newY = drag.anchorY - spec.ay * newH;
-            }
-            if (newY < 0) {
-                newH += newY;
-                newW = newH * ratio;
-                newY = 0;
-                newX = drag.anchorX - spec.ax * newW;
-            }
-            if (newX + newW > drag.canvasW) {
-                newW = drag.canvasW - newX;
-                newH = newW / ratio;
-                newY = drag.anchorY - spec.ay * newH;
-            }
-            if (newY + newH > drag.canvasH) {
-                newH = drag.canvasH - newY;
-                newW = newH * ratio;
-                newX = drag.anchorX - spec.ax * newW;
+            // Clamp to canvas: shrink while keeping ratio + anchor if ratio exists.
+            if (Number.isFinite(ratio) && ratio > 0) {
+                if (newX < 0) {
+                    newW += newX;
+                    newH = newW / ratio;
+                    newX = 0;
+                    newY = drag.anchorY - spec.ay * newH;
+                }
+                if (newY < 0) {
+                    newH += newY;
+                    newW = newH * ratio;
+                    newY = 0;
+                    newX = drag.anchorX - spec.ax * newW;
+                }
+                if (newX + newW > drag.canvasW) {
+                    newW = drag.canvasW - newX;
+                    newH = newW / ratio;
+                    newY = drag.anchorY - spec.ay * newH;
+                }
+                if (newY + newH > drag.canvasH) {
+                    newH = drag.canvasH - newY;
+                    newW = newH * ratio;
+                    newX = drag.anchorX - spec.ax * newW;
+                }
+            } else {
+                if (newX < 0) {
+                    newW += newX;
+                    newX = 0;
+                }
+                if (newY < 0) {
+                    newH += newY;
+                    newY = 0;
+                }
+                if (newX + newW > drag.canvasW) {
+                    newW = drag.canvasW - newX;
+                }
+                if (newY + newH > drag.canvasH) {
+                    newH = drag.canvasH - newY;
+                }
             }
 
             if (newW < MIN_SIZE || newH < MIN_SIZE) {
@@ -543,7 +580,7 @@ class BackendCropper {
             if (!g) {
                 return;
             }
-            this.cropperSelection.$change(g.x, g.y, g.w, g.h, drag.ratio, true);
+            this.cropperSelection.$change(g.x, g.y, g.w, g.h, drag.ratio ?? NaN, true);
         };
 
         const onUp = (event) => {
@@ -573,10 +610,6 @@ class BackendCropper {
                 return;
             }
             const ratio = this.cropperSelection.aspectRatio;
-            if (!Number.isFinite(ratio) || ratio <= 0) {
-                // No fixed ratio → let the vendor handle it (free resize has no drift).
-                return;
-            }
 
             event.stopImmediatePropagation();
             event.preventDefault();
