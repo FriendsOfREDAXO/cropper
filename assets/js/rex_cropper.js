@@ -35,7 +35,15 @@ function resolveCropperConstructor() {
 }
 
 function initTooltips(container) {
-    container.find('[data-toggle="tooltip"]').tooltip();
+    container.find('[data-toggle="tooltip"]').each(function () {
+        const element = $(this);
+
+        // Ensure we don't keep an earlier tooltip instance with default options.
+        element.tooltip('destroy');
+        element.tooltip({
+            container: 'body',
+        });
+    });
 }
 
 function initLinkedInputs(container) {
