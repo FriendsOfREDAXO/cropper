@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.0.7
+
+Diese Version behebt primär tiefgreifende Vendor-Bugs und Unzulänglichkeiten der zugrundeliegenden Cropper.js 2.x Bibliothek durch eigene, robustere Logik-Überschreibungen:
+
+- **Fix (Vendor-Workaround)**: 1px-Zittern (Jittering) der Auswahlkanten beim Skalieren behoben (tritt primär im Firefox und bei Subpixel-Zoomstufen auf). 
+  *Hintergrund*: Die native Cropper.js Bibliothek zwingt die Maus-Koordinaten beim Ziehen standardmäßig in ein starres Pixelraster (`Math.round()`), was im Firefox zu einem permanenten 1px-Flackern zwischen Maus und Box führt. 
+  *Lösung*: Wir haben den internen `precise`-Modus erzwungen, damit Fließkomma-Koordinaten erhalten bleiben.
+- **Fix (Vendor-Workaround)**: Kontinuierliches "Wegdriften" des Auswahlrahmens beim freien Skalieren ohne festes Aspect-Ratio behoben.
+  *Hintergrund*: Cropper.js summiert bei Drag-Bewegungen intern Deltas auf, was bei jeder Mausbewegung winzige Verschiebungen anhäuft und das Element staucht/verrutschen lässt.
+  *Lösung*: Das native Scale-Event von Cropper.js wird nun unterbunden und durch einen eigenen, ankerbasierten Resize-Algorithmus ersetzt. Hierbei wird strikt die fixe, gegenüberliegende Kante als Ausgangspunkt genommen, wodurch rechnerisch kein Driften mehr entstehen kann.
+- **Fix**: Verzerren des Vorschaubildes im Medienpool behoben.
+  *Hintergrund*: Die Vendor-Styles des Croppers kamen bei dynamischen Zuschnitten nicht sauber mit dem Container-Platz zurecht, sodass die Vorschau gestaucht/gestreckt wurde.
+  *Lösung*: Das Verhalten wurde durch unsere eigene CSS-Struktur (Flexbox und ein striktes `object-fit: contain`) überstimmt, damit immer der exakte Ausschnitt angezeigt wird.
+
+## 3.0.6
+
+- **Fix**: Darstellung der Tooltips (Hover) repariert, diese rendern nun sauber über allen Containern (`container: 'body'`).
+- **Fix**: Erster Logik-Eingriff gegen das stetige Wegdriften der Cropper-Auswahl bei festen Aspect-Ratios (feste Kantenanker statt relativer Skalierung eingebaut).
+
 ## 3.0.5
 
 - UI-Fixes im Medienpool-Cropper: Werkzeug- und Verhältnisleisten kompakter gestaltet und visuell vereinheitlicht.
