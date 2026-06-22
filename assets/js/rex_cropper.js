@@ -250,6 +250,10 @@ class BackendCropper {
             height: this.container.querySelector('#dataHeight'),
             canvasWidth: this.container.querySelector('#dataCanvasWidth'),
             canvasHeight: this.container.querySelector('#dataCanvasHeight'),
+            imageBoxX: this.container.querySelector('#dataImageBoxX'),
+            imageBoxY: this.container.querySelector('#dataImageBoxY'),
+            imageBoxWidth: this.container.querySelector('#dataImageBoxWidth'),
+            imageBoxHeight: this.container.querySelector('#dataImageBoxHeight'),
             rotate: this.container.querySelector('#dataRotate'),
             scaleX: this.container.querySelector('#dataScaleX'),
             scaleY: this.container.querySelector('#dataScaleY'),
@@ -1952,6 +1956,40 @@ class BackendCropper {
         if (this.hiddenFields.canvasHeight) {
             this.hiddenFields.canvasHeight.value = roundValue(this.cropperCanvas.offsetHeight);
         }
+
+        const imageBox = this.getVisibleImageBoxInCanvas();
+        if (
+            imageBox
+            && imageBox.width > 0
+            && imageBox.height > 0
+        ) {
+            if (this.hiddenFields.imageBoxX) {
+                this.hiddenFields.imageBoxX.value = imageBox.x.toFixed(4);
+            }
+            if (this.hiddenFields.imageBoxY) {
+                this.hiddenFields.imageBoxY.value = imageBox.y.toFixed(4);
+            }
+            if (this.hiddenFields.imageBoxWidth) {
+                this.hiddenFields.imageBoxWidth.value = imageBox.width.toFixed(4);
+            }
+            if (this.hiddenFields.imageBoxHeight) {
+                this.hiddenFields.imageBoxHeight.value = imageBox.height.toFixed(4);
+            }
+        } else {
+            if (this.hiddenFields.imageBoxX) {
+                this.hiddenFields.imageBoxX.value = '0';
+            }
+            if (this.hiddenFields.imageBoxY) {
+                this.hiddenFields.imageBoxY.value = '0';
+            }
+            if (this.hiddenFields.imageBoxWidth) {
+                this.hiddenFields.imageBoxWidth.value = '0';
+            }
+            if (this.hiddenFields.imageBoxHeight) {
+                this.hiddenFields.imageBoxHeight.value = '0';
+            }
+        }
+
         this.hiddenFields.rotate.value = this.state.rotation;
         this.hiddenFields.scaleX.value = this.state.scaleX;
         this.hiddenFields.scaleY.value = this.state.scaleY;

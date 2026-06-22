@@ -106,6 +106,16 @@ class CropperExecutor
         return (int) ($this->parameter[$key] ?? $default);
     }
 
+    private function getFloatParameter(string $key, float $default = 0.0): float
+    {
+        $value = $this->parameter[$key] ?? $default;
+        if (is_string($value)) {
+            $value = str_replace(',', '.', $value);
+        }
+
+        return (float) $value;
+    }
+
     /**
      * @throws CroppingException
      * @throws rex_sql_exception
@@ -187,6 +197,10 @@ class CropperExecutor
         $cropHeight = $this->getIntParameter('height');
         $canvasWidth = $this->getIntParameter('canvas_width');
         $canvasHeight = $this->getIntParameter('canvas_height');
+        $imageBoxX = $this->getFloatParameter('image_box_x');
+        $imageBoxY = $this->getFloatParameter('image_box_y');
+        $imageBoxWidth = $this->getFloatParameter('image_box_width');
+        $imageBoxHeight = $this->getFloatParameter('image_box_height');
 
         // flip image
         if (-1 === $scaleX && 1 === $scaleY) {
@@ -211,7 +225,15 @@ class CropperExecutor
                 $imageWidth = (int) $imageSize[0];
                 $imageHeight = (int) $imageSize[1];
 
-                if ($canvasWidth > 0 && $canvasHeight > 0) {
+                if ($imageBoxWidth > 0.0 && $imageBoxHeight > 0.0) {
+                    $scaleX = $imageWidth / $imageBoxWidth;
+                    $scaleY = $imageHeight / $imageBoxHeight;
+
+                    $cropX = (int) round(($cropX - $imageBoxX) * $scaleX);
+                    $cropY = (int) round(($cropY - $imageBoxY) * $scaleY);
+                    $cropWidth = (int) round($cropWidth * $scaleX);
+                    $cropHeight = (int) round($cropHeight * $scaleY);
+                } elseif ($canvasWidth > 0 && $canvasHeight > 0) {
                     $cropX = (int) round($cropX * ($imageWidth / $canvasWidth));
                     $cropY = (int) round($cropY * ($imageHeight / $canvasHeight));
                     $cropWidth = (int) round($cropWidth * ($imageWidth / $canvasWidth));

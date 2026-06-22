@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.8
+
+- **Fix**: Falsches Seitenverhältnis im gespeicherten Ergebnis bei festen Ratios (z. B. 16:9) behoben.
+  *Hintergrund*: Die Umrechnung von Auswahlkoordinaten auf Originalpixel erfolgte anhand der gesamten Canvas-Fläche. Bei letterboxed Darstellung (contain) führte das zu systematischen Abweichungen im Export.
+  *Lösung*: Die sichtbare Bildbox (x/y/Breite/Höhe) wird nun vom Frontend mitgesendet und serverseitig als primäre Mapping-Basis verwendet; das bisherige Canvas-Mapping bleibt als Fallback erhalten.
+
 ## 3.0.7
 
 Diese Version behebt primär tiefgreifende Vendor-Bugs und Unzulänglichkeiten der zugrundeliegenden Cropper.js 2.x Bibliothek durch eigene, robustere Logik-Überschreibungen:
