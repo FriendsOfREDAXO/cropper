@@ -1,3 +1,11 @@
+// Wird ggf. mehrfach eingebunden (z. B. zusätzlich von MediaPlace): nur einmal ausführen,
+// sonst wirft die zweite Klassendeklaration und die rex:ready-Handler laufen doppelt.
+(function () {
+if (window.rexCropperLoaded) {
+    return;
+}
+window.rexCropperLoaded = true;
+
 $(document).on('rex:ready', function (event, container) {
     const $container = container || $(document);
     const imageElement = $container.find('#cropper_image').get(0);
@@ -1999,3 +2007,4 @@ class BackendCropper {
         this.schedulePreviewUpdate();
     }
 }
+})();

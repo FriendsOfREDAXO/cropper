@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.9
+
+- **Fix**: Fehler „Identifier 'BackendCropper' has already been declared“ auf YForm-Seiten behoben, wenn zusätzlich MediaPlace installiert ist.
+  *Hintergrund*: MediaPlace bindet `rex_cropper.js` für seinen eigenen Zuschnitt-Dialog ebenfalls ein. Doppelt geladen warf die zweite Klassendeklaration einen Fehler, und die `rex:ready`-Handler hätten den Cropper doppelt initialisiert.
+  *Lösung*: `rex_cropper.js` läuft jetzt in einem eigenen Gültigkeitsbereich und nur beim ersten Einbinden.
+
 ## 3.0.8
 
 - **Fix**: Falsches Seitenverhältnis im gespeicherten Ergebnis bei festen Ratios (z. B. 16:9) behoben.
