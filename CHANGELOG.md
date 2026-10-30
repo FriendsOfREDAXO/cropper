@@ -2,9 +2,9 @@
 
 ## 3.0.10
 
-- **Fix**: Nach dem Zuschnitt lieferte `rex_media::get()` bis zum nächsten Cache-Leeren noch Breite, Höhe und Dateigröße des Bildes vor dem Zuschnitt.
-  *Hintergrund*: `rex_mediapool_updateMedia()` leert den Medien-Cache, das anschließende `rex_media::get()` baute ihn aber sofort aus den noch alten Datenbankwerten neu auf. Die neuen Maße wurden erst danach in die Datenbank geschrieben, ohne den Cache erneut zu leeren. Im Frontend führte das zu falschen `width`/`height`-Attributen; mit UIkit 3.25 (`aspect-ratio` aus den Attributen plus `object-fit: cover`) wurde das Bild dadurch sichtbar angeschnitten.
-  *Lösung*: Maße und Dateigröße werden zuerst gespeichert, danach wird der Medien-Cache geleert und erst dann das Medium geladen.
+- **Fix**: Veraltete Bildmaße nach dem Zuschnitt behoben: `rex_media::get()` lieferte bis zum nächsten Cache-Leeren Breite, Höhe und Dateigröße des Bildes vor dem Zuschnitt.
+  *Hintergrund*: Der Medien-Cache wurde aus den alten Datenbankwerten neu aufgebaut, bevor die neuen Maße gespeichert waren. Im Frontend entstanden so falsche `width`/`height`-Attribute.
+  *Lösung*: Maße und Dateigröße werden jetzt zuerst gespeichert, danach wird der Medien-Cache geleert.
 
 ## 3.0.9
 
