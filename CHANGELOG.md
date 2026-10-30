@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.10
+
+- **Fix**: Veraltete Bildmaße nach dem Zuschnitt behoben: `rex_media::get()` lieferte bis zum nächsten Cache-Leeren Breite, Höhe und Dateigröße des Bildes vor dem Zuschnitt.
+  *Hintergrund*: Der Medien-Cache wurde aus den alten Datenbankwerten neu aufgebaut, bevor die neuen Maße gespeichert waren. Im Frontend entstanden so falsche `width`/`height`-Attribute.
+  *Lösung*: Maße und Dateigröße werden jetzt zuerst gespeichert, danach wird der Medien-Cache geleert.
+
 ## 3.0.9
 
 - **Fix**: Fehler „Identifier 'BackendCropper' has already been declared“ auf YForm-Seiten behoben, wenn zusätzlich MediaPlace installiert ist.
