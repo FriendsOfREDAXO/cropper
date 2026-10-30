@@ -269,10 +269,12 @@ class CropperExecutor
         $msgType = ($this->update) ? self::MSG_SUCCESSFUL_UPDATED : self::MSG_SUCCESSFUL_CREATED;
 
         if (isset($result['ok']) && 1 == $result['ok'] && isset($result['filename'])) {
-            $media = is_string($result['filename']) ? rex_media::get($result['filename']) : null;
             $msg = $msgType;
             $ok = true;
 
+            // updateMedia() only refreshes width/height/filesize on upload, so
+            // write them here and clear the media cache afterwards. Reading the
+            // media before this would re-cache the pre-crop dimensions.
             $targetPath = $this->zebraImage->getTargetPath();
             $size = getimagesize($targetPath);
             if (false !== $size) {
@@ -283,7 +285,11 @@ class CropperExecutor
                 $sql->setValue('width', $size[0]);
                 $sql->setValue('height', $size[1]);
                 $sql->update();
+
+                rex_media_cache::delete((string) $result['filename']);
             }
+
+            $media = is_string($result['filename']) ? rex_media::get($result['filename']) : null;
         } else {
             $media = null;
             $msg = ($this->update) ? self::MSG_FAILED_UPDATED : self::MSG_FAILED_CREATED;
