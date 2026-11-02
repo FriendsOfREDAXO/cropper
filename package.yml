@@ -17,7 +17,7 @@ pages:
         pjax: true
 
 requires:
-    redaxo: '^5.8'
+    redaxo: '^5.13'
     php:
         version: '>=8.0'
         extensions: [gd]
