@@ -5,6 +5,9 @@
 - **Update**: Zebra_Image von 3.0.0 auf 3.1.0 aktualisiert.
   *Hintergrund*: Unter PHP 8.5 löste jeder Zuschnitt Deprecation-Meldungen zu `imagedestroy()` aus.
   *Lösung*: Zebra_Image 3.1.0 behebt die PHP-8.5-Deprecations und bringt Korrekturen für WEBP sowie optionalen AVIF-Support (PHP 8.1+ mit GD-AVIF). Die vom Cropper genutzten Methoden sind unverändert.
+- **Fix**: PHP-Mindestversion in `package.yml` auf 8.0 korrigiert.
+  *Hintergrund*: Seit 3.0.0 nutzt das AddOn PHP-8-Funktionen (`mixed` als Typ, `str_contains()`), `package.yml` erlaubte aber weiter PHP 7.4. Unter PHP 7.4 ließ sich das AddOn installieren und brach dann beim Öffnen des Croppers oder beim Zuschnitt mit einem Fatal Error ab.
+  *Lösung*: `package.yml` verlangt jetzt PHP 8.0, der Installer lehnt ältere Versionen ab.
 
 ## 3.0.10
 

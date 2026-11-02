@@ -19,7 +19,7 @@ pages:
 requires:
     redaxo: '^5.8'
     php:
-        version: '>7.4'
+        version: '>=8.0'
         extensions: [gd]
 
 default_config:
