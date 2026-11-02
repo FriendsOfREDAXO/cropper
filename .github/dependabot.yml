@@ -3,6 +3,9 @@
 
 version: 2
 updates:
+    # vendor/ liegt im Repository und wird so ausgeliefert. Dependabot hebt nur
+    # composer.json an, nicht vendor/. Composer-PRs daher nicht mergen, sondern
+    # das Update von Hand nachziehen (siehe README, "PHP-Abhängigkeiten").
     -   package-ecosystem: composer
         directory: /
         versioning-strategy: increase

@@ -44,6 +44,16 @@ Für Vendor-Updates von Cropper.js wird pnpm verwendet.
 
 Der Build schreibt die Vendor-Artefakte nach `assets/vendor/cropper`. `node_modules` gehört nicht ins Repository.
 
+## PHP-Abhängigkeiten (Composer)
+
+Zebra_Image wird über Composer geladen. Der Ordner `vendor/` liegt im Repository und wird so an die Nutzer ausgeliefert, beim Release läuft kein `composer install`.
+
+Dependabot-PRs für Composer heben nur die Version in `composer.json` an, nicht den Stand in `vendor/`. Diese PRs daher nicht mergen, sondern als Hinweis auf eine neue Version nehmen:
+
+1. Im AddOn-Ordner `composer update --no-dev` ausführen.
+2. `composer.json` und `vendor/` gemeinsam committen und prüfen, dass `vendor/composer/installed.json` die neue Version zeigt.
+3. Den Dependabot-PR mit Verweis auf den eigenen PR schließen.
+
 ## YForm media_crop
 
 Das AddOn liefert ein Cropper-Value `media_crop` mit. Es ist im Table-Manager und auch im Frontend verfügbar.

@@ -1,5 +1,5 @@
 package: cropper
-version: '3.0.10'
+version: '3.0.11'
 author: Friends Of REDAXO
 supportpage: https://github.com/FriendsOfREDAXO/cropper
 
@@ -17,9 +17,9 @@ pages:
         pjax: true
 
 requires:
-    redaxo: '^5.8'
+    redaxo: '^5.13'
     php:
-        version: '>7.4'
+        version: '>=8.0'
         extensions: [gd]
 
 default_config:

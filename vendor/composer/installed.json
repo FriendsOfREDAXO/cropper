@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "stefangabos/zebra_image",
-            "version": "3.0.0",
-            "version_normalized": "3.0.0.0",
+            "version": "3.1.0",
+            "version_normalized": "3.1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stefangabos/Zebra_Image.git",
-                "reference": "2d55a5d1bb784bba5ad8b1f6b2d925313f4d26e4"
+                "reference": "22ce8fb65ff9a6d6f1264e45c4fa1c5e694421cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/2d55a5d1bb784bba5ad8b1f6b2d925313f4d26e4",
-                "reference": "2d55a5d1bb784bba5ad8b1f6b2d925313f4d26e4",
+                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/22ce8fb65ff9a6d6f1264e45c4fa1c5e694421cd",
+                "reference": "22ce8fb65ff9a6d6f1264e45c4fa1c5e694421cd",
                 "shasum": ""
             },
             "require": {
@@ -22,7 +22,7 @@
                 "phpstan/phpstan": "^2",
                 "squizlabs/php_codesniffer": "^3"
             },
-            "time": "2025-01-28T16:37:43+00:00",
+            "time": "2026-10-29T15:46:47+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -66,6 +66,6 @@
             "install-path": "../stefangabos/zebra_image"
         }
     ],
-    "dev": true,
+    "dev": false,
     "dev-package-names": []
 }
