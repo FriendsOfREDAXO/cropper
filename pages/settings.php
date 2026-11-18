@@ -11,6 +11,7 @@ $form = rex_config_form::factory('cropper');
 // 1.1 Einfaches Textfeld
 $field = $form->addTextAreaField('aspect_ratios', null,['class' => 'form-control']);
 $field->setLabel($addon->i18n('cropper_settings_aspect_ratios'));
+$field->setNotice($addon->i18n('cropper_settings_aspect_ratios_notice'));
 
 $field = $form->addSelectField('show_original_ratio');
 $field->setLabel($addon->i18n('cropper_settings_original_ratio'));

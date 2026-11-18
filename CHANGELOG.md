@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.0
+
+- **Neu**: Seitenverhältnisse können eine Beschriftung bekommen, z. B. `16:9 Hero` ([#68](https://github.com/FriendsOfREDAXO/cropper/issues/68)).
+  *Hintergrund*: Im Zuschneiden-Dialog standen nur Zahlen. Redakteure mussten wissen, welches Verhältnis zu welchem Bild oder Block gehört. Wer schon `16:9 Hero` eingetragen hatte, bekam für diese Zeile keinen Button, die Zeile wurde ohne Meldung übersprungen.
+  *Lösung*: In den Einstellungen darf hinter dem Verhältnis ein Text stehen. Er erscheint in Klammern im Button, z. B. „16:9 (Hero)“. Zeilen ohne Text funktionieren wie bisher. Ein Komma im Text bleibt erhalten, im Verhältnis gilt es weiter als Dezimaltrenner (`2,35:1`). Unter dem Eingabefeld steht ein Hinweis zum Format.
+
 ## 3.0.11
 
 - **Update**: Zebra_Image von 3.0.0 auf 3.1.0 aktualisiert.
