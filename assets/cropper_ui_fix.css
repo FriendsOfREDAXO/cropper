@@ -681,6 +681,16 @@ form.cropper-is-saving .cropper-save-overlay {
         padding-bottom: 2px;
     }
 
+    /* Optionale Beschriftung aus den Einstellungen, z. B. "16:9 Hero" */
+    #cropper-workspace .cropper-ratio-group .cropper-ratio-label {
+        font-weight: 400;
+        margin-left: 0.4em;
+    }
+
+    #cropper-workspace .cropper-ratio-group .cropper-ratio-has-label .cropper-ratio-value {
+        font-weight: 600;
+    }
+
     #cropper-workspace .cropper-settings {
         margin-left: auto;
         position: relative;

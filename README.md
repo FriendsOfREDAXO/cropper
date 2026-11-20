@@ -17,7 +17,7 @@ Das AddOn nutzt für die Browser-Assets Cropper.js 2.x. Vendor-Dateien liegen ge
 - Speichern in ausgewählte Kategorie
 - Überschreiben des Originals
 - Rechte für Benutzer
-- Einstellungsmöglichkeit für Seitenverhältnisse
+- Einstellungsmöglichkeit für Seitenverhältnisse, optional mit Beschriftung (z. B. `16:9 Hero`)
 - Einstellung für Zoom-Modus: Touch, Maus
 - Werkzeugleisten-Modus wählbar: Legacy oder Default
 - Optionale Info-Sidebar (initial ein-/ausblendbar)

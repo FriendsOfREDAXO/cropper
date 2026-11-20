@@ -1,5 +1,6 @@
 cropper_settings_title = Cropper
 cropper_settings_aspect_ratios = Relaciones de aspecto
+cropper_settings_aspect_ratios_notice = Una relación de aspecto por línea, opcionalmente seguida de una etiqueta, p. ej. "16:9 Hero" o "4:3 Teaser". La etiqueta aparece en el botón al recortar.
 cropper_settings = Ajustes
 cropper_media_crop_title = Recortar imagen "%s"
 cropper_img_save_info = Guarde el resultado de la edición como un nuevo archivo multimedia.

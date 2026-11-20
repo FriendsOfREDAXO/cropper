@@ -1,6 +1,7 @@
 cropper_settings_title = Cropper
 perm_general_cropper[settings] = Cropper: Settings
 cropper_settings_aspect_ratios = Seitenverhältnisse
+cropper_settings_aspect_ratios_notice = Ein Seitenverhältnis pro Zeile, optional mit Beschriftung dahinter, z. B. „16:9 Hero“ oder „4:3 Teaser“. Die Beschriftung erscheint beim Zuschneiden im Button.
 cropper_settings_original_ratio = Originalformat anzeigen
 cropper_settings_original_ratio_active = Aktiv
 cropper_settings_original_ratio_inactive = Inaktiv

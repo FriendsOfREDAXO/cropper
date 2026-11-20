@@ -4,25 +4,7 @@
         $mtime = $this->mtime;
         $mediaPoolWidth = (int) $this->getVar('mediaPoolWidth', (int) $media->getWidth());
         $mediaPoolHeight = (int) $this->getVar('mediaPoolHeight', (int) $media->getHeight());
-        $aspectRatioConfig = rex_config::get('cropper', 'aspect_ratios');
-        $aspectRatioConfig = is_string($aspectRatioConfig) ? str_replace(',', '.', $aspectRatioConfig) : '';
-        $aspectRatios = preg_split("/\R/", $aspectRatioConfig) ?: [];
-
-        $ratios = [];
-        foreach ($aspectRatios as $ratioLine) {
-            $parts = explode(':', $ratioLine);
-            if (count($parts) !== 2 || !is_numeric($parts[0]) || !is_numeric($parts[1]) || (float) $parts[1] === 0.0) {
-                continue;
-            }
-
-            $width = (string) $parts[0];
-            $height = (string) $parts[1];
-            $ratios[] = [
-                'w' => $width,
-                'h' => $height,
-                'r' => (float) $width / (float) $height,
-            ];
-        }
+        $ratios = \FriendsOfRedaxo\Cropper\Cropper\AspectRatioConfig::parse(rex_config::get('cropper', 'aspect_ratios'));
 
         $originalRatio = $mediaPoolHeight > 0
             ? (string) ($mediaPoolWidth / $mediaPoolHeight)
@@ -211,8 +193,8 @@
 
                         <?php foreach ($ratios AS $i => $ratio) :?>
                         <?php $ratioSelected = !$originalSelected && 0 === $i; ?>
-                        <label class="btn btn-primary<?= $ratioSelected ? ' active' : '' ?>" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: <?= $ratio['w']?> / <?= $ratio['h']?>">
-                            <input type="radio" class="sr-only" id="aspectRatio<?= $i;?>" name="aspectRatio" value="<?= $ratio['r'];?>"<?= $ratioSelected ? ' checked="checked"' : '' ?>><?= $ratio['w']?>:<?= $ratio['h']?>
+                        <label class="btn btn-primary<?= $ratioSelected ? ' active' : '' ?><?= '' !== $ratio['label'] ? ' cropper-ratio-has-label' : '' ?>" data-toggle="none_tooltip" data-animation="false" data-original-title="aspectRatio: <?= rex_escape($ratio['w']) ?> / <?= rex_escape($ratio['h']) ?>">
+                            <input type="radio" class="sr-only" id="aspectRatio<?= $i;?>" name="aspectRatio" value="<?= $ratio['r'];?>"<?= $ratioSelected ? ' checked="checked"' : '' ?>><span class="cropper-ratio-value"><?= rex_escape($ratio['w']) ?>:<?= rex_escape($ratio['h']) ?></span><?php if ('' !== $ratio['label']) : ?> <span class="cropper-ratio-label">(<?= rex_escape($ratio['label']) ?>)</span><?php endif; ?>
                         </label>
                         <?php endforeach;?>
 

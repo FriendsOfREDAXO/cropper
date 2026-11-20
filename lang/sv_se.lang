@@ -1,5 +1,6 @@
 cropper_settings_title = Cropper
 cropper_settings_aspect_ratios = Bildförhållande
+cropper_settings_aspect_ratios_notice = Ett bildförhållande per rad, eventuellt följt av en etikett, t.ex. "16:9 Hero" eller "4:3 Teaser". Etiketten visas på knappen vid beskärning.
 cropper_settings = Inställningar
 cropper_media_crop_title = Beskära bilden "%s"
 cropper_img_save_info = Spara resultatet av redigering som en ny mediefil
